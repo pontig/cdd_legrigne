@@ -1,0 +1,85 @@
+:root {
+  --main-blue: #174999;
+  --accent-blue: #60A5FA;
+}
+
+html {
+  background: linear-gradient(45deg, rgb(155, 198, 255), rgb(147, 255, 255));
+  background-attachment: fixed;
+  background-size: cover;
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+
+.header h1 {
+  text-align: center;
+  color: var(--main-blue);
+  font-size: 2.5rem;
+  margin-bottom: .5rem;
+}
+
+.header p {
+  text-align: center;
+  color: var(--main-blue);
+}
+
+table {
+  margin-bottom: 10rem !important;
+}
+
+table, td, tr, th {
+  border-collapse: collapse;
+  /* border: 1px solid #00A6B3; */
+  padding: 1.5rem;
+  font-size: 1.25rem;
+}
+
+thead {
+  border-radius: 10px;
+  position: sticky;
+  top: 0;
+}
+
+th:first-child {
+  border-radius: 15px 0 0 0 ;
+}
+
+th:last-child {
+  border-radius: 0 15px 0 0;
+}
+
+tr:nth-child(even) {
+  background-color: #eee;
+}
+
+tr:nth-child(odd), tr:nth-child(even):hover {
+  background-color: #ddd;
+}
+
+tr:nth-child(odd):hover {
+  background-color: #ccc;
+}
+
+th {
+  background-color: var(--main-blue);
+  color: white;
+  font-size: 1.5rem;
+}
+
+.wide-table {
+  width: 90%;
+  margin: 3rem auto;
+}
+
+.home-table {
+  text-align: center;
+  table-layout: fixed;
+}
+
+.home-table th,
+.home-table td {
+  width: auto;
+}
+
+.home-table td {
+  cursor: pointer;
+}
