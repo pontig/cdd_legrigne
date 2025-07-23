@@ -1,23 +1,34 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useUser } from "../../contexts/UserContext";
 
-const NewLogForm: React.FC = () => {
+interface NewLogFormProps {
+  editData?: {
+    date: string;
+    event: string;
+    intervention: string;
+    signature: string;
+  };
+}
 
-    const {user} = useUser();
+const NewLogForm: React.FC<NewLogFormProps> = ({ editData }) => {
+  const { user } = useUser();
 
   return (
     <form method="POST">
       <label>
         Data:
-        <input type="date" name="date" />
+        <input type="date" name="date" defaultValue={editData?.date || ""} />
       </label>
       <label>
         Evento:
-        <textarea name="event" />
+        <textarea name="event" defaultValue={editData?.event || ""} />
       </label>
       <label>
         Intervento:
-        <textarea name="intervention" />
+        <textarea
+          name="intervention"
+          defaultValue={editData?.intervention || ""}
+        />
       </label>
       <label>
         {/* Firma: */}
@@ -25,12 +36,13 @@ const NewLogForm: React.FC = () => {
           type="hidden"
           name="signature"
           value={
+            editData?.signature ||
             (user?.name ? user.name[0] : "") +
-            (user?.surname ? user.surname[0] : "")
+              (user?.surname ? user.surname[0] : "")
           }
         />
       </label>
-      <button type="submit">Inserisci</button>
+      <button type="submit">{editData ? "Aggiorna" : "Inserisci"}</button>
     </form>
   );
 };

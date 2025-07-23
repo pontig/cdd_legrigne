@@ -16,7 +16,7 @@ const GenericForm: React.FC<FormPageProps> = ({
 }) => {
   const { user } = useUser();
   useEffect(() => {
-    if (!user || user.permissions < 20) {
+    if (user && user.permissions < 20) {
       const dateInput =
         document.querySelector<HTMLInputElement>('input[name="date"]');
       if (dateInput) {

@@ -6,6 +6,7 @@ import { RiDeleteBin6Line } from "react-icons/ri";
 import { IoCaretBackOutline } from "react-icons/io5";
 import GenericForm from "../components/GenericForm";
 import NewLogForm from "../components/forms/NewLog";
+import { useUser } from "../contexts/UserContext";
 
 interface Event {
   date: string;
@@ -23,12 +24,16 @@ const Template: React.FC = () => {
   };
 
   // Navigation and state
+  const { user } = useUser();
   const navigate = useNavigate();
   const location = useLocation();
   const [guestId, setGuestId] = useState<number>(-1);
   const [guestFullName, setGuestFullName] = useState<string>("");
   const [events, setEvents] = useState<Event[]>([]);
   const [formIsShown, setFormIsShown] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [editingEvent, setEditingEvent] = useState<Event | null>(null);
+  const [editingIndex, setEditingIndex] = useState<number>(-1); // Index of event being edited - will be used when saving changes
 
   // Effects
   useEffect(() => {
@@ -44,7 +49,7 @@ const Template: React.FC = () => {
   React.useEffect(() => {
     setEvents([
       {
-        date: "2023-10-01",
+        date: "2025-07-22",
         event: "Arrivo presso la struttura e accoglienza iniziale",
         intervention:
           "Supporto logistico e presentazione delle regole della casa",
@@ -94,24 +99,23 @@ const Template: React.FC = () => {
         entries={[
           {
             title: "Nuova registrazione",
-            action: () => setFormIsShown(true),
+            action: () => {
+              setEditingEvent(null);
+              setEditingIndex(-1);
+              setFormIsShown(true);
+            },
             icon: <FaPlus />,
           },
           {
             title: "Stampa questa pagina",
-            action: () => {},
+            action: () => window.print(),
             icon: <FaPrint />,
           },
           {
             title: "Modifica registrazione",
-            action: () => {},
+            action: () => setEditMode(!editMode),
             icon: <FaPencilAlt />,
-          },
-          {
-            title: "Elimina registrazione",
-            action: () => {},
-            icon: <RiDeleteBin6Line />,
-            color: "#f22",
+            disabled: (user?.permissions ?? 0) > 20 ? false : true, // TODO: non ricordo come è la dinamica precisa per ste cose
           },
           {
             title: "Indietro",
@@ -129,6 +133,7 @@ const Template: React.FC = () => {
         <table className="wide-table">
           <thead>
             <tr>
+              {editMode && <th>Azioni</th>}
               <th>Data</th>
               <th>Evento</th>
               <th>Intervento</th>
@@ -138,6 +143,62 @@ const Template: React.FC = () => {
           <tbody>
             {events.map((event, index) => (
               <tr key={index}>
+                {editMode && (
+                  <td>
+                    <div className="action-buttons">
+                      {editMode &&
+                        (() => {
+                          // Calculate date range: past Monday to next Friday
+                          const today = new Date();
+                          const dayOfWeek = today.getDay(); // 0 (Sun) - 6 (Sat)
+                          const monday = new Date(today);
+                          monday.setDate(
+                            today.getDate() - ((dayOfWeek + 6) % 7)
+                          ); // Past Monday
+                          const friday = new Date(monday);
+                          friday.setDate(monday.getDate() + 4); // Next Friday
+
+                          const eventDate = new Date(event.date);
+
+                          const isInRange =
+                            eventDate >= monday && eventDate <= friday;
+
+                          if ((user && user.permissions > 20) || isInRange) {
+                            return (
+                              <>
+                                <button
+                                  className="edit-row-btn"
+                                  onClick={() => {
+                                    setEditingEvent(event);
+                                    setEditingIndex(index);
+                                    setFormIsShown(true);
+                                    setEditMode(false); // Exit edit mode after selecting an item
+                                  }}
+                                  title="Modifica questa registrazione"
+                                >
+                                  <FaPencilAlt />
+                                </button>
+                                <button
+                                  className="delete-row-btn"
+                                  onClick={() => {
+                                    // TODO: Implement delete functionality
+                                    console.log(
+                                      `Delete event at index ${index}`
+                                    );
+                                  }}
+                                  title="Elimina questa registrazione"
+                                >
+                                  <RiDeleteBin6Line />
+                                </button>
+                              </>
+                            );
+                          } else {
+                            return <span>N/A</span>;
+                          }
+                        })()}
+                    </div>
+                  </td>
+                )}
                 <td>{event.date}</td>
                 <td>{event.event}</td>
                 <td>{event.intervention}</td>
@@ -148,10 +209,14 @@ const Template: React.FC = () => {
         </table>
         {formIsShown && (
           <GenericForm
-            title="Nuovo evento"
-            closeForm={() => setFormIsShown(false)}
+            title={editingEvent ? "Modifica evento" : "Nuovo evento"}
+            closeForm={() => {
+              setFormIsShown(false);
+              setEditingEvent(null);
+              setEditingIndex(-1);
+            }}
           >
-            <NewLogForm />
+            <NewLogForm editData={editingEvent || undefined} />
           </GenericForm>
         )}
       </div>

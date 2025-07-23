@@ -3,13 +3,12 @@ import LeftBar from "../components/LeftBar";
 import { FaPlus } from "react-icons/fa";
 import { IoSparklesSharp } from "react-icons/io5";
 import { ImStatsBars } from "react-icons/im";
-
-import "../styles/home.css";
 import { useUser } from "../contexts/UserContext";
 import { usePlace } from "../contexts/PlaceContext";
 import HomeButtons from "../components/HomeButtons";
 import GenericForm from "../components/GenericForm";
 import NewGuestForm from "../components/forms/NewGuest";
+import "../styles/home.css";
 
 interface Person {
   id: number;
@@ -20,9 +19,21 @@ interface Person {
 const MainPage: React.FC = () => {
   // API services
   const api = {
-    baseUrl: "/be",
+    baseUrl: "http://localhost:5000/",
 
-    // async foo(): Promise<void> ...
+    async foo(): Promise<void> {
+      try {
+        // Example API call
+        const response = await fetch(`${api.baseUrl}`);
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const data = await response;
+        console.log("API data:", data);
+      } catch (error) {
+        console.error("API call failed:", error);
+      }
+    }
   };
 
   // Navigation and state
@@ -35,6 +46,13 @@ const MainPage: React.FC = () => {
   // Effects
   useEffect(() => {
     setPlace("Primaluna");
+    setUser({
+      name: "Elia",
+      surname: "Pontiggia",
+      id: 1,
+      permissions: 100,
+    });
+    api.foo();
   }, []);
 
   useEffect(() => {
@@ -47,7 +65,7 @@ const MainPage: React.FC = () => {
     window.addEventListener("keydown", handleEsc);
     return () => {
       window.removeEventListener("keydown", handleEsc);
-    };
+    }
   }, []);
 
   // Functions and other
@@ -118,7 +136,7 @@ const MainPage: React.FC = () => {
             title: "Nuovo semestre",
             action: () => console.log("Cambio semestre"),
             icon: <IoSparklesSharp />,
-            disabled: true,
+            disabled: (user?.permissions ?? 0) > 20 ? false : true,
           },
           {
             title: "Visualizza gradimenti",

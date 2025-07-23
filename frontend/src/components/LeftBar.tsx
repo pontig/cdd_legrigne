@@ -31,7 +31,7 @@ const LeftBar: React.FC<LeftProps> = ({ entries }) => {
                 ? entry.color || "var(--accent-blue)"
                 : "#888",
             }}
-            onClick={entry.action}
+            onClick={entry.disabled ? undefined : entry.action}
             title={entry.title}
           >
             {entry.icon} {entry.title}
