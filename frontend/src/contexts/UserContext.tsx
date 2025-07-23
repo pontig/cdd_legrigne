@@ -4,6 +4,7 @@ interface User {
   id: number;
   name: string;
   surname: string;
+  permissions: number;
 }
 
 interface UserContextType {

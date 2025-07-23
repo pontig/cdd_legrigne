@@ -170,6 +170,7 @@ const MainPage: React.FC = () => {
             <HomeButtons
               name={selectedGuest.name}
               surname={selectedGuest.surname}
+              guestId={selectedGuest.id}
               buttons={filteredButtons}
             />
           </>

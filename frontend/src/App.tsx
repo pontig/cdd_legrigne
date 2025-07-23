@@ -5,6 +5,7 @@ import { UserProvider } from "./contexts/UserContext";
 
 import "./App.css";
 import { PlaceProvider } from "./contexts/PlaceContext";
+import LogBook from "./pages/LogBook";
 
 const App: React.FC = () => {
   return (
@@ -14,6 +15,7 @@ const App: React.FC = () => {
           <Router>
             <Routes>
               <Route path="/" element={<MainPage />} />
+              <Route path="/diario" element={<LogBook />} />
             </Routes>
           </Router>
           <p className="watermark">CDD Le Grigne - Bellano / Primaluna</p>

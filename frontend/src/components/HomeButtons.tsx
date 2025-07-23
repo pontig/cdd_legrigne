@@ -10,12 +10,14 @@ interface HomeButtonsProps {
   buttons: ButtonConfig[];
   name: string;
   surname: string;
+  guestId: number;
 }
 
 const HomeButtons: React.FC<HomeButtonsProps> = ({
   buttons,
   name,
   surname,
+  guestId
 }) => {
   const navigate = useNavigate();
 
@@ -26,9 +28,15 @@ const HomeButtons: React.FC<HomeButtonsProps> = ({
       </h2>
       <div className="home-buttons">
         {buttons.map((btn, idx) => (
-          <button key={idx} onClick={() => navigate(btn.location)}>
+            <button
+            key={idx}
+            onClick={() => {
+              window.scrollTo({ top: 0, behavior: "smooth" });
+              navigate(btn.location, { state: { guestId: guestId, name: name, surname: surname } })
+            }}
+            >
             {btn.title}
-          </button>
+            </button>
         ))}
       </div>
     </div>
