@@ -4,17 +4,20 @@ import MainPage from "./pages/Home";
 import { UserProvider } from "./contexts/UserContext";
 
 import "./App.css";
+import { PlaceProvider } from "./contexts/PlaceContext";
 
 const App: React.FC = () => {
   return (
     <>
       <UserProvider>
-        <Router>
-          <Routes>
-            <Route path="/" element={<MainPage />} />
-          </Routes>
-        </Router>
-        <p className="watermark">CDD Le Grigne - Bellano / Primaluna</p>
+        <PlaceProvider>
+          <Router>
+            <Routes>
+              <Route path="/" element={<MainPage />} />
+            </Routes>
+          </Router>
+          <p className="watermark">CDD Le Grigne - Bellano / Primaluna</p>
+        </PlaceProvider>
       </UserProvider>
     </>
   );

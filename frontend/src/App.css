@@ -14,6 +14,16 @@ body {
   margin: 0;
 }
 
+.screen {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #ffffff22;
+  backdrop-filter: blur(5px);
+}
+
 .main-container {
   display: grid;
   grid-template-columns: 20rem auto;
@@ -23,10 +33,10 @@ body {
 }
 
 .watermark {
-  color: #aaa;
+  color: #555;
   position: fixed;
   bottom: .5rem;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: bold;
   text-align: center;
   width: 100%;
@@ -40,6 +50,7 @@ body {
   background-color: #07152c;
   color: white;
   padding: 1rem;
+  min-height: 100vh;
 }
 
 .left-bar>div {
@@ -85,6 +96,7 @@ body {
   font-size: 1rem;
   /* text-align: center; */
   cursor: pointer;
+  font-style: italic;
 }
 
 .header h1 {
@@ -124,15 +136,15 @@ th:last-child {
   border-radius: 0 15px 0 0;
 }
 
-tr:nth-child(even) {
+tr:nth-child(odd) {
   background-color: #eee;
 }
 
-tr:nth-child(odd), tr:nth-child(even):hover {
+tr:nth-child(even), tr:nth-child(odd):hover {
   background-color: #ddd;
 }
 
-tr:nth-child(odd):hover {
+tr:nth-child(even):hover {
   background-color: #ccc;
 }
 

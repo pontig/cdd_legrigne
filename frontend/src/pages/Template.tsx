@@ -12,7 +12,7 @@ const Template: React.FC = () => {
 
   // Effects
 
-  // Functions
+  // Functions and other
 
   // Return
 

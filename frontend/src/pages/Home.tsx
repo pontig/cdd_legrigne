@@ -1,11 +1,15 @@
-import React from "react";
+import React, { useEffect } from "react";
 import LeftBar from "../components/LeftBar";
 import { FaPlus } from "react-icons/fa";
 import { IoSparklesSharp } from "react-icons/io5";
 import { ImStatsBars } from "react-icons/im";
 
-import "../styles/home.css"
+import "../styles/home.css";
 import { useUser } from "../contexts/UserContext";
+import { usePlace } from "../contexts/PlaceContext";
+import HomeButtons from "../components/HomeButtons";
+import GenericForm from "../components/GenericForm";
+import NewGuestForm from "../components/forms/NewGuest";
 
 interface Person {
   id: number;
@@ -23,13 +27,54 @@ const MainPage: React.FC = () => {
 
   // Navigation and state
   const { user, setUser } = useUser();
+  const { place, setPlace } = usePlace();
   const [persons, setPersons] = React.useState<Person[]>([]);
+  const [selectedGuest, setSelectedGuest] = React.useState<Person | null>(null);
+  const [formIsShown, setFormIsShown] = React.useState(false);
 
   // Effects
+  useEffect(() => {
+    setPlace("Primaluna");
+  }, []);
 
-  // Functions
+  useEffect(() => {
+    const handleEsc = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setSelectedGuest(null);
+        setFormIsShown(false);
+      }
+    };
+    window.addEventListener("keydown", handleEsc);
+    return () => {
+      window.removeEventListener("keydown", handleEsc);
+    };
+  }, []);
+
+  // Functions and other
+  const buttons = [
+    { title: "Diario", location: "/diario" },
+    {
+      title: "Partecipazione attività",
+      location: "/partecipazione",
+    },
+    { title: "Comportamenti problema", location: "/comportamenti" },
+    { title: "Bagno", location: "/bagno" },
+    { title: "Doccia", location: "/doccia" },
+    { title: "Idratazione", location: "/idratazione" },
+    { title: "Crisi epilettiche", location: "/crisi" },
+    { title: "Attività mirate", location: "/attivita-mirate" },
+  ];
+
+  const filteredButtons =
+    place === "Bellano" ? buttons.slice(0, 3) : buttons;
+
   const handleRowClick = (person: Person) => {
     console.log(`Selected person: ${person.name} ${person.surname}`);
+    setSelectedGuest({
+      id: person.id,
+      name: person.name,
+      surname: person.surname,
+    });
   };
 
   // Return
@@ -62,44 +107,82 @@ const MainPage: React.FC = () => {
 
   return (
     <div className="main-container">
-          <LeftBar 
-          entries={[
-            {title: "Nuovo ospite", action: () => console.log("Inserisci nuovo"), icon: <FaPlus />},
-            {title: "Nuovo semestre", action: () => console.log("Cambio semestre"), icon: <IoSparklesSharp />, disabled: true},
-            {title: "Visualizza gradimenti", action: () => console.log("Visualizza gradimenti"), icon: <ImStatsBars />},
-          ]}
-          />
-    <div>
-      <div className="header">
-        <h1>MONITORAGGI CDD PRIMALUNA</h1>
+      <LeftBar
+        entries={[
+          {
+            title: "Nuovo ospite",
+            action: () => setFormIsShown(true),
+            icon: <FaPlus />,
+          },
+          {
+            title: "Nuovo semestre",
+            action: () => console.log("Cambio semestre"),
+            icon: <IoSparklesSharp />,
+            disabled: true,
+          },
+          {
+            title: "Visualizza gradimenti",
+            action: () => console.log("Visualizza gradimenti"),
+            icon: <ImStatsBars />,
+          },
+        ]}
+      />
+      <div>
+        <div className="header">
+          <h1>MONITORAGGI CDD {place}</h1>
 
-        <p>
-          <i className="subtitle">Visualizza dati di altri semestri</i>
-        </p>
-      </div>
-      <table className="wide-table home-table">
-        <thead>
-          <tr>
-            <th>Cognome</th>
-            <th>Nome</th>
-          </tr>
-        </thead>
-        <tbody>
-          {persons.length > 0 ? (
-            persons.map((person, idx) => (
-              <tr key={idx} onClick={() => handleRowClick(person)} style={{ cursor: 'pointer' }}>
-                <td>{person.surname}</td>
-                <td>{person.name}</td>
-              </tr>
-            ))
-          ) : (
+          <p>
+            <i className="subtitle">Visualizza dati di altri semestri</i>
+          </p>
+        </div>
+        <table className="wide-table home-table">
+          <thead>
             <tr>
-              <td colSpan={2}>Nessun dato disponibile</td>
+              <th>Cognome</th>
+              <th>Nome</th>
             </tr>
-          )}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            {persons.length > 0 ? (
+              persons.map((person, idx) => (
+                <tr
+                  key={idx}
+                  onClick={() => handleRowClick(person)}
+                  style={{ cursor: "pointer" }}
+                >
+                  <td>{person.surname}</td>
+                  <td>{person.name}</td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={2}>Nessun dato disponibile</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+        {selectedGuest && (
+          <>
+            <div
+              className="screen"
+              onClick={() => setSelectedGuest(null)}
+            ></div>
+            <HomeButtons
+              name={selectedGuest.name}
+              surname={selectedGuest.surname}
+              buttons={filteredButtons}
+            />
+          </>
+        )}
+        {formIsShown && (
+          <GenericForm
+            title="Inserisci nuovo ospite"
+            closeForm={() => setFormIsShown(false)}
+          >
+            <NewGuestForm />
+          </GenericForm>
+        )}
+      </div>
     </div>
   );
 };
