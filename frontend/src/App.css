@@ -10,6 +10,83 @@ html {
   font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
 }
 
+body {
+  margin: 0;
+}
+
+.main-container {
+  display: grid;
+  grid-template-columns: 20rem auto;
+  grid-template-rows: auto 1fr;
+  height: 100vh;
+  /* overflow: hidden; */
+}
+
+.watermark {
+  color: #aaa;
+  position: fixed;
+  bottom: .5rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: center;
+  width: 100%;
+}
+
+.left-bar {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #07152c;
+  color: white;
+  padding: 1rem;
+}
+
+.left-bar>div {
+  position: fixed;
+}
+
+.left-bar-entries {
+  bottom: 2rem;
+}
+
+.left-bar-entry {
+  font-size: 1.25rem;
+  margin: 1.5rem auto;
+  cursor: pointer;
+  transition: padding 0.3s ease;
+}
+
+.left-bar-entry:hover {
+  padding-left: 2rem;
+}
+
+.left-bar-entry.disabled {
+  cursor: not-allowed;
+}
+
+.left-bar-entry.disabled:hover {
+  padding-left: initial
+}
+
+.account-div {
+  color: var(--accent-blue);
+  top: 2rem;
+}
+
+.account-div>div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+}
+
+.logout-word {
+  font-size: 1rem;
+  /* text-align: center; */
+  cursor: pointer;
+}
+
 .header h1 {
   text-align: center;
   color: var(--main-blue);
@@ -23,7 +100,7 @@ html {
 }
 
 table {
-  margin-bottom: 10rem !important;
+  /* margin-bottom: 10rem !important; */
 }
 
 table, td, tr, th {
@@ -40,7 +117,7 @@ thead {
 }
 
 th:first-child {
-  border-radius: 15px 0 0 0 ;
+  border-radius: 15px 0 0 0;
 }
 
 th:last-child {
@@ -68,18 +145,4 @@ th {
 .wide-table {
   width: 90%;
   margin: 3rem auto;
-}
-
-.home-table {
-  text-align: center;
-  table-layout: fixed;
-}
-
-.home-table th,
-.home-table td {
-  width: auto;
-}
-
-.home-table td {
-  cursor: pointer;
 }

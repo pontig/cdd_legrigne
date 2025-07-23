@@ -1,4 +1,11 @@
 import React from "react";
+import LeftBar from "../components/LeftBar";
+import { FaPlus } from "react-icons/fa";
+import { IoSparklesSharp } from "react-icons/io5";
+import { ImStatsBars } from "react-icons/im";
+
+import "../styles/home.css"
+import { useUser } from "../contexts/UserContext";
 
 interface Person {
   id: number;
@@ -15,13 +22,14 @@ const MainPage: React.FC = () => {
   };
 
   // Navigation and state
+  const { user, setUser } = useUser();
   const [persons, setPersons] = React.useState<Person[]>([]);
 
   // Effects
 
   // Functions
   const handleRowClick = (person: Person) => {
-    console.log(`${person.name} ${person.surname}`);
+    console.log(`Selected person: ${person.name} ${person.surname}`);
   };
 
   // Return
@@ -53,9 +61,18 @@ const MainPage: React.FC = () => {
   }, []);
 
   return (
+    <div className="main-container">
+          <LeftBar 
+          entries={[
+            {title: "Nuovo ospite", action: () => console.log("Inserisci nuovo"), icon: <FaPlus />},
+            {title: "Nuovo semestre", action: () => console.log("Cambio semestre"), icon: <IoSparklesSharp />, disabled: true},
+            {title: "Visualizza gradimenti", action: () => console.log("Visualizza gradimenti"), icon: <ImStatsBars />},
+          ]}
+          />
     <div>
       <div className="header">
         <h1>MONITORAGGI CDD PRIMALUNA</h1>
+
         <p>
           <i className="subtitle">Visualizza dati di altri semestri</i>
         </p>
@@ -70,7 +87,7 @@ const MainPage: React.FC = () => {
         <tbody>
           {persons.length > 0 ? (
             persons.map((person, idx) => (
-              <tr key={idx} onClick={() => handleRowClick(person)}>
+              <tr key={idx} onClick={() => handleRowClick(person)} style={{ cursor: 'pointer' }}>
                 <td>{person.surname}</td>
                 <td>{person.name}</td>
               </tr>
@@ -82,6 +99,7 @@ const MainPage: React.FC = () => {
           )}
         </tbody>
       </table>
+    </div>
     </div>
   );
 };

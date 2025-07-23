@@ -1,0 +1,14 @@
+
+.home-table {
+  text-align: center;
+  table-layout: fixed;
+}
+
+.home-table th,
+.home-table td {
+  width: auto;
+}
+
+.home-table td {
+  cursor: pointer;
+}
