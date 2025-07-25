@@ -9,9 +9,54 @@ class HomeDAO:
     """Data Access Object for Home operations"""
     
     def get_home_data(self) -> List[dict]:
-        """Get data for the home page"""
-        # Single query that JOINs guests with their activities
-        query = """SELECT * FROM persona WHERE visibile = 1 ORDER BY cognome, nome"""
+        """Get data for the home page - optimized single query version"""
+        query = """
+        WITH RECURSIVE date_range AS (
+            SELECT CURDATE() - INTERVAL 6 DAY as date_val
+            UNION ALL
+            SELECT date_val + INTERVAL 1 DAY
+            FROM date_range
+            WHERE date_val < CURDATE()
+        ),
+        weekdays AS (
+            SELECT date_val,
+                   DAY(date_val) as giorno,
+                   MONTH(date_val) as mese_int,
+                   YEAR(date_val) as anno
+            FROM date_range
+            WHERE DAYOFWEEK(date_val) BETWEEN 2 AND 6
+        ),
+        guest_activities AS (
+            SELECT 
+                p.id,
+                p.nome,
+                p.cognome,
+                p.visibile,
+                w.giorno,
+                w.mese_int,
+                w.anno,
+                COALESCE(COUNT(pa.id_persona), 0) as activity_count
+            FROM persona p
+            CROSS JOIN weekdays w
+            LEFT JOIN partecipazione_attivita pa ON pa.id_persona = p.id
+                AND pa.giorno = w.giorno 
+                AND pa.mese_int = w.mese_int 
+                AND pa.anno = w.anno
+            WHERE p.visibile = 1
+            GROUP BY p.id, p.nome, p.cognome, p.visibile, w.giorno, w.mese_int, w.anno
+            HAVING activity_count < 2
+        )
+        SELECT 
+            id,
+            nome,
+            cognome,
+            visibile,
+            giorno,
+            mese_int,
+            anno
+        FROM guest_activities
+        ORDER BY cognome, nome, anno DESC, mese_int DESC, giorno DESC
+        """
         
         connection = None
         cursor = None
@@ -25,57 +70,24 @@ class HomeDAO:
             # Group results by guest
             home_data = {}
             for row in results:
-                # Assuming persona table has columns: id, nome, cognomeil, visibile
-                guest_data = row[:5]  # First 5 columns are from persona table
-                guest_id = guest_data[0]
+                guest_id = row[0]
                 
                 if guest_id not in home_data:
                     home_data[guest_id] = {
-                        'id': guest_data[0],
-                        'name': guest_data[1],
-                        'surname': guest_data[2], 
-                        'visible': guest_data[4],
+                        'id': row[0],
+                        'name': row[1],
+                        'surname': row[2], 
+                        'visible': row[3],
                         'activities': []
                     }
-                    
-                    # Get activities from last week (Monday to Friday only)
-                    activities_query = """
-                        WITH RECURSIVE date_range AS (
-                            SELECT CURDATE() - INTERVAL 6 DAY as date_val
-                            UNION ALL
-                            SELECT date_val + INTERVAL 1 DAY
-                            FROM date_range
-                            WHERE date_val < CURDATE()
-                        ),
-                        weekdays AS (
-                            SELECT date_val,
-                                   DAY(date_val) as giorno,
-                                   MONTH(date_val) as mese_int,
-                                   YEAR(date_val) as anno
-                            FROM date_range
-                            WHERE DAYOFWEEK(date_val) BETWEEN 2 AND 6
-                        )
-                        SELECT w.giorno, w.mese_int, w.anno, COALESCE(COUNT(p.id_persona), 0) as activity_count
-                        FROM weekdays w
-                        LEFT JOIN partecipazione_attivita p ON w.giorno = p.giorno 
-                            AND w.mese_int = p.mese_int 
-                            AND w.anno = p.anno 
-                            AND p.id_persona = %s
-                        GROUP BY w.giorno, w.mese_int, w.anno
-                        HAVING activity_count < 2
-                        ORDER BY w.anno DESC, w.mese_int DESC, w.giorno DESC
-                    """
-                    cursor.execute(activities_query, (guest_id,))
-                    activities = cursor.fetchall()
-                    
-                    # Add activities to guest data
-                    for activity_row in activities:
-                        home_data[guest_id]['activities'].append({
-                            'day': activity_row[0],
-                            'month_int': activity_row[1],
-                            # 'year': activity_row[2],
-                            # 'activity_count': activity_row[3]
-                        })
+                
+                # Add activity day to guest data
+                if row[4] is not None:  # Only add if there's an available day
+                    home_data[guest_id]['activities'].append({
+                        'day': row[4],
+                        'month_int': row[5],
+                        # 'year': row[6]
+                    })
 
             return list(home_data.values())
             

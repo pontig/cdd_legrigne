@@ -44,14 +44,20 @@ def get_activities():
 
         # Create the plot
         plt.figure(figsize=(10, 6))
-        plt.plot(dates, adesions, marker='o', label='Adesion', linewidth=2)
-        plt.plot(dates, participations, marker='s', label='Participation', linewidth=2)
+        plt.plot(dates, adesions, marker='o', label='Adesione', linewidth=2)
+        plt.plot(dates, participations, marker='s', label='Partecipazione', linewidth=2)
 
-        plt.xlabel('Date')
-        plt.ylabel('Score')
-        plt.title(f'Adesion and Participation Over Time')
+        plt.xlabel('Data')
+        plt.ylabel('Indice')
+        # plt.title(f'Adesione e partecipazione')
         plt.legend()
         plt.grid(True, alpha=0.3)
+        plt.gca().yaxis.set_major_locator(plt.MaxNLocator(integer=True))
+        plt.ylim(0.5, 4.5)
+        
+        # # Set transparent background
+        # plt.gca().patch.set_alpha(0.5)
+        # plt.gcf().patch.set_alpha(0.5)
 
         # Format x-axis dates
         plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
@@ -72,8 +78,8 @@ def get_activities():
             'activities': activities,
             'plot_image': plot_image
         }
-        
+
         return jsonify(activities_response), 200
-        
+
     except Exception as e:
         return jsonify({'error': str(e)}), 500

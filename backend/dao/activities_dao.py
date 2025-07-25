@@ -11,9 +11,10 @@ class ActivitiesDAO:
     def get_activities(self, person_id: int) -> List[dict]:
         """Get activities for a specific person"""
         query = """
-            SELECT * FROM partecipazione_attivita
+            SELECT * FROM partecipazione_attivita pa
+            JOIN attivita a ON pa.attivita = a.id
             WHERE id_persona = %s
-            ORDER BY year, month_int, day
+            ORDER BY anno DESC, mese_int DESC, giorno DESC
         """
         
         connection = None
@@ -30,9 +31,9 @@ class ActivitiesDAO:
                 activities.append({
                     'id': row[0],
                     'person_id': row[1],
-                    'date': row[4] + '-' + row[3] + '-' + row[2],
+                    'date': str(row[4]) + '-' + str(row[3]) + '-' + str(row[2]),
                     'morning': row[5],
-                    'activity': row[6],
+                    'activity': row[14],
                     'adesion': row[7],
                     'participation': row[8],
                     'mood': row[9],
@@ -44,26 +45,10 @@ class ActivitiesDAO:
         except Exception as e:
             if connection:
                 connection.rollback()
-            
-            # Return mockup data for testing purposes (20 entries)
-            return [
-                {
-                    'id': i,
-                    'person_id': person_id,
-                    'date': f'2024-{str(1 + (i % 12)).zfill(2)}-{str(1 + (i % 30)).zfill(2)}',
-                    'morning': i % 2 == 0,
-                    'activity': f'Activity {i + 1}',
-                    'adesion': 2,
-                    'participation': (i % 4) + 1,
-                    'mood': 5,
-                    'communication': (i % 4) + 1,
-                    'problematic_behaviour': (i % 3 == 0)
-                } for i in range(20)
-            ]
-        
+            raise e  # Raise the exception for the caller to handle
+
         finally:
             if cursor:
                 cursor.close()
             if connection:
                 connection.close()
-        return []
