@@ -48,3 +48,15 @@ justify-content: center;}
   cursor: pointer;
   background-color: #92feff;
 }
+
+.missing-activity {
+  color: rgb(189, 0, 0);
+  font-size: .75rem;
+  font-weight: bold;
+  transition: font-size 0.3s ease, color 0.3s ease;
+}
+
+.missing-activity:hover {
+  color: rgb(255, 0, 0);
+  font-size: 1.2rem;
+}

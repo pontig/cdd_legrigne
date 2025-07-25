@@ -1,61 +1,115 @@
-import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import React, { act, useEffect, useState } from "react";
 import LeftBar from "../components/LeftBar";
-import { FaPencilAlt, FaPlus, FaPrint } from "react-icons/fa";
-import { RiDeleteBin6Line } from "react-icons/ri";
-import { IoCaretBackOutline } from "react-icons/io5";
-import GenericForm from "../components/GenericForm";
-import NewLogForm from "../components/forms/NewLog";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useUser } from "../contexts/UserContext";
+import { FaPencilAlt, FaPlus, FaPrint } from "react-icons/fa";
+import {
+  IoCaretBackOutline,
+  IoCheckmarkDoneCircleSharp,
+} from "react-icons/io5";
+import { ImStatsBars } from "react-icons/im";
+import { RiDeleteBin6Line } from "react-icons/ri";
+import GenericForm from "../components/GenericForm";
+import NewActivityForm from "../components/forms/NewActivity";
+import "../styles/activities.css";
 
-interface Event {
+interface Activity {
   id: number;
   date: string;
-  event: string;
-  intervention: string;
-  signature: string;
+  morning: boolean;
+  activity: string;
+  adesion: number;
+  participation: number;
+  mood: number;
+  communication: number;
+  problematic_behaviour: boolean;
 }
 
-const Template: React.FC = () => {
+const Activities: React.FC = () => {
   // API services
   const api = {
     baseUrl: "http://localhost:5000",
 
-    async fetchEvents(): Promise<void> {
+    async fetchActivities(personId: number): Promise<void> {
       try {
-        const response = await fetch (`${api.baseUrl}/logbook?person_id=` + location.state.guestId)
+        const response = await fetch(
+          `${api.baseUrl}/activities?person_id=${personId}`
+        );
         if (!response.ok) {
-          throw new Error ("Network response was not ok")
+          throw new Error("Network response was not ok");
         }
-        const data = await response.json() as Event[]
-        setEvents(data)
+        const data = (await response.json());
+        const retr_activities = data.activities as Activity[];
+        setActivities(retr_activities);
+        setGraph(data.plot_image)
+
+        const lastActivity = retr_activities[retr_activities.length - 1];
+        setMostFrequentAdesion(lastActivity.adesion);
+        setMostFrequentParticipation(lastActivity.participation);
+        setMostFrequentMood(lastActivity.mood);
+        setMostFrequentCommunication(lastActivity.communication);
+
       } catch (error) {
         console.error("API call failed: " + error);
       }
-    }
+    },
   };
 
   // Navigation and state
+  const arr_adesion = [
+    "Su insistenza",
+    "Su invito",
+    "Spontanea",
+    "Su sua richiesta",
+  ];
+  const arr_participation = [
+    "Rifiuto-Imposs",
+    "Solo relazionale",
+    "Svolge in parte",
+    "Attiva",
+  ];
+  const arr_mood = [
+    "Triste",
+    "Apatico",
+    "Tranquillo",
+    "Umore altalenante",
+    "Irrequieto",
+    "Sovratono",
+    "Intollerante",
+    "Estraniato dalla realtà",
+  ];
+  const arr_comunication = [
+    "Isolato",
+    "Adeguata alla sua condizione",
+    "Logorroico",
+    "Eloquio ossesivo",
+  ];
   const { user } = useUser();
   const navigate = useNavigate();
   const location = useLocation();
   const [guestId, setGuestId] = useState<number>(-1);
   const [guestFullName, setGuestFullName] = useState<string>("");
-  const [events, setEvents] = useState<Event[]>([]);
+  const [activities, setActivities] = useState<Activity[]>([]);
   const [formIsShown, setFormIsShown] = useState(false);
   const [editMode, setEditMode] = useState(false);
-  const [editingEvent, setEditingEvent] = useState<Event | null>(null);
-  const [editingIndex, setEditingIndex] = useState<number>(-1); // Index of event being edited - will be used when saving changes
+  const [editingActivity, setEditingActivity] = useState<Activity | null>(null);
+  const [editingIndex, setEditingIndex] = useState<number>(-1); // Index of activity being edited - will be used when saving changes
+  const [graph, setGraph] = useState<any>(null); // Placeholder for graph data, if needed
+
+  // Most frequent of the four arrays
+  const [mostFrequentAdesion, setMostFrequentAdesion] = useState<number>(-1);
+  const [mostFrequentParticipation, setMostFrequentParticipation] =
+    useState<number>(-1);
+  const [mostFrequentMood, setMostFrequentMood] = useState<number>(-1);
+  const [mostFrequentCommunication, setMostFrequentCommunication] =
+    useState<number>(-1);
 
   // Effects
   useEffect(() => {
     setGuestId(location.state.guestId);
     setGuestFullName(location.state.name + " " + location.state.surname);
-  }, [location.state]);
-  
-  useEffect(() => {
-    api.fetchEvents()
-  }, [])
+    api.fetchActivities(guestId);
+  }, []);
 
   // Functions and other hooks
 
@@ -67,11 +121,16 @@ const Template: React.FC = () => {
           {
             title: "Nuova registrazione",
             action: () => {
-              setEditingEvent(null);
+              setEditingActivity(null);
               setEditingIndex(-1);
               setFormIsShown(true);
             },
             icon: <FaPlus />,
+          },
+          {
+            title: "Visualizza grafico",
+            action: () => {},
+            icon: <ImStatsBars />,
           },
           {
             title: "Stampa questa pagina",
@@ -95,21 +154,24 @@ const Template: React.FC = () => {
       />
       <div>
         <div className="header">
-          <h1>Diario di {guestFullName}</h1>
+          <h1>Partecipazione attività di {guestFullName}</h1>
         </div>
         <table className="wide-table">
           <thead>
             <tr>
               {editMode && <th>Azioni</th>}
               <th>Data</th>
-              <th>Evento</th>
-              <th>Intervento</th>
-              <th>Firma</th>
+              <th>Attività</th>
+              <th>Adesione</th>
+              <th>Partecipazione</th>
+              <th>Umore</th>
+              <th>Comunicazione</th>
+              <th className="small centered">C. prob</th>
             </tr>
           </thead>
           <tbody>
-            {events.map((event, index) => (
-              <tr key={event.id}>
+            {activities.map((activity, index) => (
+              <tr key={activity.id}>
                 {editMode && (
                   <td>
                     <div className="action-buttons">
@@ -125,10 +187,10 @@ const Template: React.FC = () => {
                           const friday = new Date(monday);
                           friday.setDate(monday.getDate() + 4); // Next Friday
 
-                          const eventDate = new Date(event.date);
+                          const activityDate = new Date(activity.date);
 
                           const isInRange =
-                            eventDate >= monday && eventDate <= friday;
+                            activityDate >= monday && activityDate <= friday;
 
                           if ((user && user.permissions > 20) || isInRange) {
                             return (
@@ -136,7 +198,7 @@ const Template: React.FC = () => {
                                 <button
                                   className="edit-row-btn"
                                   onClick={() => {
-                                    setEditingEvent(event);
+                                    setEditingActivity(activity);
                                     setEditingIndex(index);
                                     setFormIsShown(true);
                                     setEditMode(false); // Exit edit mode after selecting an item
@@ -150,7 +212,7 @@ const Template: React.FC = () => {
                                   onClick={() => {
                                     // TODO: Implement delete functionality
                                     console.log(
-                                      `Delete event at index ${index}`
+                                      `Delete activity at index ${index}`
                                     );
                                   }}
                                   title="Elimina questa registrazione"
@@ -166,24 +228,42 @@ const Template: React.FC = () => {
                     </div>
                   </td>
                 )}
-                <td>{event.date}</td>
-                <td>{event.event}</td>
-                <td>{event.intervention}</td>
-                <td>{event.signature}</td>
+                <td>{activity.date}</td>
+                <td>{activity.activity}</td>
+                <td>{arr_adesion[activity.adesion - 1]}</td>
+                <td>{arr_participation[activity.participation - 1]}</td>
+                <td>{arr_mood[activity.mood - 1]}</td>
+                <td>{arr_comunication[activity.communication - 1]}</td>
+                <td className="centered">
+                  {activity.problematic_behaviour ? (
+                    <IoCheckmarkDoneCircleSharp />
+                  ) : null}
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
+        {graph && (
+            <div className="graph-container">
+            <img src={`data:image/png;base64,${graph}`} alt="Activities Graph" />
+            </div>
+        )}
         {formIsShown && (
           <GenericForm
-            title={editingEvent ? "Modifica evento" : "Nuovo evento"}
+            title={editingActivity ? "Modifica attività" : "Nuova attività"}
             closeForm={() => {
               setFormIsShown(false);
-              setEditingEvent(null);
+              setEditingActivity(null);
               setEditingIndex(-1);
             }}
           >
-            <NewLogForm editData={editingEvent || undefined} />
+            <NewActivityForm
+              editData={editingActivity || undefined}
+              mostFrequentAdesion={mostFrequentAdesion}
+              mostFrequentParticipation={mostFrequentParticipation}
+              mostFrequentMood={mostFrequentMood}
+              mostFrequentCommunication={mostFrequentCommunication}
+            />
           </GenericForm>
         )}
       </div>
@@ -191,4 +271,4 @@ const Template: React.FC = () => {
   );
 };
 
-export default Template;
+export default Activities;

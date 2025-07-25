@@ -14,24 +14,27 @@ interface Person {
   id: number;
   name: string;
   surname: string;
+  activities: {
+    day: number;
+    month_int: number;
+  }[]
 }
 
 const MainPage: React.FC = () => {
   // API services
   const api = {
-    baseUrl: "http://localhost:5000/",
+    baseUrl: "http://localhost:5000",
 
     async foo(): Promise<void> {
-      try {
-        // Example API call
-        const response = await fetch(`${api.baseUrl}`);
+      try {        
+        const response = await fetch(`${api.baseUrl}/home`);
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
-        const data = await response;
-        console.log("API data:", data);
+        const data = await response.json() as Person[];
+        setPersons(data);
       } catch (error) {
-        console.error("API call failed:", error);
+        console.error("API call failed: " + error);
       }
     }
   };
@@ -45,7 +48,7 @@ const MainPage: React.FC = () => {
 
   // Effects
   useEffect(() => {
-    setPlace("Primaluna");
+    setPlace("Bellano");
     setUser({
       name: "Elia",
       surname: "Pontiggia",
@@ -73,7 +76,7 @@ const MainPage: React.FC = () => {
     { title: "Diario", location: "/diario" },
     {
       title: "Partecipazione attività",
-      location: "/partecipazione",
+      location: "/partecipazione_attivita",
     },
     { title: "Comportamenti problema", location: "/comportamenti" },
     { title: "Bagno", location: "/bagno" },
@@ -92,37 +95,16 @@ const MainPage: React.FC = () => {
       id: person.id,
       name: person.name,
       surname: person.surname,
+      activities: person.activities,
     });
   };
 
+  const handleMissingActivityClick = (activity: { day: number; month_int: number }) => {
+    console.log(`Clicked on activity: ${activity.day}.${activity.month_int}`);
+    
+  }
+
   // Return
-
-  // MOCKUP
-  React.useEffect(() => {
-    setPersons([
-      { id: 1, name: "Mario", surname: "Rossi" },
-      { id: 2, name: "Luigi", surname: "Verdi" },
-      { id: 3, name: "Anna", surname: "Bianchi" },
-      { id: 4, name: "Giulia", surname: "Neri" },
-      { id: 5, name: "Paolo", surname: "Gialli" },
-      { id: 6, name: "Francesca", surname: "Blu" },
-      { id: 7, name: "Stefano", surname: "Viola" },
-      { id: 8, name: "Elena", surname: "Marrone" },
-      { id: 9, name: "Giorgio", surname: "Rosa" },
-      { id: 10, name: "Sara", surname: "Argento" },
-      { id: 11, name: "Davide", surname: "Bronzo" },
-      { id: 12, name: "Martina", surname: "Celeste" },
-      { id: 13, name: "Simone", surname: "Corallo" },
-      { id: 14, name: "Alessia", surname: "Rubino" },
-      { id: 15, name: "Matteo", surname: "Onice" },
-      { id: 16, name: "Chiara", surname: "Perla" },
-      { id: 17, name: "Fabio", surname: "Quarzo" },
-      { id: 18, name: "Valentina", surname: "Ambra" },
-      { id: 19, name: "Luca", surname: "Diamante" },
-      { id: 20, name: "Federica", surname: "Smeraldo" },
-    ]);
-  }, []);
-
   return (
     <div className="main-container">
       <LeftBar
@@ -161,6 +143,7 @@ const MainPage: React.FC = () => {
             </tr>
           </thead>
           <tbody>
+            
             {persons.length > 0 ? (
               persons.map((person, idx) => (
                 <tr
@@ -168,7 +151,12 @@ const MainPage: React.FC = () => {
                   onClick={() => handleRowClick(person)}
                   style={{ cursor: "pointer" }}
                 >
-                  <td>{person.surname}</td>
+                  <td>{person.surname} {" "}
+                     <span>{
+                  person.activities.map((activity) => (
+                    <span key={`${activity.day}.${activity.month_int}`} className="missing-activity" onClick={(e) => { e.stopPropagation(); handleMissingActivityClick(activity); }}>({activity.day}.{activity.month_int}) </span>
+                  ))}</span>
+                  </td>
                   <td>{person.name}</td>
                 </tr>
               ))

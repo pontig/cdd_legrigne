@@ -6,6 +6,7 @@ import { UserProvider } from "./contexts/UserContext";
 import "./App.css";
 import { PlaceProvider } from "./contexts/PlaceContext";
 import LogBook from "./pages/LogBook";
+import Activities from "./pages/Activities";
 
 const App: React.FC = () => {
   return (
@@ -16,6 +17,7 @@ const App: React.FC = () => {
             <Routes>
               <Route path="/" element={<MainPage />} />
               <Route path="/diario" element={<LogBook />} />
+              <Route path="/partecipazione_attivita" element={<Activities />} />
             </Routes>
           </Router>
           <p className="watermark">CDD Le Grigne - Bellano / Primaluna</p>

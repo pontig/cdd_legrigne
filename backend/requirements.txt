@@ -1,0 +1,6 @@
+Flask==2.3.3
+Flask-CORS==4.0.0
+MySQLdb==1.3.14
+# Alternative to MySQLdb (if you have issues with MySQLdb):
+# PyMySQL==1.1.0
+# mysql-connector-python==8.1.0
