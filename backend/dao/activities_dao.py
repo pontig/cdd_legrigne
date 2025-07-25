@@ -11,7 +11,22 @@ class ActivitiesDAO:
     def get_activities(self, person_id: int) -> List[dict]:
         """Get activities for a specific person"""
         query = """
-            SELECT * FROM partecipazione_attivita pa
+            SELECT 
+                pa.id,
+                pa.id_persona,
+                pa.giorno,
+                pa.mese_int,
+                pa.anno,
+                pa.mattino,
+                a.nome_attivita,
+                pa.adesione,
+                pa.partecipazione,
+                pa.umore,
+                pa.comunicazione,
+                pa.comportamento_problematico,
+                a.id as attivita_id
+
+            FROM partecipazione_attivita pa
             JOIN attivita a ON pa.attivita = a.id
             WHERE id_persona = %s
             ORDER BY anno DESC, mese_int DESC, giorno DESC
@@ -31,14 +46,15 @@ class ActivitiesDAO:
                 activities.append({
                     'id': row[0],
                     'person_id': row[1],
-                    'date': str(row[4]) + '-' + str(row[3]) + '-' + str(row[2]),
+                    'date': str(row[4]) + '-' + str(row[3]).zfill(2) + '-' + str(row[2]).zfill(2),
                     'morning': row[5],
-                    'activity': row[14],
+                    'activity': row[6],
                     'adesion': row[7],
                     'participation': row[8],
                     'mood': row[9],
                     'communication': row[10],
-                    'problematic_behaviour': row[11]
+                    'problematic_behaviour': row[11],
+                    'activity_id': row[12]
                 })
             return activities
         

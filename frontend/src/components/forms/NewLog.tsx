@@ -17,7 +17,7 @@ const NewLogForm: React.FC<NewLogFormProps> = ({ editData }) => {
     <form method="POST">
       <label>
         Data:
-        <input type="date" name="date" defaultValue={editData?.date || ""} />
+        <input type="date" name="date" defaultValue={editData?.date ? new Date(editData.date).toISOString().split('T')[0] : ""}  />
       </label>
       <label>
         Evento:

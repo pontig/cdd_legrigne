@@ -23,6 +23,7 @@ interface Activity {
   mood: number;
   communication: number;
   problematic_behaviour: boolean;
+  activity_id: number;
 }
 
 const Activities: React.FC = () => {
@@ -304,6 +305,7 @@ const Activities: React.FC = () => {
               setFormIsShown(false);
               setEditingActivity(null);
               setEditingIndex(-1);
+              console.log(editingActivity)
             }}
           >
             <NewActivityForm

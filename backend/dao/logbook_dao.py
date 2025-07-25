@@ -13,7 +13,7 @@ class LogbookDAO:
         query = """
             SELECT * FROM diario
             WHERE id_persona = %s
-            ORDER BY year, month_int, day
+            ORDER BY anno DESC, mese_int DESC, giorno DESC
         """
         
         connection = None
@@ -30,7 +30,7 @@ class LogbookDAO:
                 logbook_entries.append({
                     'id': row[0],
                     'person_id': row[1],
-                    'date': row[4] + '-' + row[3] + '-' + row[2],
+                    'date': str(row[4]) + '-' + str(row[3]).zfill(2) + '-' + str(row[2]).zfill(2),
                     'event': row[5],
                     'intervention': row[6],
                     'signature': row[7]
@@ -41,17 +41,7 @@ class LogbookDAO:
             if connection:
                 connection.rollback()
             
-            # Return mockup data for testing purposes (20 entries)
-            return [
-                {
-                    'id': i,
-                    'person_id': person_id,
-                    'date': f'2024-05-{1 + (i % 30):02d}',
-                    'event': f'Log entry {i + 1}',
-                    'intervention': f'Intervention {i + 1}',
-                    'signature': f'Signature {i + 1}'
-                } for i in range(20)
-            ]
+            return str(e)
         
         finally:
             if cursor:

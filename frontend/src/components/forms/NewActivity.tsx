@@ -7,6 +7,7 @@ interface NewActivityFormProps {
   mostFrequentMood: number;
   mostFrequentCommunication: number;
   editData?: {
+    id: number;
     date: string;
     morning: boolean;
     activity: string;
@@ -15,10 +16,17 @@ interface NewActivityFormProps {
     mood: number;
     communication: number;
     problematic_behaviour: boolean;
+    activity_id: number;
   };
 }
 
-const NewActivityForm: React.FC<NewActivityFormProps> = ({ mostFrequentAdesion, mostFrequentParticipation, mostFrequentMood, mostFrequentCommunication, editData }) => {
+const NewActivityForm: React.FC<NewActivityFormProps> = ({
+  mostFrequentAdesion,
+  mostFrequentParticipation,
+  mostFrequentMood,
+  mostFrequentCommunication,
+  editData,
+}) => {
   const arr_adesion = [
     "Su insistenza",
     "Su invito",
@@ -54,7 +62,7 @@ const NewActivityForm: React.FC<NewActivityFormProps> = ({ mostFrequentAdesion, 
     <form action="" method="POST">
       <label>
         Data:
-        <input type="date" name="date" defaultValue={editData?.date} />
+        <input type="date" name="date" defaultValue={editData?.date || ""} />
       </label>
       <button type="submit" name="absent" style={{ marginBottom: "1rem" }}>
         Assente tutto il giorno
@@ -67,7 +75,7 @@ const NewActivityForm: React.FC<NewActivityFormProps> = ({ mostFrequentAdesion, 
           value="yes"
           defaultChecked={editData?.morning}
         />
-        Sì
+        Mattino
       </label>
       <label htmlFor="morning-no">
         <input
@@ -77,11 +85,11 @@ const NewActivityForm: React.FC<NewActivityFormProps> = ({ mostFrequentAdesion, 
           value="no"
           defaultChecked={!editData?.morning}
         />
-        No
+        Pomeriggio
       </label>
       <label>
         Attività:
-        <select name="activity" defaultValue={editData?.activity || "0"}>
+        <select name="activity" defaultValue={editData?.activity_id || "0"}>
           <option value="0">01 - Attività Ricreativa</option>
           <optgroup label="02 - Attività Motoria">
             <option value="1">pi -Piscina</option>
@@ -135,21 +143,27 @@ const NewActivityForm: React.FC<NewActivityFormProps> = ({ mostFrequentAdesion, 
       </label>
       <label>
         Adesione:
-        <select name="adesion" defaultValue={editData?.adesion || mostFrequentAdesion}>
+        <select
+          name="adesion"
+          defaultValue={editData?.adesion || mostFrequentAdesion}
+        >
           {arr_adesion.map((option, index) => (
-        <option key={option} value={index+1}>
-          {option}
-        </option>
+            <option key={option} value={index + 1}>
+              {option}
+            </option>
           ))}
         </select>
       </label>
       <label>
         Partecipazione:
-        <select name="participation" defaultValue={editData?.participation || mostFrequentParticipation}>
+        <select
+          name="participation"
+          defaultValue={editData?.participation || mostFrequentParticipation}
+        >
           {arr_participation.map((option, index) => (
-        <option key={option} value={index+1}>
-          {option}
-        </option>
+            <option key={option} value={index + 1}>
+              {option}
+            </option>
           ))}
         </select>
       </label>
@@ -157,24 +171,31 @@ const NewActivityForm: React.FC<NewActivityFormProps> = ({ mostFrequentAdesion, 
         Umore:
         <select name="mood" defaultValue={editData?.mood || mostFrequentMood}>
           {arr_mood.map((option, index) => (
-        <option key={option} value={index+1}>
-          {option}
-        </option>
+            <option key={option} value={index + 1}>
+              {option}
+            </option>
           ))}
         </select>
       </label>
       <label>
         Comunicazione:
-        <select name="comunication" defaultValue={editData?.communication || mostFrequentCommunication}>
+        <select
+          name="comunication"
+          defaultValue={editData?.communication || mostFrequentCommunication}
+        >
           {arr_comunication.map((option, index) => (
-        <option key={option} value={index+1}>
-          {option}
-        </option>
+            <option key={option} value={index + 1}>
+              {option}
+            </option>
           ))}
         </select>
       </label>
       <label>
-        <input type="checkbox" name="comunicazione" defaultChecked={editData?.problematic_behaviour} />
+        <input
+          type="checkbox"
+          name="comunicazione"
+          defaultChecked={editData?.problematic_behaviour}
+        />
         ha avuto un comportamento problema
       </label>
       <button type="submit">{editData ? "Aggiorna" : "Inserisci"}</button>
