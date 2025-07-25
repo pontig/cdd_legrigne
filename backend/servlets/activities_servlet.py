@@ -3,7 +3,7 @@ Activities servlet, responsible for handling requests related to partecipazione_
 """
 
 from flask import Blueprint, request, jsonify
-from dao.activities_dao import ActivitiesDAO
+from dao.activities_dao import activities_dao
 from datetime import datetime
 import io
 import base64
@@ -25,7 +25,6 @@ def get_activities():
     
     try:
 
-        activities_dao = ActivitiesDAO()
         activities = activities_dao.get_activities(person_id)
         
         # Extract dates and values for plotting

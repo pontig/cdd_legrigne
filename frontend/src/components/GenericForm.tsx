@@ -6,12 +6,14 @@ import { useUser } from "../contexts/UserContext";
 interface FormPageProps {
   title: string;
   children: React.ReactNode;
+  notShowScreen?: boolean;
   closeForm: () => void;
 }
 
 const GenericForm: React.FC<FormPageProps> = ({
   title,
   children,
+  notShowScreen = false,
   closeForm,
 }) => {
   const { user } = useUser();
@@ -42,7 +44,7 @@ const GenericForm: React.FC<FormPageProps> = ({
   
   return (
     <>
-      <div className="screen" onClick={() => closeForm()}></div>
+      {!notShowScreen && (<div className="screen" onClick={() => closeForm()}></div>)}
       <div className="form-page">
         <div className="form-title-container">
           <h1>{title}</h1>

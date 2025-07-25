@@ -8,13 +8,16 @@ from flask_cors import CORS
 from servlets.home_servlet import home_bp
 from servlets.activities_servlet import activities_bp
 from servlets.logbook_servlet import logbook_bp
+from servlets.account_servlet import account_bp
 
 def create_app():
     """Application factory pattern"""
     app = Flask(__name__, static_folder='../frontend/public', static_url_path='/')
+    app.secret_key = "superSecret"
     CORS(app)
     
     # Register blueprints (servlets)
+    app.register_blueprint(account_bp)
     app.register_blueprint(home_bp)
     app.register_blueprint(activities_bp)
     app.register_blueprint(logbook_bp)

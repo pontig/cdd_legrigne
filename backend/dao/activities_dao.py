@@ -68,3 +68,5 @@ class ActivitiesDAO:
                 cursor.close()
             if connection:
                 connection.close()
+                
+activities_dao = ActivitiesDAO()

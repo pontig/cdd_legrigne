@@ -7,6 +7,7 @@ import "./App.css";
 import { PlaceProvider } from "./contexts/PlaceContext";
 import LogBook from "./pages/LogBook";
 import Activities from "./pages/Activities";
+import LoginPage from "./pages/Login";
 
 const App: React.FC = () => {
   return (
@@ -16,6 +17,7 @@ const App: React.FC = () => {
           <Router>
             <Routes>
               <Route path="/" element={<MainPage />} />
+              <Route path="/login" element={<LoginPage />} />
               <Route path="/diario" element={<LogBook />} />
               <Route path="/partecipazione_attivita" element={<Activities />} />
             </Routes>

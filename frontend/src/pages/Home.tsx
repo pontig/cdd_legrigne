@@ -9,6 +9,7 @@ import HomeButtons from "../components/HomeButtons";
 import GenericForm from "../components/GenericForm";
 import NewGuestForm from "../components/forms/NewGuest";
 import "../styles/home.css";
+import { useNavigate } from "react-router-dom";
 
 interface Person {
   id: number;
@@ -28,6 +29,11 @@ const MainPage: React.FC = () => {
     async foo(): Promise<void> {
       try {        
         const response = await fetch(`${api.baseUrl}/home`);
+        if (response.status === 401) {
+          console.error("Unauthorized access - please log in.");
+          navigate("/login");
+          return;
+        }
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
@@ -41,6 +47,7 @@ const MainPage: React.FC = () => {
 
   // Navigation and state
   const { user, setUser } = useUser();
+  const navigate = useNavigate();
   const { place, setPlace } = usePlace();
   const [persons, setPersons] = React.useState<Person[]>([]);
   const [selectedGuest, setSelectedGuest] = React.useState<Person | null>(null);
