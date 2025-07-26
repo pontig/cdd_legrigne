@@ -12,6 +12,7 @@ import { RiDeleteBin6Line } from "react-icons/ri";
 import GenericForm from "../components/GenericForm";
 import NewActivityForm from "../components/forms/NewActivity";
 import "../styles/activities.css";
+import { useSemester } from "../contexts/SemesterContext";
 
 interface Activity {
   id: number;
@@ -22,7 +23,7 @@ interface Activity {
   participation: number;
   mood: number;
   communication: number;
-  problematic_behaviour: boolean;
+  problem_behaviour: boolean;
   activity_id: number;
 }
 
@@ -34,8 +35,16 @@ const Activities: React.FC = () => {
     async fetchActivities(personId: number): Promise<void> {
       try {
         const response = await fetch(
-          `${api.baseUrl}/activities?person_id=${personId}`
+          `${api.baseUrl}/activities?person_id=${personId}`,
+          {
+            credentials: "include",
+          }
         );
+        if (response.status === 401) {
+          console.error("Unauthorized access - please log in.");
+          navigate("/login");
+          return;
+        }
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
@@ -85,8 +94,14 @@ const Activities: React.FC = () => {
     "Eloquio ossesivo",
   ];
   const { user } = useUser();
-  const navigate = useNavigate();
   const location = useLocation();
+  const navigate = useNavigate();
+  const {
+    semesterString,
+    semesterNumber,
+    setSemesterString,
+    setSemesterNumber,
+  } = useSemester();
   const [guestId, setGuestId] = useState<number>(-1);
   const [guestFullName, setGuestFullName] = useState<string>("");
   const [activities, setActivities] = useState<Activity[]>([]);
@@ -96,6 +111,9 @@ const Activities: React.FC = () => {
   const [editingActivity, setEditingActivity] = useState<Activity | null>(null);
   const [editingIndex, setEditingIndex] = useState<number>(-1); // Index of activity being edited - will be used when saving changes
   const [graph, setGraph] = useState<any>(null); // Placeholder for graph data, if needed
+  const [missingActivityDate, setMissingActivityDate] = useState<
+    string | undefined
+  >(undefined);
 
   // Most frequent of the four arrays
   const [mostFrequentAdesion, setMostFrequentAdesion] = useState<number>(-1);
@@ -107,9 +125,23 @@ const Activities: React.FC = () => {
 
   // Effects
   useEffect(() => {
+    console.log(location.state);
     setGuestId(location.state.guestId);
     setGuestFullName(location.state.name + " " + location.state.surname);
     api.fetchActivities(location.state.guestId);
+    console.log(location.state.missing_activity);
+    if (location.state.missing_activity) {
+      setMissingActivityDate(
+        String(
+          new Date().getFullYear() +
+            "-" +
+            String(location.state.missing_activity.month_int).padStart(2, "0") +
+            "-" +
+            String(location.state.missing_activity.day).padStart(2, "0")
+        )
+      );
+      setFormIsShown(true);
+    }
   }, []);
 
   useEffect(() => {
@@ -139,9 +171,10 @@ const Activities: React.FC = () => {
               setFormIsShown(true);
             },
             icon: <FaPlus />,
+            disabled: semesterString !== null,
           },
           {
-            title: graphIsShown? "Visualizza tabella" : "Visualizza grafico",
+            title: graphIsShown ? "Visualizza tabella" : "Visualizza grafico",
             action: () => setGraphIsShown(!graphIsShown),
             icon: graphIsShown ? <FaTable /> : <ImStatsBars />,
           },
@@ -154,7 +187,7 @@ const Activities: React.FC = () => {
             title: "Modifica registrazione",
             action: () => setEditMode(!editMode),
             icon: <FaPencilAlt />,
-            disabled: (user?.permissions ?? 0) > 20 ? false : true, // TODO: non ricordo come è la dinamica precisa per ste cose
+            disabled: semesterString !== null || (user?.permissions ?? 0) < 20,
           },
           {
             title: "Indietro",
@@ -168,6 +201,7 @@ const Activities: React.FC = () => {
       <div>
         <div className="header">
           <h1>Partecipazione attività di {guestFullName}</h1>
+          <p className="subtitle">{semesterString}</p>
         </div>
         {!graphIsShown ? (
           <table className="wide-table">
@@ -254,12 +288,22 @@ const Activities: React.FC = () => {
                     </td>
                   ) : (
                     <>
-                      <td>{activity.adesion}-{arr_adesion[activity.adesion - 1]}</td>
-                      <td>{activity.participation}-{arr_participation[activity.participation - 1]}</td>
-                      <td>{activity.mood}-{arr_mood[activity.mood - 1]}</td>
-                      <td>{activity.communication}-{arr_comunication[activity.communication - 1]}</td>
+                      <td>
+                        {activity.adesion}-{arr_adesion[activity.adesion - 1]}
+                      </td>
+                      <td>
+                        {activity.participation}-
+                        {arr_participation[activity.participation - 1]}
+                      </td>
+                      <td>
+                        {activity.mood}-{arr_mood[activity.mood - 1]}
+                      </td>
+                      <td>
+                        {activity.communication}-
+                        {arr_comunication[activity.communication - 1]}
+                      </td>
                       <td className="centered">
-                        {activity.problematic_behaviour ? (
+                        {activity.problem_behaviour ? (
                           <IoCheckmarkDoneCircleSharp />
                         ) : null}
                       </td>
@@ -305,7 +349,7 @@ const Activities: React.FC = () => {
               setFormIsShown(false);
               setEditingActivity(null);
               setEditingIndex(-1);
-              console.log(editingActivity)
+              console.log(editingActivity);
             }}
           >
             <NewActivityForm
@@ -314,6 +358,11 @@ const Activities: React.FC = () => {
               mostFrequentParticipation={mostFrequentParticipation}
               mostFrequentMood={mostFrequentMood}
               mostFrequentCommunication={mostFrequentCommunication}
+              missingDate={
+                location.state.missing_activity
+                  ? missingActivityDate
+                  : undefined
+              }
             />
           </GenericForm>
         )}

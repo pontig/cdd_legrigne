@@ -7,6 +7,8 @@ import { IoCaretBackOutline } from "react-icons/io5";
 import GenericForm from "../components/GenericForm";
 import NewLogForm from "../components/forms/NewLog";
 import { useUser } from "../contexts/UserContext";
+import { usePlace } from "../contexts/PlaceContext";
+import { useSemester } from "../contexts/SemesterContext";
 
 interface Event {
   id: number;
@@ -23,20 +25,37 @@ const Template: React.FC = () => {
 
     async fetchEvents(): Promise<void> {
       try {
-        const response = await fetch (`${api.baseUrl}/logbook?person_id=` + location.state.guestId)
-        if (!response.ok) {
-          throw new Error ("Network response was not ok")
+        const response = await fetch(
+          `${api.baseUrl}/logbook?person_id=` + location.state.guestId,
+          {
+            credentials: "include",
+          }
+        );
+        if (response.status === 401) {
+          console.error("Unauthorized access - please log in.");
+          navigate("/login");
+          return;
         }
-        const data = await response.json() as Event[]
-        setEvents(data)
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const data = (await response.json()) as Event[];
+        setEvents(data);
       } catch (error) {
         console.error("API call failed: " + error);
       }
-    }
+    },
   };
 
   // Navigation and state
-  const { user } = useUser();
+  const { user, setUser } = useUser();
+  const {
+    semesterString,
+    semesterNumber,
+    setSemesterString,
+    setSemesterNumber,
+  } = useSemester();
+  const { place, setPlace } = usePlace();
   const navigate = useNavigate();
   const location = useLocation();
   const [guestId, setGuestId] = useState<number>(-1);
@@ -52,10 +71,10 @@ const Template: React.FC = () => {
     setGuestId(location.state.guestId);
     setGuestFullName(location.state.name + " " + location.state.surname);
   }, [location.state]);
-  
+
   useEffect(() => {
-    api.fetchEvents()
-  }, [])
+    api.fetchEvents();
+  }, []);
 
   // Functions and other hooks
 
@@ -72,6 +91,7 @@ const Template: React.FC = () => {
               setFormIsShown(true);
             },
             icon: <FaPlus />,
+            disabled: semesterString !== null,
           },
           {
             title: "Stampa questa pagina",
@@ -82,7 +102,7 @@ const Template: React.FC = () => {
             title: "Modifica registrazione",
             action: () => setEditMode(!editMode),
             icon: <FaPencilAlt />,
-            disabled: (user?.permissions ?? 0) > 20 ? false : true, // TODO: non ricordo come è la dinamica precisa per ste cose
+            disabled: semesterString !== null || (user?.permissions ?? 0) < 20,
           },
           {
             title: "Indietro",
@@ -96,6 +116,7 @@ const Template: React.FC = () => {
       <div>
         <div className="header">
           <h1>Diario di {guestFullName}</h1>
+          <p className="subtitle">{semesterString}</p>
         </div>
         <table className="wide-table">
           <thead>

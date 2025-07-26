@@ -2,8 +2,7 @@
 Account servlet for handling user account operations: login, logout, password reset, etc.
 """
 
-from datetime import timedelta
-from flask import Blueprint, app, request, jsonify, session
+from flask import Blueprint, request, jsonify, session
 from config.check_session import check_session
 import hashlib
 from dao.account_dao import account_dao
@@ -30,7 +29,13 @@ def login():
         session['name'] = name
         session['surname'] = surname
         session.permanent = True
-        app.permanent_session_lifetime = timedelta(minutes=30)
+        session['semester'] = None
 
-        return jsonify({'message': 'Login successful', 'session': session}), 200
+        return jsonify({'message': 'Login successful'}), 200
     return jsonify({'error': 'Invalid credentials'}), 401
+
+@account_bp.route('/logout')
+def logout():
+    """Handle user logout"""
+    session.clear()
+    return jsonify({'message': 'Logout successful'}), 200

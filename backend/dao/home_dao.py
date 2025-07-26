@@ -10,7 +10,7 @@ class HomeDAO:
     
     def get_home_data(self) -> List[dict]:
         """Get data for the home page - optimized single query version"""
-        query = """
+        query = f"""
         WITH RECURSIVE date_range AS (
             SELECT CURDATE() - INTERVAL 6 DAY as date_val
             UNION ALL

@@ -3,6 +3,8 @@ Data Access Object for activities
 """
 
 from typing import List
+
+from flask import session
 from config.database import db_config
 
 class ActivitiesDAO:
@@ -10,7 +12,8 @@ class ActivitiesDAO:
     
     def get_activities(self, person_id: int) -> List[dict]:
         """Get activities for a specific person"""
-        query = """
+        semester_constraint = " = %s" if session.get('semester') is not None else " IS NULL"
+        query = f"""
             SELECT 
                 pa.id,
                 pa.id_persona,
@@ -28,7 +31,7 @@ class ActivitiesDAO:
 
             FROM partecipazione_attivita pa
             JOIN attivita a ON pa.attivita = a.id
-            WHERE id_persona = %s
+            WHERE id_persona = %s AND pa.id_semestre {semester_constraint}
             ORDER BY anno DESC, mese_int DESC, giorno DESC
         """
         
@@ -38,7 +41,10 @@ class ActivitiesDAO:
         try:
             connection = db_config.get_connection()
             cursor = connection.cursor()
-            cursor.execute(query, (person_id,))
+            if session.get('semester') is not None:
+                cursor.execute(query, (person_id, session.get('semester')))
+            else:
+                cursor.execute(query, (person_id,))
             results = cursor.fetchall()
             
             activities = []
@@ -53,7 +59,7 @@ class ActivitiesDAO:
                     'participation': row[8],
                     'mood': row[9],
                     'communication': row[10],
-                    'problematic_behaviour': row[11],
+                    'problem_behaviour': row[11],
                     'activity_id': row[12]
                 })
             return activities

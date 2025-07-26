@@ -3,6 +3,7 @@ Data Access Object for logbook
 """
 
 from typing import List
+from flask import session
 from config.database import db_config
 
 class LogbookDAO:
@@ -10,9 +11,10 @@ class LogbookDAO:
     
     def get_logbook_entries(self, person_id: int) -> List[dict]:
         """Get logbook entries for a specific person"""
-        query = """
+        semester_constraint = " = %s" if session.get('semester') is not None else " IS NULL"
+        query = f"""
             SELECT * FROM diario
-            WHERE id_persona = %s
+            WHERE id_persona = %s AND id_semestre {semester_constraint}
             ORDER BY anno DESC, mese_int DESC, giorno DESC
         """
         
@@ -22,7 +24,10 @@ class LogbookDAO:
         try:
             connection = db_config.get_connection()
             cursor = connection.cursor()
-            cursor.execute(query, (person_id,))
+            if session.get('semester') is not None:
+                cursor.execute(query, (person_id, session.get('semester')))
+            else:
+                cursor.execute(query, (person_id,))
             results = cursor.fetchall()
             
             logbook_entries = []
@@ -48,3 +53,5 @@ class LogbookDAO:
                 cursor.close()
             if connection:
                 connection.close()
+                
+logbook_dao = LogbookDAO()

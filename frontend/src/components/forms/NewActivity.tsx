@@ -6,6 +6,7 @@ interface NewActivityFormProps {
   mostFrequentParticipation: number;
   mostFrequentMood: number;
   mostFrequentCommunication: number;
+  missingDate?: string; 
   editData?: {
     id: number;
     date: string;
@@ -15,7 +16,7 @@ interface NewActivityFormProps {
     participation: number;
     mood: number;
     communication: number;
-    problematic_behaviour: boolean;
+    problem_behaviour: boolean;
     activity_id: number;
   };
 }
@@ -25,6 +26,7 @@ const NewActivityForm: React.FC<NewActivityFormProps> = ({
   mostFrequentParticipation,
   mostFrequentMood,
   mostFrequentCommunication,
+  missingDate,
   editData,
 }) => {
   const arr_adesion = [
@@ -62,7 +64,7 @@ const NewActivityForm: React.FC<NewActivityFormProps> = ({
     <form action="" method="POST">
       <label>
         Data:
-        <input type="date" name="date" defaultValue={editData?.date || ""} />
+        <input type="date" name="date" defaultValue={missingDate || editData?.date || ""} />
       </label>
       <button type="submit" name="absent" style={{ marginBottom: "1rem" }}>
         Assente tutto il giorno
@@ -194,7 +196,7 @@ const NewActivityForm: React.FC<NewActivityFormProps> = ({
         <input
           type="checkbox"
           name="comunicazione"
-          defaultChecked={editData?.problematic_behaviour}
+          defaultChecked={editData?.problem_behaviour}
         />
         ha avuto un comportamento problema
       </label>

@@ -3,6 +3,8 @@ Account Data Access Object for interacting with user account data.
 """
 
 from typing import List, Optional
+
+from flask import session
 from config.database import db_config
 
 class AccountDAO:

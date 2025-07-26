@@ -5,24 +5,32 @@ import { UserProvider } from "./contexts/UserContext";
 
 import "./App.css";
 import { PlaceProvider } from "./contexts/PlaceContext";
+import { SemesterProvider } from "./contexts/SemesterContext";
 import LogBook from "./pages/LogBook";
 import Activities from "./pages/Activities";
 import LoginPage from "./pages/Login";
+import Semesters from "./pages/Semesters";
 
 const App: React.FC = () => {
   return (
     <>
       <UserProvider>
         <PlaceProvider>
-          <Router>
-            <Routes>
-              <Route path="/" element={<MainPage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/diario" element={<LogBook />} />
-              <Route path="/partecipazione_attivita" element={<Activities />} />
-            </Routes>
-          </Router>
-          <p className="watermark">CDD Le Grigne - Bellano / Primaluna</p>
+          <SemesterProvider>
+            <Router>
+              <Routes>
+                <Route path="/" element={<MainPage />} />
+                <Route path="/semestri" element={<Semesters />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/diario" element={<LogBook />} />
+                <Route
+                  path="/partecipazione_attivita"
+                  element={<Activities />}
+                />
+              </Routes>
+            </Router>
+            <p className="watermark">CDD Le Grigne - Bellano / Primaluna</p>
+          </SemesterProvider>
         </PlaceProvider>
       </UserProvider>
     </>

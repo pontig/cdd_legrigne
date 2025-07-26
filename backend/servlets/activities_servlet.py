@@ -2,7 +2,8 @@
 Activities servlet, responsible for handling requests related to partecipazione_attivita
 """
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, session
+from config.check_session import check_session
 from dao.activities_dao import activities_dao
 from datetime import datetime
 import io
@@ -19,6 +20,9 @@ activities_bp = Blueprint('activities', __name__)
 def get_activities():
     """ Get activities for a specific person """
     person_id = request.args.get('person_id', type=int)
+    
+    if check_session() is False:
+        return jsonify({'error': 'Unauthorized access'}), 401
     
     if not person_id:
         return jsonify({'error': 'Missing or invalid person_id'}), 400

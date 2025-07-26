@@ -11,12 +11,11 @@ home_bp = Blueprint('home', __name__)
 @home_bp.route('/home', methods=['GET'])
 def home():
     """ Get guests and their missing activities from the last week """
-    # TODO: check session for user authentication
-    try:
         
-        if check_session() is False:
-            return jsonify({'error': 'Unauthorized access', 'session': session}), 401
+    if check_session() is False:
+        return jsonify({'error': 'Unauthorized access'}), 401
 
+    try:
         ret = home_dao.get_home_data()
         
         return jsonify(ret), 200

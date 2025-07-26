@@ -20,10 +20,15 @@ const LoginForm: React.FC = () => {
           headers: {
             "Content-Type": "application/json",
           },
+          credentials: "include",
           body: JSON.stringify({
             ...data,
-            name: (data.name as string).charAt(0).toUpperCase() + (data.name as string).slice(1).toLowerCase(),
-            surname: (data.surname as string).charAt(0).toUpperCase() + (data.surname as string).slice(1).toLowerCase(),
+            name:
+              (data.name as string).charAt(0).toUpperCase() +
+              (data.name as string).slice(1).toLowerCase(),
+            surname:
+              (data.surname as string).charAt(0).toUpperCase() +
+              (data.surname as string).slice(1).toLowerCase(),
           }),
         });
 

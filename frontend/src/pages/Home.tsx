@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import LeftBar from "../components/LeftBar";
 import { FaPlus } from "react-icons/fa";
 import { IoSparklesSharp } from "react-icons/io5";
@@ -10,6 +10,8 @@ import GenericForm from "../components/GenericForm";
 import NewGuestForm from "../components/forms/NewGuest";
 import "../styles/home.css";
 import { useNavigate } from "react-router-dom";
+import { useSemester } from "../contexts/SemesterContext";
+import { MdOutlineHistory } from "react-icons/md";
 
 interface Person {
   id: number;
@@ -18,7 +20,7 @@ interface Person {
   activities: {
     day: number;
     month_int: number;
-  }[]
+  }[];
 }
 
 const MainPage: React.FC = () => {
@@ -26,9 +28,11 @@ const MainPage: React.FC = () => {
   const api = {
     baseUrl: "http://localhost:5000",
 
-    async foo(): Promise<void> {
-      try {        
-        const response = await fetch(`${api.baseUrl}/home`);
+    async fetchPersons(): Promise<void> {
+      try {
+        const response = await fetch(`${api.baseUrl}/home`, {
+          credentials: "include",
+        });
         if (response.status === 401) {
           console.error("Unauthorized access - please log in.");
           navigate("/login");
@@ -37,21 +41,27 @@ const MainPage: React.FC = () => {
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
-        const data = await response.json() as Person[];
+        const data = (await response.json()) as Person[];
         setPersons(data);
       } catch (error) {
         console.error("API call failed: " + error);
       }
-    }
+    },
   };
 
   // Navigation and state
   const { user, setUser } = useUser();
-  const navigate = useNavigate();
+  const {
+    semesterString,
+    semesterNumber,
+    setSemesterString,
+    setSemesterNumber,
+  } = useSemester();
   const { place, setPlace } = usePlace();
-  const [persons, setPersons] = React.useState<Person[]>([]);
-  const [selectedGuest, setSelectedGuest] = React.useState<Person | null>(null);
-  const [formIsShown, setFormIsShown] = React.useState(false);
+  const navigate = useNavigate();
+  const [persons, setPersons] = useState<Person[]>([]);
+  const [selectedGuest, setSelectedGuest] = useState<Person | null>(null);
+  const [formIsShown, setFormIsShown] = useState(false);
 
   // Effects
   useEffect(() => {
@@ -62,7 +72,7 @@ const MainPage: React.FC = () => {
       id: 1,
       permissions: 100,
     });
-    api.foo();
+    api.fetchPersons();
   }, []);
 
   useEffect(() => {
@@ -75,7 +85,7 @@ const MainPage: React.FC = () => {
     window.addEventListener("keydown", handleEsc);
     return () => {
       window.removeEventListener("keydown", handleEsc);
-    }
+    };
   }, []);
 
   // Functions and other
@@ -90,11 +100,10 @@ const MainPage: React.FC = () => {
     { title: "Doccia", location: "/doccia" },
     { title: "Idratazione", location: "/idratazione" },
     { title: "Crisi epilettiche", location: "/crisi" },
-    { title: "Attività mirate", location: "/attivita-mirate" },
+    { title: "Attività mirate", location: "/attivita_mirate" },
   ];
 
-  const filteredButtons =
-    place === "Bellano" ? buttons.slice(0, 3) : buttons;
+  const filteredButtons = place === "Bellano" ? buttons.slice(0, 3) : buttons;
 
   const handleRowClick = (person: Person) => {
     console.log(`Selected person: ${person.name} ${person.surname}`);
@@ -106,10 +115,20 @@ const MainPage: React.FC = () => {
     });
   };
 
-  const handleMissingActivityClick = (activity: { day: number; month_int: number }) => {
-    console.log(`Clicked on activity: ${activity.day}.${activity.month_int}`);
-    
-  }
+  const handleMissingActivityClick = (
+    missing_activity: {
+      day: number;
+      month_int: number;
+    },
+    guestId: number,
+    name: string,
+    surname: string
+  ) => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    navigate("/partecipazione_attivita", {
+      state: { missing_activity, guestId, name, surname },
+    });
+  };
 
   // Return
   return (
@@ -120,12 +139,18 @@ const MainPage: React.FC = () => {
             title: "Nuovo ospite",
             action: () => setFormIsShown(true),
             icon: <FaPlus />,
+            disabled: semesterString !== null,
           },
           {
             title: "Nuovo semestre",
             action: () => console.log("Cambio semestre"),
             icon: <IoSparklesSharp />,
-            disabled: (user?.permissions ?? 0) > 20 ? false : true,
+            disabled: semesterString !== null || (user?.permissions ?? 0) < 20,
+          },
+          {
+            title: "Visualizza altri semestri",
+            action: () => navigate("/semestri"),
+            icon: <MdOutlineHistory />,
           },
           {
             title: "Visualizza gradimenti",
@@ -137,10 +162,7 @@ const MainPage: React.FC = () => {
       <div>
         <div className="header">
           <h1>MONITORAGGI CDD {place}</h1>
-
-          <p>
-            <i className="subtitle">Visualizza dati di altri semestri</i>
-          </p>
+          <p className="subtitle">{semesterString}</p>
         </div>
         <table className="wide-table home-table">
           <thead>
@@ -150,7 +172,6 @@ const MainPage: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            
             {persons.length > 0 ? (
               persons.map((person, idx) => (
                 <tr
@@ -158,11 +179,27 @@ const MainPage: React.FC = () => {
                   onClick={() => handleRowClick(person)}
                   style={{ cursor: "pointer" }}
                 >
-                  <td>{person.surname} {" "}
-                     <span>{
-                  person.activities.map((activity) => (
-                    <span key={`${activity.day}.${activity.month_int}`} className="missing-activity" onClick={(e) => { e.stopPropagation(); handleMissingActivityClick(activity); }}>({activity.day}.{activity.month_int}) </span>
-                  ))}</span>
+                  <td>
+                    {person.surname}{" "}
+                    <span>
+                      {person.activities.map((activity) => (
+                        <span
+                          key={`${activity.day}.${activity.month_int}`}
+                          className="missing-activity"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleMissingActivityClick(
+                              activity,
+                              person.id,
+                              person.name,
+                              person.surname
+                            );
+                          }}
+                        >
+                          ({activity.day}.{activity.month_int}){" "}
+                        </span>
+                      ))}
+                    </span>
                   </td>
                   <td>{person.name}</td>
                 </tr>
