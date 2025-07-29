@@ -1,0 +1,36 @@
+table.problem-behavior-table th:first-child, table.problem-behavior-table th:last-child {
+    border-radius: 0;
+}
+
+.ttl {
+  border-radius: 15px 0 0 0 !important;
+}
+
+.ttr {
+  border-radius: 0 15px 0 0 !important;
+  text-align: center;
+}
+
+table.problem-behavior-table {
+    margin-left: 4rem;
+    margin-right: 4rem;
+}
+
+.show-line {
+    border-left: 1px solid #bbb;
+    border-right: 1px solid #bbb;
+}
+
+.problem-behavior-table thead {
+    position: initial
+}
+
+.problem-behavior-table th.problem-name {
+    position: sticky;
+    top: -10rem;
+    font-size: 1rem;
+    transition: top ease .3s;
+}
+.problem-behavior-table th.problem-name:hover {
+    top: -1rem;
+}

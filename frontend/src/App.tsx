@@ -10,6 +10,7 @@ import LogBook from "./pages/LogBook";
 import Activities from "./pages/Activities";
 import LoginPage from "./pages/Login";
 import Semesters from "./pages/Semesters";
+import ProblemBehavior from "./pages/ProblemBehavior";
 
 const App: React.FC = () => {
   return (
@@ -26,6 +27,10 @@ const App: React.FC = () => {
                 <Route
                   path="/partecipazione_attivita"
                   element={<Activities />}
+                />
+                <Route
+                  path="/comportamenti_problema"
+                  element={<ProblemBehavior />}
                 />
               </Routes>
             </Router>

@@ -95,7 +95,7 @@ const MainPage: React.FC = () => {
       title: "Partecipazione attività",
       location: "/partecipazione_attivita",
     },
-    { title: "Comportamenti problema", location: "/comportamenti" },
+    { title: "Comportamenti problema", location: "/comportamenti_problema" },
     { title: "Bagno", location: "/bagno" },
     { title: "Doccia", location: "/doccia" },
     { title: "Idratazione", location: "/idratazione" },

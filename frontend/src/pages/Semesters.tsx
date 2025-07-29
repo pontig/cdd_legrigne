@@ -81,7 +81,7 @@ const Semesters: React.FC = () => {
       } catch (error) {
         console.error("API call failed: " + error);
       }
-    }
+    },
   };
 
   // State
@@ -118,7 +118,6 @@ const Semesters: React.FC = () => {
       <div>
         <div className="header">
           <h1>Elenco Semestri</h1>
-          <p className="subtitle">{semesterString}</p>
         </div>
         <table style={{ marginLeft: "auto", marginRight: "auto" }}>
           <thead>

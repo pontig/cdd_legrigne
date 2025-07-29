@@ -12,6 +12,7 @@ from servlets.home_servlet import home_bp
 from servlets.activities_servlet import activities_bp
 from servlets.logbook_servlet import logbook_bp
 from servlets.account_servlet import account_bp
+from servlets.problembehavior_servlet import problembehavior_bp
 
 def create_app():
     """Application factory pattern"""
@@ -26,6 +27,7 @@ def create_app():
     app.register_blueprint(activities_bp)
     app.register_blueprint(logbook_bp)
     app.register_blueprint(semester_bp)
+    app.register_blueprint(problembehavior_bp)
 
     # # Root route - serve React app
     # @app.route('/')
