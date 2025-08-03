@@ -5,12 +5,14 @@ import { useSemester } from "../contexts/SemesterContext";
 import { useLocation, useNavigate } from "react-router-dom";
 import LeftBar from "../components/LeftBar";
 import { IoCaretBackOutline } from "react-icons/io5";
-import { FaPencilAlt, FaPlus, FaPrint } from "react-icons/fa";
+import { FaPencilAlt, FaPlus, FaPrint, FaTable } from "react-icons/fa";
+import { PiTextAaBold } from "react-icons/pi";
 
 import "../styles/problembehavior.css";
 import GenericForm from "../components/GenericForm";
 import NewProblemBehaviorForm from "../components/forms/NewProblemBehavior";
 import { RiDeleteBin6Line } from "react-icons/ri";
+import { text } from "stream/consumers";
 
 interface ProblemRecord {
   id: number;
@@ -127,6 +129,7 @@ const ProblemBehavior: React.FC = () => {
     useState<ProblemRecord | null>(null);
   const [editingIndex, setEditingIndex] = useState<number>(-1); // Index of event being edited - will be used when saving changes
   const [problems, setProblems] = useState<Problem>({});
+  const [textIsShown, setTextIsShown] = useState<boolean>(false);
 
   // Effects
   useEffect(() => {
@@ -157,6 +160,11 @@ const ProblemBehavior: React.FC = () => {
             disabled: semesterString !== null,
           },
           {
+            title: textIsShown ? "Visualizza tabella" : "Versione testuale",
+            action: () => setTextIsShown(!textIsShown),
+            icon: textIsShown ?  <FaTable /> : <PiTextAaBold />,
+          },
+          {
             title: "Stampa questa pagina",
             action: () => {
               window.scrollTo({ top: 0 });
@@ -184,148 +192,192 @@ const ProblemBehavior: React.FC = () => {
           <h1>Comportamenti problema di {guestFullName}</h1>
           <p className="subtitle">{semesterString}</p>
         </div>
-        <table className="wide-table problem-behavior-table">
-          <thead>
-            <tr>
-              {editMode && <th className="ttl" rowSpan={3}>Azioni</th>}
-              <th className={!editMode ? "ttl" : ""} rowSpan={3}>
-                Data
-              </th>
-              <th
-                colSpan={
-                  Object.keys(problems).flatMap((key) => problems[key]).length
-                }
-              >
-                Descrizione comportamento
-              </th>
-              <th rowSpan={3}>Intensità</th>
-              <th rowSpan={3}>Durata e ripetitività</th>
-              <th rowSpan={3}>Causa scatenante e descrizione</th>
-              <th rowSpan={3}>Contenimento</th>
-              <th className="ttr" rowSpan={3}>
-                f
-              </th>
-            </tr>
-            <tr>
-              {Object.keys(problems).map((key, index) => (
-                <th
-                  key={key}
-                  colSpan={problems[key].length}
-                  style={{
-                    backgroundColor: headerColors[index],
-                    color: "white",
-                  }}
-                >
-                  {key}
-                </th>
-              ))}
-            </tr>
-            <tr>
-              {Object.keys(problems).flatMap((key, classIndex) =>
-                problems[key]
-                  .sort((a, b) => a.id - b.id)
-                  .map((problem) => (
-                    <th
-                      style={{
-                        writingMode: "vertical-rl",
-                        textOrientation: "mixed",
-                        backgroundColor: headerColors[classIndex],
-                        color: "white",
-                      }}
-                      key={problem.id}
-                      className="problem-name"
-                    >
-                      {problem.nome}
-                    </th>
-                  ))
-              )}
-            </tr>
-          </thead>
-          <tbody>
-            {problemRecords.map((record, index) => (
-              <tr key={record.id}>
+        {!textIsShown ? (
+          <table className="wide-table problem-behavior-table">
+            <thead>
+              <tr>
                 {editMode && (
-                  <td>
-                    <div className="action-buttons">
-                      {editMode &&
-                        (() => {
-                          // Calculate date range: past Monday to next Friday
-                          const today = new Date();
-                          const dayOfWeek = today.getDay(); // 0 (Sun) - 6 (Sat)
-                          const monday = new Date(today);
-                          monday.setDate(
-                            today.getDate() - ((dayOfWeek + 6) % 7)
-                          ); // Past Monday
-                          const friday = new Date(monday);
-                          friday.setDate(monday.getDate() + 4); // Next Friday
-
-                          const eventDate = new Date(record.date);
-
-                          const isInRange =
-                            eventDate >= monday && eventDate <= friday;
-
-                          if ((user && user.permissions > 20) || isInRange) {
-                            return (
-                              <>
-                                <button
-                                  className="edit-row-btn"
-                                  onClick={() => {
-                                    setEditingProblemRecord(record);
-                                    setEditingIndex(index);
-                                    setFormIsShown(true);
-                                    setEditMode(false); // Exit edit mode after selecting an item
-                                  }}
-                                  title="Modifica questa registrazione"
-                                >
-                                  <FaPencilAlt />
-                                </button>
-                                <button
-                                  className="delete-row-btn"
-                                  onClick={() => {
-                                    // TODO: Implement delete functionality
-                                    console.log(
-                                      `Delete event at index ${index}`
-                                    );
-                                  }}
-                                  title="Elimina questa registrazione"
-                                >
-                                  <RiDeleteBin6Line />
-                                </button>
-                              </>
-                            );
-                          } else {
-                            return <span>N/A</span>;
-                          }
-                        })()}
-                    </div>
-                  </td>
+                  <th className="ttl" rowSpan={3}>
+                    Azioni
+                  </th>
                 )}
-                <td>{record.date}</td>
-                {Object.keys(problems).flatMap((key) =>
-                  problems[key].map((problem) => (
-                    <td
-                      key={problem.id}
-                      className={
-                        (record.problem_statuses[problem.id - 1]
-                          ? "yes"
-                          : "no") +
-                        " " +
-                        "show-line"
-                      }
-                    >
-                      {record.problem_statuses[problem.id - 1] ? "✓" : ""}
-                    </td>
-                  ))
-                )}
-                <td>{record.intensity}</td>
-                <td>{record.duration}</td>
-                <td>{record.cause}</td>
-                <td>{record.containment}</td>
-                <td className="signature">{record.signature}</td>
+                <th className={!editMode ? "ttl" : ""} rowSpan={3}>
+                  Data
+                </th>
+                <th
+                  colSpan={
+                    Object.keys(problems).flatMap((key) => problems[key]).length
+                  }
+                >
+                  Descrizione comportamento
+                </th>
+                <th rowSpan={3}>Intensità</th>
+                <th rowSpan={3}>Durata e ripetitività</th>
+                <th rowSpan={3}>Causa scatenante e descrizione</th>
+                <th rowSpan={3}>Contenimento</th>
+                <th className="ttr" rowSpan={3}>
+                  f
+                </th>
               </tr>
+              <tr>
+                {Object.keys(problems).map((key, index) => (
+                  <th
+                    key={key}
+                    colSpan={problems[key].length}
+                    style={{
+                      backgroundColor: headerColors[index],
+                      color: "white",
+                    }}
+                  >
+                    {key}
+                  </th>
+                ))}
+              </tr>
+              <tr>
+                {Object.keys(problems).flatMap((key, classIndex) =>
+                  problems[key]
+                    .sort((a, b) => a.id - b.id)
+                    .map((problem) => (
+                      <th
+                        style={{
+                          writingMode: "vertical-rl",
+                          textOrientation: "mixed",
+                          backgroundColor: headerColors[classIndex],
+                          color: "white",
+                        }}
+                        key={problem.id}
+                        className="problem-name"
+                      >
+                        {problem.nome}
+                      </th>
+                    ))
+                )}
+              </tr>
+            </thead>
+            <tbody>
+              {problemRecords.map((record, index) => (
+                <tr key={record.id}>
+                  {editMode && (
+                    <td>
+                      <div className="action-buttons">
+                        {editMode &&
+                          (() => {
+                            // Calculate date range: past Monday to next Friday
+                            const today = new Date();
+                            const dayOfWeek = today.getDay(); // 0 (Sun) - 6 (Sat)
+                            const monday = new Date(today);
+                            monday.setDate(
+                              today.getDate() - ((dayOfWeek + 6) % 7)
+                            ); // Past Monday
+                            const friday = new Date(monday);
+                            friday.setDate(monday.getDate() + 4); // Next Friday
+
+                            const eventDate = new Date(record.date);
+
+                            const isInRange =
+                              eventDate >= monday && eventDate <= friday;
+
+                            if ((user && user.permissions > 20) || isInRange) {
+                              return (
+                                <>
+                                  <button
+                                    className="edit-row-btn"
+                                    onClick={() => {
+                                      setEditingProblemRecord(record);
+                                      setEditingIndex(index);
+                                      setFormIsShown(true);
+                                      setEditMode(false); // Exit edit mode after selecting an item
+                                    }}
+                                    title="Modifica questa registrazione"
+                                  >
+                                    <FaPencilAlt />
+                                  </button>
+                                  <button
+                                    className="delete-row-btn"
+                                    onClick={() => {
+                                      // TODO: Implement delete functionality
+                                      console.log(
+                                        `Delete event at index ${index}`
+                                      );
+                                    }}
+                                    title="Elimina questa registrazione"
+                                  >
+                                    <RiDeleteBin6Line />
+                                  </button>
+                                </>
+                              );
+                            } else {
+                              return <span>N/A</span>;
+                            }
+                          })()}
+                      </div>
+                    </td>
+                  )}
+                  <td>{record.date}</td>
+                  {Object.keys(problems).flatMap((key) =>
+                    problems[key].map((problem) => (
+                      <td
+                        key={problem.id}
+                        className={
+                          (record.problem_statuses[problem.id - 1]
+                            ? "yes"
+                            : "no") +
+                          " " +
+                          "show-line"
+                        }
+                      >
+                        {record.problem_statuses[problem.id - 1] ? "✓" : ""}
+                      </td>
+                    ))
+                  )}
+                  <td>{record.intensity}</td>
+                  <td>{record.duration}</td>
+                  <td>{record.cause}</td>
+                  <td>{record.containment}</td>
+                  <td className="signature">{record.signature}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <p className="report-text">
+            {problemRecords.map((record, index) => (
+              <p className="report-text-entry">
+                <p>
+                  <b>Data:</b> {record.date}
+                </p>
+                <p>
+                  <b>Comportamenti:</b>
+                </p>
+                <ul>
+                  {Object.keys(problems).flatMap((key) =>
+                    problems[key].map(
+                      (problem) =>
+                        record.problem_statuses[problem.id - 1] ? (
+                          <li key={problem.id}>{problem.nome}</li>
+                        ) : null
+                    )
+                  )}
+                </ul>
+                <p>
+                  <b>Intensità:</b> {record.intensity}
+                </p>
+                <p>
+                  <b>Durata:</b> {record.duration}
+                </p>
+                <p>
+                  <b>Causa e descrizione:</b> {record.cause}
+                </p>
+                <p>
+                  <b>Contenimento:</b> {record.containment}
+                </p>
+                <p>
+                  <b>Firma:</b> {record.signature}
+                </p>
+              </p>
             ))}
-          </tbody>
-        </table>
+          </p>
+        )}
         {formIsShown && (
           <GenericForm
             title={editingProblemRecord ? "Modifica evento" : "Nuovo evento"}
@@ -335,7 +387,10 @@ const ProblemBehavior: React.FC = () => {
               setEditingIndex(-1);
             }}
           >
-            <NewProblemBehaviorForm problems={problems} editData={editingProblemRecord || undefined} />
+            <NewProblemBehaviorForm
+              problems={problems}
+              editData={editingProblemRecord || undefined}
+            />
           </GenericForm>
         )}
       </div>

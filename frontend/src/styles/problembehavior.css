@@ -3,12 +3,12 @@ table.problem-behavior-table th:first-child, table.problem-behavior-table th:las
 }
 
 .ttl {
-  border-radius: 15px 0 0 0 !important;
+    border-radius: 15px 0 0 0 !important;
 }
 
 .ttr {
-  border-radius: 0 15px 0 0 !important;
-  text-align: center;
+    border-radius: 0 15px 0 0 !important;
+    text-align: center;
 }
 
 table.problem-behavior-table {
@@ -31,6 +31,29 @@ table.problem-behavior-table {
     font-size: 1rem;
     transition: top ease .3s;
 }
+
 .problem-behavior-table th.problem-name:hover {
     top: -1rem;
+}
+
+.report-text {
+    width: 80%;
+    margin: auto;
+}
+
+.report-text-entry {
+    margin-bottom: 3rem;
+}
+
+@media print {
+    @page {
+        size: portrait;
+    }
+
+    .report-text {
+        column-count: 2;
+        -webkit-column-count: 2;
+        -moz-column-count: 2;
+    }
+
 }
