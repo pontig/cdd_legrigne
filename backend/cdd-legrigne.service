@@ -1,0 +1,15 @@
+[Unit]
+Description=Gunicorn instance to serve CDD Legrigne Flask App
+After=network.target
+
+[Service]
+User=elia
+Group=elia
+WorkingDirectory=/home/elia/backend
+Environment="PATH=/home/elia/backend/venv/bin"
+ExecStart=/home/elia/backend/venv/bin/gunicorn --config gunicorn.conf.py main:app
+ExecReload=/bin/kill -s HUP $MAINPID
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

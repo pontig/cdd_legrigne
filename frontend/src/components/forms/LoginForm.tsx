@@ -1,11 +1,10 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import apiService from "../../services/apiService";
 
 const LoginForm: React.FC = () => {
-  const api = {
-    baseUrl: "http://localhost:5000",
 
-    async handleSubmit(event: React.FormEvent<HTMLFormElement>): Promise<void> {
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
       // Prevent default form submission
       event.preventDefault();
       const form = document.querySelector("form");
@@ -14,14 +13,7 @@ const LoginForm: React.FC = () => {
       const formData = new FormData(form);
       const data = Object.fromEntries(formData.entries());
 
-      try {
-        const response = await fetch(`${api.baseUrl}/login`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify({
+      const response = await apiService.login({
             ...data,
             name:
               (data.name as string).charAt(0).toUpperCase() +
@@ -29,26 +21,21 @@ const LoginForm: React.FC = () => {
             surname:
               (data.surname as string).charAt(0).toUpperCase() +
               (data.surname as string).slice(1).toLowerCase(),
-          }),
-        });
+          })
 
-        if (!response.ok) {
+        if (response.error) {
           throw new Error("Login failed");
         }
 
-        const result = await response.json();
-        console.log("Login successful:", result);
+        console.log("Login successful:", response);
         navigate("/");
-      } catch (error) {
-        console.error("Error during login:", error);
-      }
-    },
-  };
+
+    }
 
   const navigate = useNavigate();
 
   return (
-    <form method="POST" onSubmit={api.handleSubmit}>
+    <form method="POST" onSubmit={handleSubmit}>
       <label>
         Nome:
         <input type="text" name="name" required />

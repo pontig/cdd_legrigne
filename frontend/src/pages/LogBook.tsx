@@ -9,6 +9,7 @@ import NewLogForm from "../components/forms/NewLog";
 import { useUser } from "../contexts/UserContext";
 import { usePlace } from "../contexts/PlaceContext";
 import { useSemester } from "../contexts/SemesterContext";
+import apiService from "../services/apiService";
 
 interface Event {
   id: number;
@@ -19,32 +20,26 @@ interface Event {
 }
 
 const Template: React.FC = () => {
-  // API services
-  const api = {
-    baseUrl: "http://localhost:5000",
 
-    async fetchEvents(): Promise<void> {
-      try {
-        const response = await fetch(
-          `${api.baseUrl}/logbook?person_id=` + location.state.guestId,
-          {
-            credentials: "include",
-          }
-        );
-        if (response.status === 401) {
-          console.error("Unauthorized access - please log in.");
-          navigate("/login");
-          return;
-        }
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        const data = (await response.json()) as Event[];
-        setEvents(data);
-      } catch (error) {
-        console.error("API call failed: " + error);
-      }
-    },
+  const fetchEvents = async (): Promise<void> => {
+    const response = await apiService.fetchLogbook({
+      person_id: location.state.guestId,
+    });
+
+    if (response.status === 401) {
+      console.error("Unauthorized access - please log in.");
+      navigate("/login");
+      return;
+    }
+
+    if (response.error) {
+      console.error("API call failed:", response.error);
+      return;
+    }
+
+    if (response.data) {
+      setEvents(response.data as Event[]);
+    }
   };
 
   // Navigation and state
@@ -73,7 +68,7 @@ const Template: React.FC = () => {
   }, [location.state]);
 
   useEffect(() => {
-    api.fetchEvents();
+    fetchEvents();
   }, []);
 
   // Functions and other hooks

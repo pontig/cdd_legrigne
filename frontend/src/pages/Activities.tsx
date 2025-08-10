@@ -13,6 +13,7 @@ import GenericForm from "../components/GenericForm";
 import NewActivityForm from "../components/forms/NewActivity";
 import "../styles/activities.css";
 import { useSemester } from "../contexts/SemesterContext";
+import apiService from "../services/apiService";
 
 interface Activity {
   id: number;
@@ -29,39 +30,32 @@ interface Activity {
 
 const Activities: React.FC = () => {
   // API services
-  const api = {
-    baseUrl: "http://localhost:5000",
 
-    async fetchActivities(personId: number): Promise<void> {
-      try {
-        const response = await fetch(
-          `${api.baseUrl}/activities?person_id=${personId}`,
-          {
-            credentials: "include",
-          }
-        );
-        if (response.status === 401) {
-          console.error("Unauthorized access - please log in.");
-          navigate("/login");
-          return;
-        }
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        const data = await response.json();
-        const retr_activities = data.activities as Activity[];
-        setActivities(retr_activities);
-        setGraph(data.plot_image);
+  const fetchActivities = async (personId: number): Promise<void> => {
+    const response = await apiService.fetchActivities({ person_id: personId.toString() });
+    if (response.status === 401) {
+      console.error("Unauthorized access - please log in.");
+      navigate("/login");
+      return;
+    }
 
-        const lastActivity = retr_activities[retr_activities.length - 1];
-        setMostFrequentAdesion(lastActivity.adesion);
-        setMostFrequentParticipation(lastActivity.participation);
-        setMostFrequentMood(lastActivity.mood);
-        setMostFrequentCommunication(lastActivity.communication);
-      } catch (error) {
-        console.error("API call failed: " + error);
-      }
-    },
+    if (response.error) {
+      console.error("API call failed:", response.error);
+      return;
+    }
+
+    if (response.data) {
+      const data = response.data as any;
+      const retr_activities = data.activities as Activity[];
+      setActivities(retr_activities);
+      setGraph(data.plot_image);
+
+      const lastActivity = retr_activities[0];
+      setMostFrequentAdesion(lastActivity.adesion);
+      setMostFrequentParticipation(lastActivity.participation);
+      setMostFrequentMood(lastActivity.mood);
+      setMostFrequentCommunication(lastActivity.communication);
+    }
   };
 
   // Navigation and state
@@ -125,11 +119,9 @@ const Activities: React.FC = () => {
 
   // Effects
   useEffect(() => {
-    console.log(location.state);
     setGuestId(location.state.guestId);
     setGuestFullName(location.state.name + " " + location.state.surname);
-    api.fetchActivities(location.state.guestId);
-    console.log(location.state.missing_activity);
+
     if (location.state.missing_activity) {
       setMissingActivityDate(
         String(
@@ -142,6 +134,8 @@ const Activities: React.FC = () => {
       );
       setFormIsShown(true);
     }
+
+    fetchActivities(location.state.guestId);
   }, []);
 
   useEffect(() => {

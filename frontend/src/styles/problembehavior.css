@@ -46,9 +46,6 @@ table.problem-behavior-table {
 }
 
 @media print {
-    @page {
-        size: portrait;
-    }
 
     .report-text {
         column-count: 2;

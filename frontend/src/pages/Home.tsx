@@ -12,6 +12,7 @@ import "../styles/home.css";
 import { useNavigate } from "react-router-dom";
 import { useSemester } from "../contexts/SemesterContext";
 import { MdOutlineHistory } from "react-icons/md";
+import { apiService } from "../services/apiService";
 
 interface Person {
   id: number;
@@ -24,39 +25,29 @@ interface Person {
 }
 
 const MainPage: React.FC = () => {
-  // API services
-  const api = {
-    baseUrl: "http://localhost:5000",
 
-    async fetchPersons(): Promise<void> {
-      try {
-        const response = await fetch(`${api.baseUrl}/home`, {
-          credentials: "include",
-        });
-        if (response.status === 401) {
-          console.error("Unauthorized access - please log in.");
-          navigate("/login");
-          return;
-        }
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        const data = (await response.json()) as Person[];
-        setPersons(data);
-      } catch (error) {
-        console.error("API call failed: " + error);
-      }
-    },
+  const fetchPersons = async (): Promise<void> => {
+    const response = await apiService.fetchPersons();
+
+    if (response.status === 401) {
+      console.error("Unauthorized access - please log in.");
+      navigate("/login");
+      return;
+    }
+
+    if (response.error) {
+      console.error("API call failed:", response.error);
+      return;
+    }
+
+    if (response.data) {
+      setPersons(response.data as Person[]);
+    }
   };
 
   // Navigation and state
   const { user, setUser } = useUser();
-  const {
-    semesterString,
-    semesterNumber,
-    setSemesterString,
-    setSemesterNumber,
-  } = useSemester();
+  const { semesterString } = useSemester();
   const { place, setPlace } = usePlace();
   const navigate = useNavigate();
   const [persons, setPersons] = useState<Person[]>([]);
@@ -72,7 +63,8 @@ const MainPage: React.FC = () => {
       id: 1,
       permissions: 100,
     });
-    api.fetchPersons();
+
+    fetchPersons();
   }, []);
 
   useEffect(() => {
@@ -161,7 +153,9 @@ const MainPage: React.FC = () => {
       />
       <div>
         <div className="header">
-          <h1>MONITORAGGI CDD {place}</h1>
+          <h1>
+            MONITORAGGI CDD {process.env.NODE_ENV} {place}
+          </h1>
           <p className="subtitle">{semesterString}</p>
         </div>
         <table className="wide-table home-table">
@@ -180,7 +174,6 @@ const MainPage: React.FC = () => {
                   style={{ cursor: "pointer" }}
                 >
                   <td>
-                    {person.surname}{" "}
                     <span>
                       {person.activities.map((activity) => (
                         <span
@@ -200,6 +193,7 @@ const MainPage: React.FC = () => {
                         </span>
                       ))}
                     </span>
+                    {person.surname}
                   </td>
                   <td>{person.name}</td>
                 </tr>

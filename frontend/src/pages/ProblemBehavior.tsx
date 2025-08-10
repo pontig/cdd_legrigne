@@ -12,7 +12,7 @@ import "../styles/problembehavior.css";
 import GenericForm from "../components/GenericForm";
 import NewProblemBehaviorForm from "../components/forms/NewProblemBehavior";
 import { RiDeleteBin6Line } from "react-icons/ri";
-import { text } from "stream/consumers";
+import apiService from "../services/apiService";
 
 interface ProblemRecord {
   id: number;
@@ -36,7 +36,72 @@ interface Problem {
 }
 
 const ProblemBehavior: React.FC = () => {
-  // Color generation utility
+
+    const fetchProblemBehavior: () => Promise<void> = async () => {
+      const response = await apiService.fetchProblemBehaviors({
+        person_id: location.state.guestId,
+      })
+      if (response.status === 401) {
+      console.error("Unauthorized access - please log in.");
+      navigate("/login");
+      return;
+    }
+
+    if (response.error) {
+      console.error("API call failed:", response.error);
+      return;
+    }
+ 
+    if (response.data) {
+      const data = response.data as any
+      setProblemRecords(data as ProblemRecord[]);
+      setProblems(data.problems as Problem);
+    }
+    }
+
+
+  // Navigation and state
+  const { user, setUser } = useUser();
+  const {
+    semesterString,
+    semesterNumber,
+    setSemesterString,
+    setSemesterNumber,
+  } = useSemester();
+  const { place, setPlace } = usePlace();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [guestId, setGuestId] = useState<number>(-1);
+  const [guestFullName, setGuestFullName] = useState<string>("");
+  const [problemRecords, setProblemRecords] = useState<ProblemRecord[]>([]);
+  const [formIsShown, setFormIsShown] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [editingProblemRecord, setEditingProblemRecord] =
+    useState<ProblemRecord | null>(null);
+  const [editingIndex, setEditingIndex] = useState<number>(-1); // Index of event being edited - will be used when saving changes
+  const [problems, setProblems] = useState<Problem>({});
+  const [textIsShown, setTextIsShown] = useState<boolean>(false);
+
+  // Effects
+  useEffect(() => {
+    fetchProblemBehavior();
+    setGuestFullName(location.state.name + " " + location.state.surname);
+    const style = document.createElement("style");
+    style.type = "text/css";
+    style.media = "print";
+    style.innerHTML = `
+      @media print {
+        @page {
+          size: portrait;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
+
   const generateColorGradient = (
     startColor: string,
     endColor: string,
@@ -79,64 +144,6 @@ const ProblemBehavior: React.FC = () => {
     return colors;
   };
 
-  // API services
-  const api = {
-    baseUrl: "http://localhost:5000",
-
-    async fetchProblemBehavior(): Promise<void> {
-      try {
-        const response = await fetch(
-          `${api.baseUrl}/problem_behavior?person_id=${location.state.guestId}`,
-          {
-            credentials: "include",
-          }
-        );
-        if (response.status === 401) {
-          console.error("Unauthorized access - please log in.");
-          navigate("/login");
-          return;
-        }
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        const data = await response.json();
-        setProblemRecords(data.behaviors);
-        setProblems(data.problems);
-        // Process data as needed
-      } catch (error) {
-        console.error("API call failed: " + error);
-      }
-    },
-  };
-
-  // Navigation and state
-  const { user, setUser } = useUser();
-  const {
-    semesterString,
-    semesterNumber,
-    setSemesterString,
-    setSemesterNumber,
-  } = useSemester();
-  const { place, setPlace } = usePlace();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [guestId, setGuestId] = useState<number>(-1);
-  const [guestFullName, setGuestFullName] = useState<string>("");
-  const [problemRecords, setProblemRecords] = useState<ProblemRecord[]>([]);
-  const [formIsShown, setFormIsShown] = useState(false);
-  const [editMode, setEditMode] = useState(false);
-  const [editingProblemRecord, setEditingProblemRecord] =
-    useState<ProblemRecord | null>(null);
-  const [editingIndex, setEditingIndex] = useState<number>(-1); // Index of event being edited - will be used when saving changes
-  const [problems, setProblems] = useState<Problem>({});
-  const [textIsShown, setTextIsShown] = useState<boolean>(false);
-
-  // Effects
-  useEffect(() => {
-    api.fetchProblemBehavior();
-    setGuestFullName(location.state.name + " " + location.state.surname);
-  }, []);
-
   // Generate colors for problem class headers
   const problemClassKeys = Object.keys(problems);
   const headerColors = generateColorGradient(
@@ -162,7 +169,7 @@ const ProblemBehavior: React.FC = () => {
           {
             title: textIsShown ? "Visualizza tabella" : "Versione testuale",
             action: () => setTextIsShown(!textIsShown),
-            icon: textIsShown ?  <FaTable /> : <PiTextAaBold />,
+            icon: textIsShown ? <FaTable /> : <PiTextAaBold />,
           },
           {
             title: "Stampa questa pagina",
@@ -351,11 +358,10 @@ const ProblemBehavior: React.FC = () => {
                 </p>
                 <ul>
                   {Object.keys(problems).flatMap((key) =>
-                    problems[key].map(
-                      (problem) =>
-                        record.problem_statuses[problem.id - 1] ? (
-                          <li key={problem.id}>{problem.nome}</li>
-                        ) : null
+                    problems[key].map((problem) =>
+                      record.problem_statuses[problem.id - 1] ? (
+                        <li key={problem.id}>{problem.nome}</li>
+                      ) : null
                     )
                   )}
                 </ul>

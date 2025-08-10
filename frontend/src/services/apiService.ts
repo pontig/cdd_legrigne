@@ -1,0 +1,137 @@
+/**
+ * API Service
+ * Centralized API calls with proper error handling
+ */
+
+import { API_CONFIG } from '../config/api';
+
+export interface ApiResponse<T = any> {
+  data?: T;
+  error?: string;
+  status: number;
+}
+
+class ApiService {
+  /**
+   * Generic fetch method with error handling
+   */
+  private async fetchWithErrorHandling<T>(
+    endpoint: string,
+    options: RequestInit = {}
+  ): Promise<ApiResponse<T>> {
+    try {
+      const url = API_CONFIG.getUrl(endpoint);
+      
+      const defaultOptions: RequestInit = {
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          ...options.headers,
+        },
+        ...options,
+      };
+
+      const response = await fetch(url, defaultOptions);
+      
+      if (response.status === 401) {
+        return {
+          status: 401,
+          error: 'Unauthorized access - please log in.',
+        };
+      }
+
+      if (!response.ok) {
+        return {
+          status: response.status,
+          error: `HTTP error! status: ${response.status}`,
+        };
+      }
+
+      const data = await response.json();
+      return {
+        status: response.status,
+        data,
+      };
+    } catch (error) {
+      console.error('API call failed:', error);
+      return {
+        status: 0,
+        error: error instanceof Error ? error.message : 'Unknown error occurred',
+      };
+    }
+  }
+
+  /**
+   * GET request
+   */
+  async get<T>(endpoint: string): Promise<ApiResponse<T>> {
+    return this.fetchWithErrorHandling<T>(endpoint, {
+      method: 'GET',
+    });
+  }
+
+  /**
+   * POST request
+   */
+  async post<T>(endpoint: string, data?: any): Promise<ApiResponse<T>> {
+    return this.fetchWithErrorHandling<T>(endpoint, {
+      method: 'POST',
+      body: data ? JSON.stringify(data) : undefined,
+    });
+  }
+
+  /**
+   * PUT request
+   */
+  async put<T>(endpoint: string, data?: any): Promise<ApiResponse<T>> {
+    return this.fetchWithErrorHandling<T>(endpoint, {
+      method: 'PUT',
+      body: data ? JSON.stringify(data) : undefined,
+    });
+  }
+
+  /**
+   * DELETE request
+   */
+  async delete<T>(endpoint: string): Promise<ApiResponse<T>> {
+    return this.fetchWithErrorHandling<T>(endpoint, {
+      method: 'DELETE',
+    });
+  }
+
+  // Specific API methods for your app
+  async fetchPersons() {
+    return this.get('/home');
+  }
+
+  async createGuest(guestData: any) {
+    return this.post('/account', guestData);
+  }
+
+  async fetchActivities(params?: any) {
+    const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
+    return this.get(`/activities${queryString}`);
+  }
+
+  async fetchLogbook(params?: any) {
+    const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
+    return this.get(`/logbook${queryString}`);
+  }
+
+  async fetchSemesters() {
+    return this.get('/semester');
+  }
+
+  async fetchProblemBehaviors(params?: any) {
+    const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
+    return this.get(`/problem_behavior${queryString}`);
+  }
+
+  async login(params: any) {
+    return this.post('/login', params);
+  }
+}
+
+// Export a singleton instance
+export const apiService = new ApiService();
+export default apiService;

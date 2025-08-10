@@ -62,6 +62,7 @@
 
     .legend {
         font-size: 1rem;
+        padding: 0;
     }
 
     .graph-container img {
