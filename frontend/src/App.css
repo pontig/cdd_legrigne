@@ -221,6 +221,11 @@ th {
   justify-content: center;
 }
 
+.longer-header h1, .longer-header p {
+  text-align: left;
+  margin-left: 15rem;
+}
+
 @media print {
   @page {
     size: landscape;

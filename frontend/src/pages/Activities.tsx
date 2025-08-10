@@ -32,7 +32,9 @@ const Activities: React.FC = () => {
   // API services
 
   const fetchActivities = async (personId: number): Promise<void> => {
-    const response = await apiService.fetchActivities({ person_id: personId.toString() });
+    const response = await apiService.fetchActivities({
+      person_id: personId.toString(),
+    });
     if (response.status === 401) {
       console.error("Unauthorized access - please log in.");
       navigate("/login");
@@ -308,7 +310,7 @@ const Activities: React.FC = () => {
             </tbody>
           </table>
         ) : (
-          <div className="graph-container">
+          <div className="activities-graph-container">
             <img
               src={`data:image/png;base64,${graph}`}
               alt="Activities Graph"

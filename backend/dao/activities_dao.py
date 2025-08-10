@@ -75,4 +75,170 @@ class ActivitiesDAO:
             if connection:
                 connection.close()
                 
+    def get_appreciations(self, month: int = None) -> List[dict]:
+        """Get appreciations for all persons"""
+        semester_constraint = " = %s" if session.get('semester') is not None else " IS NULL"
+        month_constraint = " AND g.mese = %s" if month is not None else ""
+        
+        if month is not None:
+            # Return data for specific month
+            query = f"""
+                SELECT 
+                    p.nome,
+                    p.cognome,
+                    g.id_persona,
+                    g.attivita,
+                    g.mese,
+                    g.id_semestre,
+                    g.mediaAdesione,
+                    g.mediaPartecipazione,
+                    g.nVolte,
+                    a.id,
+                    a.nome_attivita,
+                    a.abbreviazione
+                FROM grad g 
+                JOIN attivita a ON g.attivita = a.id
+                JOIN persona p ON g.id_persona = p.id
+                WHERE id_semestre {semester_constraint}{month_constraint}
+                ORDER BY g.id_persona, a.abbreviazione, g.mese
+            """
+        else:
+            # Aggregate by month and calculate final averages
+            query = f"""
+                SELECT 
+                    p.nome,
+                    p.cognome,
+                    g.id_persona,
+                    g.attivita,
+                    AVG(g.mediaAdesione) as avg_adesione,
+                    AVG(g.mediaPartecipazione) as avg_partecipazione,
+                    SUM(g.nVolte) as total_volte,
+                    a.id,
+                    a.nome_attivita,
+                    a.abbreviazione
+                FROM grad g 
+                JOIN attivita a ON g.attivita = a.id
+                JOIN persona p ON g.id_persona = p.id
+                WHERE id_semestre {semester_constraint}
+                GROUP BY g.id_persona, g.attivita, a.id, a.nome_attivita, a.abbreviazione, p.nome, p.cognome
+                ORDER BY g.id_persona, a.abbreviazione
+            """
+        
+        connection = None
+        cursor = None
+
+        try:
+            connection = db_config.get_connection()
+            cursor = connection.cursor()
+            
+            params = []
+            if session.get('semester') is not None:
+                params.append(session.get('semester'))
+            if month is not None:
+                params.append(month)
+                
+            cursor.execute(query, params)
+            results = cursor.fetchall()
+
+            appreciations = []
+            # Group results by id_persona
+            grouped_data = {}
+            person_names = {}
+            for row in results:
+                person_id = row[2]
+                
+                # Store person's name and surname
+                if person_id not in person_names:
+                    person_names[person_id] = {
+                        'nome': row[0],
+                        'cognome': row[1]
+                    }
+                
+                if person_id not in grouped_data:
+                    grouped_data[person_id] = []
+                
+                if month is not None:
+                    grouped_data[person_id].append({
+                        'id_persona': row[2],
+                        'attivita': row[3],
+                        'mese': row[4],
+                        'id_semestre': row[5],
+                        'media_adesione': int(row[6]),
+                        'media_partecipazione': int(row[7]),
+                        'n_volte': int(row[8]),
+                        'abbreviazione': row[9],
+                    })
+                else:
+                    grouped_data[person_id].append({
+                        'id_persona': row[2],
+                        'attivita': row[3],
+                        'media_adesione': int(round(row[4], 0)),
+                        'media_partecipazione': int(round(row[5], 0)),
+                        'n_volte': int(row[6]),
+                        'abbreviazione': row[9],
+                    })
+            
+            # Convert grouped data to list format
+            for person_id, person_data in grouped_data.items():
+                appreciations.append({
+                    'id_persona': person_id,
+                    'nome': person_names[person_id]['nome'],
+                    'cognome': person_names[person_id]['cognome'],
+                    'activities': person_data
+                })
+                
+            activities = self.get_activities_list()
+            return {
+                'appreciations': appreciations,
+                'activities': activities
+            }
+
+        except Exception as e:
+            if connection:
+                connection.rollback()
+            raise e
+
+        finally:
+            if cursor:
+                cursor.close()
+            if connection:
+                connection.close()
+
+    def get_activities_list(self) -> List[dict]:
+        """Get the available activities"""
+        query = """
+            SELECT id, nome_attivita, abbreviazione FROM attivita
+            ORDER BY abbreviazione
+        """
+        connection = None
+        cursor = None
+
+        try:
+            connection = db_config.get_connection()
+            cursor = connection.cursor()
+            cursor.execute(query)
+            results = cursor.fetchall()
+
+            activities = []
+            for row in results:
+                activities.append({
+                    'id': row[0],
+                    'nome_attivita': row[1],
+                    'abbreviazione': row[2]
+                })
+            activities.append(activities[0]) 
+            activities.pop(0)
+            return activities
+
+        except Exception as e:
+            if connection:
+                connection.rollback()
+            raise e
+
+        finally:
+            if cursor:
+                cursor.close()
+            if connection:
+                connection.close()
+
 activities_dao = ActivitiesDAO()

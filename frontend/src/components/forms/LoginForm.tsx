@@ -24,7 +24,8 @@ const LoginForm: React.FC = () => {
           })
 
         if (response.error) {
-          throw new Error("Login failed");
+          alert("Login failed: " + response.error);
+          return;
         }
 
         console.log("Login successful:", response);

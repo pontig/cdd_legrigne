@@ -19,7 +19,7 @@ interface Event {
   signature: string;
 }
 
-const Template: React.FC = () => {
+const LogBook: React.FC = () => {
 
   const fetchEvents = async (): Promise<void> => {
     const response = await apiService.fetchLogbook({
@@ -207,4 +207,4 @@ const Template: React.FC = () => {
   );
 };
 
-export default Template;
+export default LogBook;

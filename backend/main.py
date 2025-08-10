@@ -14,6 +14,7 @@ from servlets.activities_servlet import activities_bp
 from servlets.logbook_servlet import logbook_bp
 from servlets.account_servlet import account_bp
 from servlets.problembehavior_servlet import problembehavior_bp
+from servlets.appreciations_servlet import appreciations_bp
 from config.database import db_config
 
 def create_app():
@@ -37,6 +38,7 @@ def create_app():
     app.register_blueprint(logbook_bp)
     app.register_blueprint(semester_bp)
     app.register_blueprint(problembehavior_bp)
+    app.register_blueprint(appreciations_bp)
 
     @app.route('/ping')
     def ping():

@@ -146,7 +146,7 @@ const MainPage: React.FC = () => {
           },
           {
             title: "Visualizza gradimenti",
-            action: () => console.log("Visualizza gradimenti"),
+            action: () => navigate("/gradimenti"),
             icon: <ImStatsBars />,
           },
         ]}
@@ -175,7 +175,7 @@ const MainPage: React.FC = () => {
                 >
                   <td>
                     <span>
-                      {person.activities.map((activity) => (
+                      {semesterString === null && person.activities.map((activity) => (
                         <span
                           key={`${activity.day}.${activity.month_int}`}
                           className="missing-activity"

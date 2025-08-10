@@ -36,12 +36,11 @@ interface Problem {
 }
 
 const ProblemBehavior: React.FC = () => {
-
-    const fetchProblemBehavior: () => Promise<void> = async () => {
-      const response = await apiService.fetchProblemBehaviors({
-        person_id: location.state.guestId,
-      })
-      if (response.status === 401) {
+  const fetchProblemBehavior: () => Promise<void> = async () => {
+    const response = await apiService.fetchProblemBehaviors({
+      person_id: location.state.guestId,
+    });
+    if (response.status === 401) {
       console.error("Unauthorized access - please log in.");
       navigate("/login");
       return;
@@ -51,14 +50,13 @@ const ProblemBehavior: React.FC = () => {
       console.error("API call failed:", response.error);
       return;
     }
- 
+
     if (response.data) {
-      const data = response.data as any
-      setProblemRecords(data as ProblemRecord[]);
+      const data = response.data as any;
+      setProblemRecords(data.behaviors as ProblemRecord[]);
       setProblems(data.problems as Problem);
     }
-    }
-
+  };
 
   // Navigation and state
   const { user, setUser } = useUser();
@@ -195,7 +193,7 @@ const ProblemBehavior: React.FC = () => {
         ]}
       />
       <div>
-        <div className="header">
+        <div className="header longer-header">
           <h1>Comportamenti problema di {guestFullName}</h1>
           <p className="subtitle">{semesterString}</p>
         </div>

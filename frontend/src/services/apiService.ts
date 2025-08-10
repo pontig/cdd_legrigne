@@ -130,6 +130,11 @@ class ApiService {
   async login(params: any) {
     return this.post('/login', params);
   }
+
+  async fetchAppreciations(month?: number) {
+    const queryString = month ? `?month=${month}` : '';
+    return this.get(`/appreciations${queryString}`);
+  }
 }
 
 // Export a singleton instance
