@@ -42,6 +42,30 @@ const LogBook: React.FC = () => {
     }
   };
 
+  const deleteEvent = async (id: number): Promise<void> => {
+
+    const conf = window.confirm("Sei sicuro di voler eliminare questa voce?");
+
+    if (!conf) return;
+
+    const response = await apiService.deleteLogbook(id);
+
+    if (response.status === 401) {
+      console.error("Unauthorized access - please log in.");
+      navigate("/login");
+      return;
+    }
+
+    if (response.error) {
+      console.error("API call failed:", response.error);
+      return;
+    }
+
+    if (response.data) {
+      fetchEvents();
+    }
+  };
+
   // Navigation and state
   const { user, setUser } = useUser();
   const {
@@ -153,7 +177,7 @@ const LogBook: React.FC = () => {
                                   className="edit-row-btn"
                                   onClick={() => {
                                     setEditingEvent(event);
-                                    setEditingIndex(index);
+                                    setEditingIndex(event.id);
                                     setFormIsShown(true);
                                     setEditMode(false); // Exit edit mode after selecting an item
                                   }}
@@ -163,12 +187,7 @@ const LogBook: React.FC = () => {
                                 </button>
                                 <button
                                   className="delete-row-btn"
-                                  onClick={() => {
-                                    // TODO: Implement delete functionality
-                                    console.log(
-                                      `Delete event at index ${index}`
-                                    );
-                                  }}
+                                  onClick={() => deleteEvent(event.id)}
                                   title="Elimina questa registrazione"
                                 >
                                   <RiDeleteBin6Line />
@@ -191,16 +210,19 @@ const LogBook: React.FC = () => {
           </tbody>
         </table>
         {formIsShown && (
-          <GenericForm
+            <GenericForm
             title={editingEvent ? "Modifica evento" : "Nuovo evento"}
             closeForm={() => {
               setFormIsShown(false);
               setEditingEvent(null);
               setEditingIndex(-1);
             }}
-          >
-            <NewLogForm editData={editingEvent || undefined} />
-          </GenericForm>
+            >
+            <NewLogForm 
+              editData={editingEvent || undefined} 
+              editingIndex={editingIndex || -1}
+            />
+            </GenericForm>
         )}
       </div>
     </div>

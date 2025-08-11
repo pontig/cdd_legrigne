@@ -92,6 +92,13 @@ const ProblemBehavior: React.FC = () => {
         @page {
           size: portrait;
         }
+        .longer-header {
+          display: initial;
+        }
+        .longer-header h1 {
+          margin: 0 !important;
+          text-align: center;
+        }
       }
     `;
     document.head.appendChild(style);

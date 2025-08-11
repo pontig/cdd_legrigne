@@ -54,4 +54,63 @@ class LogbookDAO:
             if connection:
                 connection.close()
                 
+    def create_logbook_entry(self, data: dict) -> None:
+        """Create a new logbook entry"""
+        query = """
+            INSERT INTO diario VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, NULL)
+        """
+        
+        connection = None
+        cursor = None
+        
+        try:
+            date = data['date'].split('-') # YYYY-MM-DD format
+            connection = db_config.get_connection()
+            cursor = connection.cursor()
+            cursor.execute(query, (
+                data['person_id'],
+                date[2],
+                date[1],
+                date[0],
+                data['event'],
+                data['intervention'],
+                data.get('signature', None)
+            ))
+            connection.commit()
+
+        except Exception as e:
+            if connection:
+                connection.rollback()
+            raise Exception(f"Error creating logbook entry: {str(e)}")
+
+        finally:
+            if cursor:
+                cursor.close()
+            if connection:
+                connection.close()
+                
+    def delete_logbook_entries(self, id: int) -> None:
+        """Delete all logbook entries for a specific person"""
+        query = "DELETE FROM diario WHERE id = %s"
+        
+        connection = None
+        cursor = None
+        
+        try:
+            connection = db_config.get_connection()
+            cursor = connection.cursor()
+            cursor.execute(query, (id,))
+            connection.commit()
+
+        except Exception as e:
+            if connection:
+                connection.rollback()
+            raise Exception(f"Error deleting logbook entries: {str(e)}")
+
+        finally:
+            if cursor:
+                cursor.close()
+            if connection:
+                connection.close()
+
 logbook_dao = LogbookDAO()

@@ -99,7 +99,9 @@ class ApiService {
     });
   }
 
-  // Specific API methods for your app
+
+  
+  // Specific API methods for the app
   async fetchPersons() {
     return this.get('/home');
   }
@@ -134,6 +136,14 @@ class ApiService {
   async fetchAppreciations(month?: number) {
     const queryString = month ? `?month=${month}` : '';
     return this.get(`/appreciations${queryString}`);
+  }
+
+  async createLogBook(logData: any) {
+    return this.post('/new_logbook_entry', logData);
+  }
+
+  async deleteLogbook(id: number) {
+    return this.get(`/delete_logbook?id=${id}`);
   }
 }
 

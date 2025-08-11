@@ -26,3 +26,41 @@ def get_logbook_entries():
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+@logbook_bp.route('/new_logbook_entry', methods=['POST'])
+def create_logbook_entry():
+    """Create a new logbook entry"""
+    data = request.get_json()
+    
+    if check_session() is False:
+        return jsonify({'error': 'Unauthorized access'}), 401
+
+    required_fields = ['person_id', 'date', 'event', 'intervention']
+    for field in required_fields:
+        if field not in data:
+            return jsonify({'error': f'Missing field: {field}'}), 400
+
+    try:
+        logbook_dao.create_logbook_entry(data)
+        return jsonify({'message': 'Logbook entry created successfully'}), 201
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+@logbook_bp.route('/delete_logbook', methods=['GET'])
+def delete_logbook():
+    """Delete all logbook entries for a specific person"""
+    id = request.args.get('id', type=int)
+    
+    if check_session() is False:
+        return jsonify({'error': 'Unauthorized access'}), 401
+    
+    if not id:
+        return jsonify({'error': 'Missing or invalid id'}), 400
+    
+    try:
+        logbook_dao.delete_logbook_entries(id)
+        return jsonify({'message': 'Logbook entries deleted successfully'}), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
