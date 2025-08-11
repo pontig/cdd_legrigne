@@ -1,5 +1,7 @@
 import React from "react";
 import { useUser } from "../../contexts/UserContext";
+import { useLocation } from "react-router-dom";
+import apiService from "../../services/apiService";
 
 interface ProblemItem {
   classe: string;
@@ -17,19 +19,54 @@ interface NewProblemBehaviorFormProps {
     containment: string;
     problem_statuses: boolean[];
   };
+  editingIndex: number;
 }
 
 const NewProblemBehaviorForm: React.FC<NewProblemBehaviorFormProps> = ({
   problems,
   editData,
+  editingIndex,
 }) => {
+  const handleSubmit = async (
+    event: React.FormEvent<HTMLFormElement>
+  ): Promise<void> => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    if (!form) return;
+
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+
+    const response = await apiService.createProblemBehavior({
+      ...data,
+      person_id: location.state.guestId,
+      problem_statuses: formData.getAll("problems"),
+    });
+
+    if (response.error) {
+      alert("Problem behavior creation failed: " + response.error);
+      return;
+    }
+
+    if (editData && editingIndex !== -1) {
+      const deleteResponse = await apiService.deleteProblemBehavior(editingIndex);
+      if (deleteResponse.error) {
+        alert("Problem behavior deletion failed: " + deleteResponse.error);
+        return;
+      }
+    }
+
+    window.location.reload(); 
+  };
+
   const { user } = useUser();
+  const location = useLocation();
 
   return (
-    <form method="post">
+    <form method="POST" onSubmit={handleSubmit}>
       <label>
         Data:
-        <input type="date" name="date" defaultValue={editData?.date || ""} />
+        <input type="date" name="date" defaultValue={editData?.date || ""} required/>
       </label>
       <div>
         <label>Tipologia di comportamento:</label>
@@ -71,11 +108,21 @@ const NewProblemBehaviorForm: React.FC<NewProblemBehaviorFormProps> = ({
         </select>
       </label>
       <label>
+        Durata e ripetitività:
+        <textarea
+          name="duration"
+          rows={4}
+          defaultValue={editData?.duration || ""}
+          required
+        />
+      </label>
+      <label>
         Causa scatenante e descrizione:
         <textarea
-          name="description"
+          name="cause"
           rows={4}
           defaultValue={editData?.cause || ""}
+          required
         />
       </label>
       <label>
@@ -93,8 +140,8 @@ const NewProblemBehaviorForm: React.FC<NewProblemBehaviorFormProps> = ({
           name="signature"
           value={
             // editData?.signature ||
-            (user?.name ? user.name[0] : "") +
-            (user?.surname ? user.surname[0] : "")
+            (user?.name ? user.name[0].toLowerCase() : "") +
+            (user?.surname ? user.surname[0].toLowerCase() : "")
           }
         />
       </label>

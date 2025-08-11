@@ -157,6 +157,15 @@ class ApiService {
   async declareAbsence(absenceData: any) {
     return this.post('/declare_absence', absenceData);
   }
+
+  async createProblemBehavior(problemData: any) {
+    return this.post('/new_problem_behavior_entry', problemData);
+  }
+
+  async deleteProblemBehavior(id: number) {
+    return this.get(`/delete_problem_behavior?id=${id}`);
+  }
+
 }
 
 // Export a singleton instance

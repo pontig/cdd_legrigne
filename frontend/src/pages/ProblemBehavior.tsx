@@ -58,6 +58,31 @@ const ProblemBehavior: React.FC = () => {
     }
   };
 
+  const deleteProblemRecord = async (id: number): Promise<void> => {
+    const conf = window.confirm(
+      "Sei sicuro di voler eliminare questa registrazione?"
+    );
+
+    if (!conf) return;
+
+    const response = await apiService.deleteProblemBehavior(id);
+
+    if (response.status === 401) {
+      console.error("Unauthorized access - please log in.");
+      navigate("/login");
+      return;
+    }
+
+    if (response.error) {
+      console.error("API call failed:", response.error);
+      return;
+    }
+
+    if (response.data) {
+      fetchProblemBehavior();
+    }
+  };
+
   // Navigation and state
   const { user, setUser } = useUser();
   const {
@@ -296,7 +321,7 @@ const ProblemBehavior: React.FC = () => {
                                     className="edit-row-btn"
                                     onClick={() => {
                                       setEditingProblemRecord(record);
-                                      setEditingIndex(index);
+                                      setEditingIndex(record.id);
                                       setFormIsShown(true);
                                       setEditMode(false); // Exit edit mode after selecting an item
                                     }}
@@ -306,12 +331,7 @@ const ProblemBehavior: React.FC = () => {
                                   </button>
                                   <button
                                     className="delete-row-btn"
-                                    onClick={() => {
-                                      // TODO: Implement delete functionality
-                                      console.log(
-                                        `Delete event at index ${index}`
-                                      );
-                                    }}
+                                    onClick={() => deleteProblemRecord(record.id)}
                                     title="Elimina questa registrazione"
                                   >
                                     <RiDeleteBin6Line />
@@ -401,6 +421,7 @@ const ProblemBehavior: React.FC = () => {
             <NewProblemBehaviorForm
               problems={problems}
               editData={editingProblemRecord || undefined}
+              editingIndex={editingIndex || -1}
             />
           </GenericForm>
         )}

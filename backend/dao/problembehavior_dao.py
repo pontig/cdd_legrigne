@@ -20,11 +20,11 @@ class ProblemBehaviorDAO:
             connection = db_config.get_connection()
             cursor = connection.cursor()
             
-            # First, get all problems to build the structure
-            cursor.execute("SELECT id, nome, classe FROM problema ORDER BY classe, nome")
+            # First, get all problems ordered by id
+            cursor.execute("SELECT id, nome, classe FROM problema ORDER BY id")
             problems = cursor.fetchall()
             
-            # Group problems by class for frontend
+            # Group problems by class for frontend, maintaining id order within each class
             grouped_problems = {}
             for problem in problems:
                 problem_dict = {
@@ -103,7 +103,7 @@ class ProblemBehaviorDAO:
                 behavior_id = row[0]
                 associated_problems = behavior_to_problems.get(behavior_id, set())
                 
-                # Create ordered array of problem statuses
+                # Create ordered array of problem statuses (ordered by problem.id)
                 problem_statuses = []
                 for problem in problems:
                     problem_id = problem[0]
@@ -123,6 +123,87 @@ class ProblemBehaviorDAO:
                 connection.rollback()
             
             return str(e)
+        
+        finally:
+            if cursor:
+                cursor.close()
+            if connection:
+                connection.close()
+                
+    def create_problem_behavior_entry(self, data: Dict) -> None:
+        """Create a new problem behavior entry"""
+        query_main = """
+            INSERT INTO comportamento_problema VALUES
+            (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s, NULL)
+        """
+        
+        connection = None
+        cursor = None
+        
+        try:
+            date = data['date'].split('-') # YYYY-MM-DD
+            connection = db_config.get_connection()
+            cursor = connection.cursor()
+            cursor.execute(query_main, (
+                data['person_id'],
+                int(date[2]),
+                int(date[1]),
+                int(date[0]),
+                data['intensity'],
+                data['duration'],
+                data['cause'],
+                data['containment'],
+                data['signature']
+            ))
+            behavior_id = cursor.lastrowid
+            
+            # Insert problem relationships using parameterized query
+            if data['problem_statuses']:
+                query_problems = """
+                    INSERT INTO evento_comportamento VALUES
+                """ + ", ".join(["(NULL, %s, %s)"] * len(data['problem_statuses']))
+                
+                # Flatten the parameters for the query
+                params = []
+                for problem_id in data['problem_statuses']:
+                    params.extend([behavior_id, problem_id])
+                
+                cursor.execute(query_problems, params)
+            
+            connection.commit()
+        
+        except Exception as e:
+            if connection:
+                connection.rollback()
+            raise e
+        
+        finally:
+            if cursor:
+                cursor.close()
+            if connection:
+                connection.close()
+                
+    def delete_problem_behavior(self, behavior_id: int) -> None:
+        """Delete a problem behavior entry"""
+        connection = None
+        cursor = None
+        
+        try:
+            connection = db_config.get_connection()
+            cursor = connection.cursor()
+            
+            # Delete from evento_comportamento first
+            cursor.execute("DELETE FROM evento_comportamento WHERE id_comportamento = %s", (behavior_id,))
+            
+            # Then delete from comportamento_problema
+            cursor.execute("DELETE FROM comportamento_problema WHERE id = %s", (behavior_id,))
+            
+            connection.commit()
+        
+        except Exception as e:
+            if connection:
+                connection.rollback()
+            raise e
         
         finally:
             if cursor:
