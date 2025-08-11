@@ -90,7 +90,7 @@ class LogbookDAO:
                 connection.close()
                 
     def delete_logbook_entries(self, id: int) -> None:
-        """Delete all logbook entries for a specific person"""
+        """Delete a logbook entry by ID"""
         query = "DELETE FROM diario WHERE id = %s"
         
         connection = None

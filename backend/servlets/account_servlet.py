@@ -22,16 +22,23 @@ def login():
     
     password_sha256 = hashlib.sha256(password.encode('utf-8')).hexdigest()
 
-    user_id = account_dao.login(name, surname, password_sha256)
+    user_id, permissions = account_dao.login(name, surname, password_sha256)
 
     if user_id:
         session['user_id'] = user_id
         session['name'] = name
         session['surname'] = surname
+        session['permissions'] = permissions
         session.permanent = True
         session['semester'] = None
 
-        return jsonify({'message': 'Login successful'}), 200
+        return jsonify({
+            'message': 'Login successful',
+            'user_id': user_id,
+            'permissions': permissions,
+            'name': name,
+            'surname': surname
+        }), 200
     return jsonify({'error': 'Invalid credentials'}), 401
 
 @account_bp.route('/logout')

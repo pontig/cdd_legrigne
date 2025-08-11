@@ -145,6 +145,18 @@ class ApiService {
   async deleteLogbook(id: number) {
     return this.get(`/delete_logbook?id=${id}`);
   }
+
+  async createActivity(activityData: any) {
+    return this.post('/new_activity_entry', activityData);
+  }
+
+  async deleteActivity(id: number) {
+    return this.get(`/delete_activity?id=${id}`);
+  }
+
+  async declareAbsence(absenceData: any) {
+    return this.post('/declare_absence', absenceData);
+  }
 }
 
 // Export a singleton instance

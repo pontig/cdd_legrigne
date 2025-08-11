@@ -30,7 +30,7 @@ class ActivitiesDAO:
                 a.id as attivita_id
 
             FROM partecipazione_attivita pa
-            JOIN attivita a ON pa.attivita = a.id
+            LEFT JOIN attivita a ON pa.attivita = a.id
             WHERE id_persona = %s AND pa.id_semestre {semester_constraint}
             ORDER BY anno DESC, mese_int DESC, giorno DESC
         """
@@ -240,5 +240,113 @@ class ActivitiesDAO:
                 cursor.close()
             if connection:
                 connection.close()
+                
+    def create_activity_entry(self, data: dict) -> None:
+        """Create a new activity entry"""
+        query = """
+            INSERT INTO partecipazione_attivita VALUES
+            (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NULL)
+        """
+        
+        connection = None
+        cursor = None
+        
+        try:
+            date = data['date'].split('-')  # YYYY-MM-DD format
+            morning = 1 if data['morning'] == 'yes' else 0
+            problem_behaviour = 1 if data.get('problem_behaviour') else 0
+            connection = db_config.get_connection()
+            cursor = connection.cursor()
+            cursor.execute(query, (
+                data['person_id'],
+                date[2],
+                date[1],
+                date[0],
+                morning,
+                data['activity'],
+                data['adesion'],
+                data['participation'],
+                data['mood'],
+                data['communication'],
+                problem_behaviour
+            ))
+            connection.commit()
+
+        except Exception as e:
+            if connection:
+                connection.rollback()
+            raise Exception(f"Error creating logbook entry: {str(e)}")
+
+        finally:
+            if cursor:
+                cursor.close()
+            if connection:
+                connection.close()
+                
+    def delete_activity(self, activity_id: int) -> None:
+        """Delete an activity entry"""
+        query = "DELETE FROM partecipazione_attivita WHERE id = %s"
+        
+        connection = None
+        cursor = None
+        
+        try:
+            connection = db_config.get_connection()
+            cursor = connection.cursor()
+            cursor.execute(query, (activity_id,))
+            connection.commit()
+
+        except Exception as e:
+            if connection:
+                connection.rollback()
+            raise Exception(f"Error deleting activity: {str(e)}")
+
+        finally:
+            if cursor:
+                cursor.close()
+            if connection:
+                connection.close()
+                
+    def declare_absence(self, data: dict) -> None:
+        """Declare absence for a person"""
+        query = """
+            INSERT INTO partecipazione_attivita (id_persona, giorno, mese_int, anno, mattino, attivita, id_semestre)
+            VALUES (%s, %s, %s, %s, %s, NULL, NULL);
+        """
+        
+        connection = None
+        cursor = None
+        
+        try:
+            date = data['date'].split('-')  # YYYY-MM-DD format
+            connection = db_config.get_connection()
+            cursor = connection.cursor()
+            cursor.execute(query, (
+                data['person_id'],
+                date[2],
+                date[1],
+                date[0],
+                0
+            ))
+            cursor.execute(query, (
+                data['person_id'],
+                date[2],
+                date[1],
+                date[0],
+                1
+            ))
+            connection.commit()
+
+        except Exception as e:
+            if connection:
+                connection.rollback()
+            raise Exception(f"Error declaring absence: {str(e)}")
+
+        finally:
+            if cursor:
+                cursor.close()
+            if connection:
+                connection.close()
+
 
 activities_dao = ActivitiesDAO()

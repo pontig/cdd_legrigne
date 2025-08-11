@@ -86,3 +86,72 @@ def get_activities():
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+@activities_bp.route('/new_activity_entry', methods=['POST'])
+def create_activity_entry():
+    """ Create a new activity entry """
+    data = request.get_json()
+    
+    if check_session() is False:
+        return jsonify({'error': 'Unauthorized access'}), 401
+
+    required_fields = [
+        'person_id',
+        'date',
+        'morning',
+        'activity',
+        'adesion',
+        'participation',
+        'mood',
+        'communication'
+    ]
+    
+    for field in required_fields:
+        if field not in data:
+            return jsonify({'error': f'Missing field: {field}'}), 400
+
+    try:
+        activities_dao.create_activity_entry(data)
+        return jsonify({'message': 'Activity entry created successfully'}), 201
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+@activities_bp.route('/delete_activity', methods=['GET'])
+def delete_activity():
+    """ Delete an activity entry """
+    activity_id = request.args.get('id', type=int)
+
+    if check_session() is False:
+        return jsonify({'error': 'Unauthorized access'}), 401
+
+    if not activity_id:
+        return jsonify({'error': 'Missing or invalid activity ID'}), 400
+
+    try:
+        activities_dao.delete_activity(activity_id)
+        return jsonify({'message': 'Activity deleted successfully'}), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+@activities_bp.route('/declare_absence', methods=['POST'])
+def declare_absence():
+    """ Declare absence for a person """
+    data = request.get_json()
+    
+    if check_session() is False:
+        return jsonify({'error': 'Unauthorized access'}), 401
+
+    required_fields = ['person_id', 'date']
+    
+    for field in required_fields:
+        if field not in data:
+            return jsonify({'error': f'Missing field: {field}'}), 400
+
+    try:
+        activities_dao.declare_absence(data)
+        return jsonify({'message': 'Absence declared successfully'}), 201
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500

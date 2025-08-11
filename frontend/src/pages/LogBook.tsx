@@ -43,7 +43,6 @@ const LogBook: React.FC = () => {
   };
 
   const deleteEvent = async (id: number): Promise<void> => {
-
     const conf = window.confirm("Sei sicuro di voler eliminare questa voce?");
 
     if (!conf) return;
@@ -179,7 +178,7 @@ const LogBook: React.FC = () => {
                                     setEditingEvent(event);
                                     setEditingIndex(event.id);
                                     setFormIsShown(true);
-                                    setEditMode(false); // Exit edit mode after selecting an item
+                                    setEditMode(false);
                                   }}
                                   title="Modifica questa registrazione"
                                 >

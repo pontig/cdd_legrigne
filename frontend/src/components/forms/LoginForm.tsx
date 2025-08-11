@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import apiService from "../../services/apiService";
+import { useUser } from "../../contexts/UserContext";
 
 const LoginForm: React.FC = () => {
 
@@ -13,7 +14,7 @@ const LoginForm: React.FC = () => {
       const formData = new FormData(form);
       const data = Object.fromEntries(formData.entries());
 
-      const response = await apiService.login({
+      const response: { error?: string; data?: any } = await apiService.login({
             ...data,
             name:
               (data.name as string).charAt(0).toUpperCase() +
@@ -29,11 +30,21 @@ const LoginForm: React.FC = () => {
         }
 
         console.log("Login successful:", response);
+
+        setUser({
+          name: response.data.name,
+          surname: response.data.surname,
+          id: response.data.user_id,
+          permissions: response.data.permissions,
+        });
+
         navigate("/");
 
     }
 
   const navigate = useNavigate();
+    const { user, setUser } = useUser();
+  
 
   return (
     <form method="POST" onSubmit={handleSubmit}>

@@ -1,12 +1,14 @@
 import React from "react";
 import { useUser } from "../../contexts/UserContext";
+import { useLocation } from "react-router-dom";
+import apiService from "../../services/apiService";
 
 interface NewActivityFormProps {
   mostFrequentAdesion: number;
   mostFrequentParticipation: number;
   mostFrequentMood: number;
   mostFrequentCommunication: number;
-  missingDate?: string; 
+  missingDate?: string;
   editData?: {
     id: number;
     date: string;
@@ -19,6 +21,7 @@ interface NewActivityFormProps {
     problem_behaviour: boolean;
     activity_id: number;
   };
+  editingIndex: number;
 }
 
 const NewActivityForm: React.FC<NewActivityFormProps> = ({
@@ -28,6 +31,7 @@ const NewActivityForm: React.FC<NewActivityFormProps> = ({
   mostFrequentCommunication,
   missingDate,
   editData,
+  editingIndex
 }) => {
   const arr_adesion = [
     "Su insistenza",
@@ -58,15 +62,75 @@ const NewActivityForm: React.FC<NewActivityFormProps> = ({
     "Eloquio ossesivo",
   ];
 
+  const handleSubmit = async (
+    event: React.FormEvent<HTMLFormElement>
+  ): Promise<void> => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    if (!form) return;
+
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+
+    const response = await apiService.createActivity({
+      ...data,
+      person_id: location.state.guestId,
+    });
+
+    if (response.error) {
+      alert("Activity creation failed: " + response.error);
+      return;
+    }
+
+    if (editData) {
+      const deleteResponse = await apiService.deleteActivity(editData.id);
+      if (deleteResponse.error) {
+        alert("Activity deletion failed: " + deleteResponse.error);
+        return;
+      }
+    }
+
+    window.location.reload();
+  };
+
+  const declareAbsence = async (
+    event: React.MouseEvent<HTMLButtonElement>
+  ): Promise<void> => {
+    event.preventDefault();
+    const form = event.currentTarget.form;
+    if (!form) return;
+
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+
+    const response = await apiService.declareAbsence({
+      person_id: location.state.guestId,
+      date: data.date as string,
+    });
+
+    if (response.error) {
+      alert("Absence declaration failed: " + response.error);
+      return;
+    }
+
+    window.location.reload();
+  };
+
   const { user } = useUser();
+  const location = useLocation();
 
   return (
-    <form action="" method="POST">
+    <form method="POST" onSubmit={handleSubmit}>
       <label>
         Data:
-        <input type="date" name="date" defaultValue={missingDate || editData?.date || ""} />
+        <input
+          type="date"
+          name="date"
+          defaultValue={missingDate || editData?.date || ""}
+          required
+        />
       </label>
-      <button type="submit" name="absent" style={{ marginBottom: "1rem" }}>
+      <button type="submit" name="absent" style={{ marginBottom: "1rem" }} onClick={declareAbsence}>
         Assente tutto il giorno
       </button>
       <label htmlFor="morning-yes">
@@ -182,7 +246,7 @@ const NewActivityForm: React.FC<NewActivityFormProps> = ({
       <label>
         Comunicazione:
         <select
-          name="comunication"
+          name="communication"
           defaultValue={editData?.communication || mostFrequentCommunication}
         >
           {arr_comunication.map((option, index) => (
@@ -195,7 +259,7 @@ const NewActivityForm: React.FC<NewActivityFormProps> = ({
       <label>
         <input
           type="checkbox"
-          name="comunicazione"
+          name="problem_behaviour"
           defaultChecked={editData?.problem_behaviour}
         />
         ha avuto un comportamento problema

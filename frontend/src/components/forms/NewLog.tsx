@@ -34,8 +34,6 @@ const NewLogForm: React.FC<NewLogFormProps> = ({ editData, editingIndex }) => {
       return;
     }
 
-    console.log(editData)
-    console.log(editingIndex)
     if (editData && editingIndex !== -1) {
       const deleteResponse = await apiService.deleteLogbook(editingIndex);
       if (deleteResponse.error) {

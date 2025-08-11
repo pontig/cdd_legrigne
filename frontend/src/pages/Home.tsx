@@ -57,13 +57,10 @@ const MainPage: React.FC = () => {
   // Effects
   useEffect(() => {
     setPlace("Bellano");
-    setUser({
-      name: "Elia",
-      surname: "Pontiggia",
-      id: 1,
-      permissions: 100,
-    });
-
+    if (!user) {
+      navigate("/login");
+      return;
+    }
     fetchPersons();
   }, []);
 

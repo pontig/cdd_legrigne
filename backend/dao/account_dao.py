@@ -13,7 +13,7 @@ class AccountDAO:
     def login(self, name: str, surname: str, password: str) -> Optional[int]:
         """Handle user login and return user ID if successful"""
         query = """
-            SELECT id FROM account
+            SELECT id, privilegi FROM account
             WHERE nome = %s AND cognome = %s AND password = %s
         """
         
@@ -27,7 +27,7 @@ class AccountDAO:
             result = cursor.fetchone()
             
             if result:
-                return result[0]  # Return user ID
+                return result[0], result[1]  # Return user ID and privileges
             return None  # No user found
         
         except Exception as e:

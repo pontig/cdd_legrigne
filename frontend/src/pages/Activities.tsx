@@ -60,6 +60,28 @@ const Activities: React.FC = () => {
     }
   };
 
+  const deleteEvent = async (id: number): Promise<void> => {
+    const conf = window.confirm("Sei sicuro di voler eliminare questa voce?");
+    if (!conf) return;
+
+    const response = await apiService.deleteActivity(id);
+
+    if (response.status === 401) {
+      console.error("Unauthorized access - please log in.");
+      navigate("/login");
+      return;
+    }
+
+    if (response.error) {
+      console.error("API call failed:", response.error);
+      return;
+    }
+
+    if (response.data) {
+      fetchActivities(guestId);
+    }
+  };
+
   // Navigation and state
   const arr_adesion = [
     "Su insistenza",
@@ -244,9 +266,9 @@ const Activities: React.FC = () => {
                                       className="edit-row-btn"
                                       onClick={() => {
                                         setEditingActivity(activity);
-                                        setEditingIndex(index);
+                                        setEditingIndex(activity.id);
                                         setFormIsShown(true);
-                                        setEditMode(false); // Exit edit mode after selecting an item
+                                        setEditMode(false);
                                       }}
                                       title="Modifica questa registrazione"
                                     >
@@ -255,12 +277,7 @@ const Activities: React.FC = () => {
                                   )}
                                   <button
                                     className="delete-row-btn"
-                                    onClick={() => {
-                                      // TODO: Implement delete functionality
-                                      console.log(
-                                        `Delete activity at index ${index}`
-                                      );
-                                    }}
+                                    onClick={() => deleteEvent(activity.id)}
                                     title="Elimina questa registrazione"
                                   >
                                     <RiDeleteBin6Line />
@@ -359,6 +376,7 @@ const Activities: React.FC = () => {
                   ? missingActivityDate
                   : undefined
               }
+              editingIndex={editingIndex || -1}
             />
           </GenericForm>
         )}
