@@ -23,6 +23,10 @@ def get_appreciations():
         return jsonify({'error': 'Unauthorized access'}), 401
     
     try:
+        mesi_ita = [
+            'Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno',
+            'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'
+        ]
         month = request.args.get('month')
         appreciations = activities_dao.get_appreciations(month=month)
         
@@ -36,13 +40,17 @@ def get_appreciations():
             x = range(len(x_labels))
             width = 0.35
             
-            plt.bar([i - width/2 for i in x], adesione_values, width, label='Adesione')
-            plt.bar([i + width/2 for i in x], partecipazione_values, width, label='Partecipazione')
+            plt.bar([i - width/2 for i in x], adesione_values, width, label='Adesione', color='#005073')
+            plt.bar([i + width/2 for i in x], partecipazione_values, width, label='Partecipazione', color='#60A5FA')
             plt.xticks(x, x_labels)
             
             plt.xlabel('Attività')
             plt.ylabel('%')
-            plt.title(f'Gradimenti attività per {person["nome"]} {person["cognome"]}')
+            if month is not None:
+                month_name = mesi_ita[int(month) - 1]
+                plt.title(f'Gradimenti attività per {person["nome"]} {person["cognome"]} - {month_name}')
+            else:
+                plt.title(f'Gradimenti attività per {person["nome"]} {person["cognome"]}')
             plt.legend()
             plt.grid(True, alpha=0.3)
             plt.gca().yaxis.set_major_locator(plt.MaxNLocator(integer=True))

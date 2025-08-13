@@ -11,51 +11,51 @@ class HomeDAO:
     def get_home_data(self) -> List[dict]:
         """Get data for the home page - optimized single query version"""
         query = f"""
-        WITH RECURSIVE date_range AS (
-            SELECT CURDATE() - INTERVAL 6 DAY as date_val
-            UNION ALL
-            SELECT date_val + INTERVAL 1 DAY
-            FROM date_range
-            WHERE date_val < CURDATE()
-        ),
-        weekdays AS (
-            SELECT date_val,
-                   DAY(date_val) as giorno,
-                   MONTH(date_val) as mese_int,
-                   YEAR(date_val) as anno
-            FROM date_range
-            WHERE DAYOFWEEK(date_val) BETWEEN 2 AND 6
-        ),
-        guest_activities AS (
+            WITH RECURSIVE date_range AS (
+                SELECT CURDATE() - INTERVAL 6 DAY as date_val
+                UNION ALL
+                SELECT date_val + INTERVAL 1 DAY
+                FROM date_range
+                WHERE date_val < CURDATE()
+            ),
+            weekdays AS (
+                SELECT date_val,
+                    DAY(date_val) as giorno,
+                    MONTH(date_val) as mese_int,
+                    YEAR(date_val) as anno
+                FROM date_range
+                WHERE DAYOFWEEK(date_val) BETWEEN 2 AND 6
+            ),
+            guest_activities AS (
+                SELECT 
+                    p.id,
+                    p.nome,
+                    p.cognome,
+                    p.visibile,
+                    w.giorno,
+                    w.mese_int,
+                    w.anno,
+                    COALESCE(COUNT(pa.id_persona), 0) as activity_count
+                FROM persona p
+                CROSS JOIN weekdays w
+                LEFT JOIN partecipazione_attivita pa ON pa.id_persona = p.id
+                    AND pa.giorno = w.giorno 
+                    AND pa.mese_int = w.mese_int 
+                    AND pa.anno = w.anno
+                WHERE p.visibile = 1
+                GROUP BY p.id, p.nome, p.cognome, p.visibile, w.giorno, w.mese_int, w.anno
+                HAVING activity_count < 2
+            )
             SELECT 
-                p.id,
-                p.nome,
-                p.cognome,
-                p.visibile,
-                w.giorno,
-                w.mese_int,
-                w.anno,
-                COALESCE(COUNT(pa.id_persona), 0) as activity_count
-            FROM persona p
-            CROSS JOIN weekdays w
-            LEFT JOIN partecipazione_attivita pa ON pa.id_persona = p.id
-                AND pa.giorno = w.giorno 
-                AND pa.mese_int = w.mese_int 
-                AND pa.anno = w.anno
-            WHERE p.visibile = 1
-            GROUP BY p.id, p.nome, p.cognome, p.visibile, w.giorno, w.mese_int, w.anno
-            HAVING activity_count < 2
-        )
-        SELECT 
-            id,
-            nome,
-            cognome,
-            visibile,
-            giorno,
-            mese_int,
-            anno
-        FROM guest_activities
-        ORDER BY cognome, nome, anno DESC, mese_int DESC, giorno DESC
+                id,
+                nome,
+                cognome,
+                visibile,
+                giorno,
+                mese_int,
+                anno
+            FROM guest_activities
+            ORDER BY cognome, nome, anno DESC, mese_int DESC, giorno DESC
         """
         
         connection = None
@@ -96,6 +96,34 @@ class HomeDAO:
                 connection.rollback()
             # return str(e)
 
+        finally:
+            if cursor:
+                cursor.close()
+            if connection:
+                connection.close()
+                
+    def delete_guest(self, guest_id: int) -> bool:
+        """Delete a guest by ID"""
+        query = """
+            UPDATE persona SET visibile = 0
+            WHERE id = %s
+        """
+        
+        connection = None
+        cursor = None
+        
+        try:
+            connection = db_config.get_connection()
+            cursor = connection.cursor()
+            cursor.execute(query, (guest_id,))
+            connection.commit()
+            return True
+            
+        except Exception as e:
+            if connection:
+                connection.rollback()
+            raise e
+            
         finally:
             if cursor:
                 cursor.close()

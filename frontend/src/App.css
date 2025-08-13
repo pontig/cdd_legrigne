@@ -226,6 +226,13 @@ th {
   margin-left: 15rem;
 }
 
+h3 {
+  text-align: center;
+  color: var(--main-blue);
+  font-size: 1.5rem;
+  margin-bottom: .5rem;
+}
+
 @media print {
   @page {
     size: landscape;

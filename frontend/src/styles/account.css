@@ -1,0 +1,20 @@
+.positioned-form {
+    position: static;
+    transform: none;
+    max-height: unset;
+    margin: 6rem auto;
+}
+
+button[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.error-message {
+    color: red;
+    font-size: 0.875rem;
+}
+
+.centered-table {
+    margin: 0 auto;
+}

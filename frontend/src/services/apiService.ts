@@ -166,6 +166,26 @@ class ApiService {
     return this.get(`/delete_problem_behavior?id=${id}`);
   }
 
+  async changePassword(passwordData: any) {
+    return this.post('/change_password', passwordData);
+  }
+
+  async newOperator(operatorData: any) {
+    return this.post('/new_operator', operatorData);
+  }
+
+  async fetchAccountInfos() {
+    return this.get('/get_all_account_infos');
+  }
+
+  async deleteGuest(guest_id: number) {
+    return this.get(`/delete_guest?guest_id=${guest_id}`);
+  }
+
+  async changePermissions(user_id: number, permissions: number) {
+    return this.get(`/change_permissions?user_id=${user_id}&permissions=${permissions}`);
+  }
+
 }
 
 // Export a singleton instance

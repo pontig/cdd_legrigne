@@ -198,7 +198,10 @@ const Activities: React.FC = () => {
           },
           {
             title: "Stampa questa pagina",
-            action: () => window.print(),
+            action: () => {
+              window.scrollTo({ top: 0 });
+              window.print();
+            },
             icon: <FaPrint />,
           },
           {

@@ -7,6 +7,7 @@ interface FormPageProps {
   title: string;
   children: React.ReactNode;
   notShowScreen?: boolean;
+  positionedForm?: boolean;
   closeForm: () => void;
 }
 
@@ -14,6 +15,7 @@ const GenericForm: React.FC<FormPageProps> = ({
   title,
   children,
   notShowScreen = false,
+  positionedForm = false,
   closeForm,
 }) => {
   const { user } = useUser();
@@ -45,7 +47,7 @@ const GenericForm: React.FC<FormPageProps> = ({
   return (
     <>
       {!notShowScreen && (<div className="screen" onClick={() => closeForm()}></div>)}
-      <div className="form-page">
+      <div className={`form-page ${positionedForm ? "positioned-form" : ""}`}>
         <div className="form-title-container">
           <h1>{title}</h1>
         </div>

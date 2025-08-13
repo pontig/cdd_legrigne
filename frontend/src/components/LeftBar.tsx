@@ -7,6 +7,8 @@ import { useSemester } from "../contexts/SemesterContext";
 
 const LeftBar: React.FC<LeftProps> = ({ entries }) => {
 
+  // TODO: Refactor API calls 
+
   const api = {
     baseUrl: "http://localhost:5000",
 
@@ -53,7 +55,7 @@ const LeftBar: React.FC<LeftProps> = ({ entries }) => {
           </span>
         </div>
         <p className="logout-word" onClick={api.handleLogout}>Logout</p>
-        <p className="logout-word">Cambia password</p>
+        <p className="logout-word" onClick={() => navigate('/account')}>Gestisci account</p>
       </div>
       <div className="left-bar-entries">
         {entries.map((entry, index) => (

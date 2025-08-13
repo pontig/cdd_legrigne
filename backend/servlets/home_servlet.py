@@ -22,3 +22,22 @@ def home():
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+@home_bp.route('/delete_guest', methods=['GET'])
+def delete_guest():
+    """ Delete a guest by ID """
+    
+    if check_session() is False:
+        return jsonify({'error': 'Unauthorized access'}), 401
+    
+    guest_id = request.args.get('guest_id', type=int)
+    
+    if not guest_id:
+        return jsonify({'error': 'Missing or invalid guest ID'}), 400
+    
+    try:
+        home_dao.delete_guest(guest_id)
+        return jsonify({'message': 'Guest deleted successfully'}), 200
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500

@@ -25,7 +25,6 @@ interface Person {
 }
 
 const MainPage: React.FC = () => {
-
   const fetchPersons = async (): Promise<void> => {
     const response = await apiService.fetchPersons();
 
@@ -113,7 +112,7 @@ const MainPage: React.FC = () => {
     name: string,
     surname: string
   ) => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0 });
     navigate("/partecipazione_attivita", {
       state: { missing_activity, guestId, name, surname },
     });
@@ -172,23 +171,24 @@ const MainPage: React.FC = () => {
                 >
                   <td>
                     <span>
-                      {semesterString === null && person.activities.map((activity) => (
-                        <span
-                          key={`${activity.day}.${activity.month_int}`}
-                          className="missing-activity"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleMissingActivityClick(
-                              activity,
-                              person.id,
-                              person.name,
-                              person.surname
-                            );
-                          }}
-                        >
-                          ({activity.day}.{activity.month_int}){" "}
-                        </span>
-                      ))}
+                      {semesterString === null &&
+                        person.activities.map((activity) => (
+                          <span
+                            key={`${activity.day}.${activity.month_int}`}
+                            className="missing-activity"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleMissingActivityClick(
+                                activity,
+                                person.id,
+                                person.name,
+                                person.surname
+                              );
+                            }}
+                          >
+                            ({activity.day}.{activity.month_int}){" "}
+                          </span>
+                        ))}
                     </span>
                     {person.surname}
                   </td>

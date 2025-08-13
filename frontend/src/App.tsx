@@ -12,6 +12,7 @@ import LoginPage from "./pages/Login";
 import Semesters from "./pages/Semesters";
 import ProblemBehavior from "./pages/ProblemBehavior";
 import Appreciations from "./pages/Appreciations";
+import Account from "./pages/Account";
 
 const App: React.FC = () => {
   return (
@@ -34,6 +35,7 @@ const App: React.FC = () => {
                   element={<ProblemBehavior />}
                 />
                 <Route path="/gradimenti" element={<Appreciations />} />
+                <Route path="/account" element={<Account />} />
               </Routes>
             </Router>
             <p className="watermark">CDD Le Grigne - Bellano / Primaluna</p>

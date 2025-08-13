@@ -5,6 +5,28 @@
     margin-top: 20px;
 }
 
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    font-size: 2rem;
+    color: #666;
+}
+
+.month-select {
+    padding: 0.5rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: white;
+    margin: 0 2rem;
+}
+
+.month-selector {
+    margin: 1rem 5rem;
+}
+
 @media print {
     .appreciations-graph-container {
         width: 100%;

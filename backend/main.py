@@ -12,7 +12,6 @@ from servlets.semester_servlet import semester_bp
 from servlets.home_servlet import home_bp
 from servlets.activities_servlet import activities_bp
 from servlets.logbook_servlet import logbook_bp
-from servlets.account_servlet import account_bp
 from servlets.problembehavior_servlet import problembehavior_bp
 from servlets.appreciations_servlet import appreciations_bp
 from config.database import db_config

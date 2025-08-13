@@ -20,7 +20,6 @@ interface Event {
 }
 
 const LogBook: React.FC = () => {
-
   const fetchEvents = async (): Promise<void> => {
     const response = await apiService.fetchLogbook({
       person_id: location.state.guestId,
@@ -113,7 +112,10 @@ const LogBook: React.FC = () => {
           },
           {
             title: "Stampa questa pagina",
-            action: () => window.print(),
+            action: () => {
+              window.scrollTo({ top: 0 });
+              window.print();
+            },
             icon: <FaPrint />,
           },
           {
@@ -209,19 +211,19 @@ const LogBook: React.FC = () => {
           </tbody>
         </table>
         {formIsShown && (
-            <GenericForm
+          <GenericForm
             title={editingEvent ? "Modifica evento" : "Nuovo evento"}
             closeForm={() => {
               setFormIsShown(false);
               setEditingEvent(null);
               setEditingIndex(-1);
             }}
-            >
-            <NewLogForm 
-              editData={editingEvent || undefined} 
+          >
+            <NewLogForm
+              editData={editingEvent || undefined}
               editingIndex={editingIndex || -1}
             />
-            </GenericForm>
+          </GenericForm>
         )}
       </div>
     </div>

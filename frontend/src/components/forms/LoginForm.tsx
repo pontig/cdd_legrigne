@@ -4,47 +4,60 @@ import apiService from "../../services/apiService";
 import { useUser } from "../../contexts/UserContext";
 
 const LoginForm: React.FC = () => {
+  const handleSubmit = async (
+    event: React.FormEvent<HTMLFormElement>
+  ): Promise<void> => {
+    // Prevent default form submission
+    event.preventDefault();
+    const form = document.querySelector("form");
+    if (!form) return;
 
-    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
-      // Prevent default form submission
-      event.preventDefault();
-      const form = document.querySelector("form");
-      if (!form) return;
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
 
-      const formData = new FormData(form);
-      const data = Object.fromEntries(formData.entries());
+    const response = await apiService.login({
+      ...data,
+      name:
+        (data.name as string).charAt(0).toUpperCase() +
+        (data.name as string).slice(1).toLowerCase(),
+      surname:
+        (data.surname as string).charAt(0).toUpperCase() +
+        (data.surname as string).slice(1).toLowerCase(),
+    });
 
-      const response: { error?: string; data?: any } = await apiService.login({
-            ...data,
-            name:
-              (data.name as string).charAt(0).toUpperCase() +
-              (data.name as string).slice(1).toLowerCase(),
-            surname:
-              (data.surname as string).charAt(0).toUpperCase() +
-              (data.surname as string).slice(1).toLowerCase(),
-          })
-
-        if (response.error) {
-          alert("Login failed: " + response.error);
-          return;
-        }
-
-        console.log("Login successful:", response);
-
-        setUser({
-          name: response.data.name,
-          surname: response.data.surname,
-          id: response.data.user_id,
-          permissions: response.data.permissions,
-        });
-
-        navigate("/");
-
+    if (response.status === 401) {
+      alert("Nome o password errati.");
+      return;
     }
 
+    if (response.error) {
+      alert("Login failed: " + response.error);
+      return;
+    }
+
+    console.log("Login successful:", response);
+    
+        const data_ret = response.data as any;
+        setUser({
+          name: data_ret.name,
+          surname: data_ret.surname,
+          id: data_ret.user_id,
+          permissions: data_ret.permissions,
+        });
+
+    if (data.password === "password") {
+      alert(
+        "Attenzione: stai usando la password di default. Cambiala subito nelle impostazioni."
+      );
+      navigate("/account")
+      return;
+    }
+
+    navigate("/");
+  };
+
   const navigate = useNavigate();
-    const { user, setUser } = useUser();
-  
+  const { user, setUser } = useUser();
 
   return (
     <form method="POST" onSubmit={handleSubmit}>

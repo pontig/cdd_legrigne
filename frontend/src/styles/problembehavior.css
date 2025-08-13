@@ -41,8 +41,12 @@ table.problem-behavior-table {
     margin: auto;
 }
 
+.report-text p {
+    margin: .5rem 0;
+}
+
 .report-text-entry {
-    margin-bottom: 3rem;
+    margin-bottom: 3rem !important;
 }
 
 @media print {

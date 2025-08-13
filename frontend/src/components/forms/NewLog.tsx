@@ -42,7 +42,7 @@ const NewLogForm: React.FC<NewLogFormProps> = ({ editData, editingIndex }) => {
       }
     }
 
-    window.location.reload(); 
+    window.location.reload();
   };
 
   const { user } = useUser();

@@ -47,8 +47,8 @@ def get_activities():
 
         # Create the plot
         plt.figure(figsize=(10, 6))
-        plt.plot(dates, adesions, marker='o', label='Adesione', linewidth=2)
-        plt.plot(dates, participations, marker='s', label='Partecipazione', linewidth=2)
+        plt.plot(dates, adesions, marker='o', label='Adesione', linewidth=2, color='#005073')
+        plt.plot(dates, participations, marker='s', label='Partecipazione', linewidth=2, color='#60A5FA')
 
         plt.xlabel('Data')
         plt.ylabel('Indice')
