@@ -52,3 +52,16 @@ def reset_semester():
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+@semester_bp.route('/new_semester', methods=['GET'])
+def new_semester():
+    """Create a new semester"""
+    if check_session() is False:
+        return jsonify({'error': 'Unauthorized access'}), 401
+    
+    try:
+        semester_dao.create_new_semester()
+        return jsonify({'message': 'New semester created successfully'}), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500

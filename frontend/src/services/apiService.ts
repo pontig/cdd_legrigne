@@ -202,6 +202,10 @@ class ApiService {
     return this.get('/logout');
   }
 
+  async newSemester() {
+    return this.get('/new_semester');
+  }
+
 }
 
 // Export a singleton instance

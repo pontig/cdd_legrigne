@@ -292,83 +292,107 @@ const ProblemBehavior: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {problemRecords.map((record, index) => (
-                <tr key={record.id}>
-                  {editMode && (
-                    <td>
-                      <div className="action-buttons">
-                        {editMode &&
-                          (() => {
-                            // Calculate date range: past Monday to next Friday
-                            const today = new Date();
-                            const dayOfWeek = today.getDay(); // 0 (Sun) - 6 (Sat)
-                            const monday = new Date(today);
-                            monday.setDate(
-                              today.getDate() - ((dayOfWeek + 6) % 7)
-                            ); // Past Monday
-                            const friday = new Date(monday);
-                            friday.setDate(monday.getDate() + 4); // Next Friday
-
-                            const eventDate = new Date(record.date);
-
-                            const isInRange =
-                              eventDate >= monday && eventDate <= friday;
-
-                            if ((user && user.permissions > 20) || isInRange) {
-                              return (
-                                <>
-                                  <button
-                                    className="edit-row-btn"
-                                    onClick={() => {
-                                      setEditingProblemRecord(record);
-                                      setEditingIndex(record.id);
-                                      setFormIsShown(true);
-                                      setEditMode(false); // Exit edit mode after selecting an item
-                                    }}
-                                    title="Modifica questa registrazione"
-                                  >
-                                    <FaPencilAlt />
-                                  </button>
-                                  <button
-                                    className="delete-row-btn"
-                                    onClick={() => deleteProblemRecord(record.id)}
-                                    title="Elimina questa registrazione"
-                                  >
-                                    <RiDeleteBin6Line />
-                                  </button>
-                                </>
-                              );
-                            } else {
-                              return <span>N/A</span>;
-                            }
-                          })()}
-                      </div>
-                    </td>
-                  )}
-                  <td>{record.date}</td>
-                  {Object.keys(problems).flatMap((key) =>
-                    problems[key].map((problem) => (
-                      <td
-                        key={problem.id}
-                        className={
-                          (record.problem_statuses[problem.id - 1]
-                            ? "yes"
-                            : "no") +
-                          " " +
-                          "show-line"
-                        }
-                      >
-                        {record.problem_statuses[problem.id - 1] ? "✓" : ""}
-                      </td>
-                    ))
-                  )}
-                  <td>{record.intensity}</td>
-                  <td>{record.duration}</td>
-                  <td>{record.cause}</td>
-                  <td>{record.containment}</td>
-                  <td className="signature">{record.signature}</td>
+              {problemRecords.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={
+                      editMode
+                        ? 8 +
+                          Object.keys(problems).flatMap((key) => problems[key])
+                            .length
+                        : 7 +
+                          Object.keys(problems).flatMap((key) => problems[key])
+                            .length
+                    }
+                    style={{ textAlign: "center", padding: "20px" }}
+                  >
+                    Nessun dato
+                  </td>
                 </tr>
-              ))}
+              ) : (
+                problemRecords.map((record, index) => (
+                  <tr key={record.id}>
+                    {editMode && (
+                      <td>
+                        <div className="action-buttons">
+                          {editMode &&
+                            (() => {
+                              // Calculate date range: past Monday to next Friday
+                              const today = new Date();
+                              const dayOfWeek = today.getDay(); // 0 (Sun) - 6 (Sat)
+                              const monday = new Date(today);
+                              monday.setDate(
+                                today.getDate() - ((dayOfWeek + 6) % 7)
+                              ); // Past Monday
+                              const friday = new Date(monday);
+                              friday.setDate(monday.getDate() + 4); // Next Friday
+
+                              const eventDate = new Date(record.date);
+
+                              const isInRange =
+                                eventDate >= monday && eventDate <= friday;
+
+                              if (
+                                (user && user.permissions > 20) ||
+                                isInRange
+                              ) {
+                                return (
+                                  <>
+                                    <button
+                                      className="edit-row-btn"
+                                      onClick={() => {
+                                        setEditingProblemRecord(record);
+                                        setEditingIndex(record.id);
+                                        setFormIsShown(true);
+                                        setEditMode(false); // Exit edit mode after selecting an item
+                                      }}
+                                      title="Modifica questa registrazione"
+                                    >
+                                      <FaPencilAlt />
+                                    </button>
+                                    <button
+                                      className="delete-row-btn"
+                                      onClick={() =>
+                                        deleteProblemRecord(record.id)
+                                      }
+                                      title="Elimina questa registrazione"
+                                    >
+                                      <RiDeleteBin6Line />
+                                    </button>
+                                  </>
+                                );
+                              } else {
+                                return <span>N/A</span>;
+                              }
+                            })()}
+                        </div>
+                      </td>
+                    )}
+                    <td>{record.date}</td>
+                    {Object.keys(problems).flatMap((key) =>
+                      problems[key].map((problem) => (
+                        <td
+                          key={problem.id}
+                          className={
+                            (record.problem_statuses[problem.id - 1]
+                              ? "yes"
+                              : "no") +
+                            " " +
+                            "show-line"
+                          }
+                        >
+                          {record.problem_statuses[problem.id - 1] ? "✓" : ""}
+                        </td>
+                      ))
+                    )}
+                    <td>{record.intensity}</td>
+                    <td>{record.duration}</td>
+                    <td>{record.cause}</td>
+                    <td>{record.containment}</td>
+                    <td className="signature">{record.signature}</td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         ) : (

@@ -44,6 +44,32 @@ const MainPage: React.FC = () => {
     }
   };
 
+  const handleNewSemester = async (): Promise<void> => {
+    const confirmation = window.confirm(
+      "ATTENZIONE: Sei sicuro di voler creare un nuovo semestre? Tutti i dati del semestre corrente non saranno più modificabili."
+    );
+    if (!confirmation) return;
+
+    const response = await apiService.newSemester();
+
+    if (response.status === 401) {
+      console.error("Unauthorized access - please log in.");
+      navigate("/login");
+      return;
+    }
+
+    if (response.error) {
+      console.error("API call failed:", response.error);
+      return;
+    }
+
+    if (response.data) {
+      console.log("New semester created successfully:", response.data);
+    }
+
+    window.location.reload();
+  };
+
   // Navigation and state
   const { user, setUser } = useUser();
   const { semesterString } = useSemester();
@@ -131,7 +157,7 @@ const MainPage: React.FC = () => {
           },
           {
             title: "Nuovo semestre",
-            action: () => console.log("Cambio semestre"),
+            action: () => handleNewSemester(),
             icon: <IoSparklesSharp />,
             disabled: semesterString !== null || (user?.permissions ?? 0) < 20,
           },
@@ -149,9 +175,7 @@ const MainPage: React.FC = () => {
       />
       <div>
         <div className="header">
-          <h1>
-            MONITORAGGI CDD {place}
-          </h1>
+          <h1>MONITORAGGI CDD {place}</h1>
           <p className="subtitle">{semesterString}</p>
         </div>
         <table className="wide-table home-table">

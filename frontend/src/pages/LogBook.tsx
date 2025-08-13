@@ -149,65 +149,76 @@ const LogBook: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {events.map((event, index) => (
-              <tr key={event.id}>
-                {editMode && (
-                  <td>
-                    <div className="action-buttons">
-                      {editMode &&
-                        (() => {
-                          // Calculate date range: past Monday to next Friday
-                          const today = new Date();
-                          const dayOfWeek = today.getDay(); // 0 (Sun) - 6 (Sat)
-                          const monday = new Date(today);
-                          monday.setDate(
-                            today.getDate() - ((dayOfWeek + 6) % 7)
-                          ); // Past Monday
-                          const friday = new Date(monday);
-                          friday.setDate(monday.getDate() + 4); // Next Friday
-
-                          const eventDate = new Date(event.date);
-
-                          const isInRange =
-                            eventDate >= monday && eventDate <= friday;
-
-                          if ((user && user.permissions > 20) || isInRange) {
-                            return (
-                              <>
-                                <button
-                                  className="edit-row-btn"
-                                  onClick={() => {
-                                    setEditingEvent(event);
-                                    setEditingIndex(event.id);
-                                    setFormIsShown(true);
-                                    setEditMode(false);
-                                  }}
-                                  title="Modifica questa registrazione"
-                                >
-                                  <FaPencilAlt />
-                                </button>
-                                <button
-                                  className="delete-row-btn"
-                                  onClick={() => deleteEvent(event.id)}
-                                  title="Elimina questa registrazione"
-                                >
-                                  <RiDeleteBin6Line />
-                                </button>
-                              </>
-                            );
-                          } else {
-                            return <span>N/A</span>;
-                          }
-                        })()}
-                    </div>
-                  </td>
-                )}
-                <td>{event.date}</td>
-                <td>{event.event}</td>
-                <td>{event.intervention}</td>
-                <td>{event.signature}</td>
+            {events.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={editMode ? 5 : 4}
+                  style={{ textAlign: "center", fontStyle: "italic" }}
+                >
+                  Nessun dato
+                </td>
               </tr>
-            ))}
+            ) : (
+              events.map((event, index) => (
+                <tr key={event.id}>
+                  {editMode && (
+                    <td>
+                      <div className="action-buttons">
+                        {editMode &&
+                          (() => {
+                            // Calculate date range: past Monday to next Friday
+                            const today = new Date();
+                            const dayOfWeek = today.getDay(); // 0 (Sun) - 6 (Sat)
+                            const monday = new Date(today);
+                            monday.setDate(
+                              today.getDate() - ((dayOfWeek + 6) % 7)
+                            ); // Past Monday
+                            const friday = new Date(monday);
+                            friday.setDate(monday.getDate() + 4); // Next Friday
+
+                            const eventDate = new Date(event.date);
+
+                            const isInRange =
+                              eventDate >= monday && eventDate <= friday;
+
+                            if ((user && user.permissions > 20) || isInRange) {
+                              return (
+                                <>
+                                  <button
+                                    className="edit-row-btn"
+                                    onClick={() => {
+                                      setEditingEvent(event);
+                                      setEditingIndex(event.id);
+                                      setFormIsShown(true);
+                                      setEditMode(false);
+                                    }}
+                                    title="Modifica questa registrazione"
+                                  >
+                                    <FaPencilAlt />
+                                  </button>
+                                  <button
+                                    className="delete-row-btn"
+                                    onClick={() => deleteEvent(event.id)}
+                                    title="Elimina questa registrazione"
+                                  >
+                                    <RiDeleteBin6Line />
+                                  </button>
+                                </>
+                              );
+                            } else {
+                              return <span>N/A</span>;
+                            }
+                          })()}
+                      </div>
+                    </td>
+                  )}
+                  <td>{event.date}</td>
+                  <td>{event.event}</td>
+                  <td>{event.intervention}</td>
+                  <td>{event.signature}</td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
         {formIsShown && (

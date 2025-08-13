@@ -11,6 +11,7 @@ import base64
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+from info import mesi_ita
 
 matplotlib.use('Agg')
 
@@ -23,10 +24,7 @@ def get_appreciations():
         return jsonify({'error': 'Unauthorized access'}), 401
     
     try:
-        mesi_ita = [
-            'Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno',
-            'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'
-        ]
+
         month = request.args.get('month')
         appreciations = activities_dao.get_appreciations(month=month)
         

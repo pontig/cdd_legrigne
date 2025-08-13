@@ -11,7 +11,7 @@ class DatabaseConfig:
         self.host = "localhost"
         self.user = "mybackenduser"
         self.password = "password"
-        self.database = "cdd_primaluna"
+        self.database = "cdd_legrigne"
     
     def get_connection(self) -> MySQLdb.Connection:
         """Get database connection"""

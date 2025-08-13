@@ -64,8 +64,6 @@ def change_password():
     old_password_sha256 = hashlib.sha256(old_password.encode('utf-8')).hexdigest()
     new_password_sha256 = hashlib.sha256(new_password.encode('utf-8')).hexdigest()
     
-    print(f"Changing password for account ID {account_id} with old password {old_password} and new password  {new_password}")
-
     try:
         result = account_dao.change_password(account_id, old_password_sha256, new_password_sha256)
         if result:
