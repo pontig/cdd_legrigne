@@ -161,6 +161,44 @@ class AccountDAO:
             if cursor:
                 cursor.close()
             if connection:
-                connection.close()                
+                connection.close()
+                
+    def backup_database(self, password: str) -> Optional[str]: 
+        """Verify user credentials and return database backup SQL"""
+        query = """
+            SELECT * FROM account
+            WHERE password = %s and id = %s
+        """
+        
+        connection = None
+        cursor = None
+        
+        try:
+            connection = db_config.get_connection()
+            cursor = connection.cursor()
+            cursor.execute(query, (password, session.get('user_id')))
+            result = cursor.fetchone()
+            
+            if result:
+                # User authenticated, proceed with backup
+                try:
+                    # Try mysqldump first (more efficient)
+                    sql_backup = db_config.backup_database()
+                    return sql_backup
+                except Exception:
+                    # Fallback to Python-based backup
+                    sql_backup = db_config.backup_database_python()
+                    return sql_backup
+            return None  # Authentication failed
+        
+        except Exception as e:
+            if connection:
+                connection.rollback()
+            raise e
+        finally:
+            if cursor:
+                cursor.close()
+            if connection:
+                connection.close()
 
 account_dao = AccountDAO()

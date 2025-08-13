@@ -40,7 +40,7 @@ class ProblemBehaviorDAO:
             # Get all comportamento_problema records for the person
             query_behaviors = f"""
                 SELECT 
-                    id,
+                    comportamento_problema.id,
                     id_persona,
                     giorno,
                     mese_int,
@@ -49,8 +49,11 @@ class ProblemBehaviorDAO:
                     durata,
                     causa,
                     contenimento,
-                    firma
+                    firma,
+                    a.nome,
+                    a.cognome
                 FROM comportamento_problema 
+                JOIN account a ON a.id = firma
                 WHERE id_persona = %s AND id_semestre {semester_constraint}
                 ORDER BY anno DESC, mese_int DESC, giorno DESC
             """
@@ -96,7 +99,7 @@ class ProblemBehaviorDAO:
                     'duration': row[6],
                     'cause': row[7],
                     'containment': row[8],
-                    'signature': row[9],
+                    'signature': f"{row[10]} {row[11]}",
                 }
                 
                 # Add boolean columns for each problem
@@ -153,7 +156,7 @@ class ProblemBehaviorDAO:
                 data['duration'],
                 data['cause'],
                 data['containment'],
-                data['signature']
+                session.get('user_id')  
             ))
             behavior_id = cursor.lastrowid
             

@@ -5,6 +5,7 @@ Account servlet for handling user account operations: login, logout, password re
 from flask import Blueprint, request, jsonify, session
 from config.check_session import check_session
 import hashlib
+import datetime
 from dao.account_dao import account_dao
 
 account_bp = Blueprint('account', __name__)
@@ -135,5 +136,32 @@ def new_operator():
     try:
         account_dao.create_operator(name, surname, password_sha256, permissions)
         return jsonify({'message': 'Operator created successfully'}), 201
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@account_bp.route('/backup_database', methods=['POST'])
+def backup_database():
+    """Backup the database"""
+    if not check_session():
+        return jsonify({'error': 'Unauthorized access'}), 401
+
+    data = request.json
+    password = data.get('password')
+
+    if not password:
+        return jsonify({'error': 'Missing required fields'}), 400
+
+    password_sha256 = hashlib.sha256(password.encode('utf-8')).hexdigest()
+
+    try:
+        sql_backup = account_dao.backup_database(password_sha256)
+        if sql_backup:
+            return jsonify({
+                'message': 'Database backup successful', 
+                'sql': sql_backup,
+                'filename': f'cdd_legrigne_backup_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.sql'
+            }), 200
+        else:
+            return jsonify({'error': 'Invalid password'}), 401
     except Exception as e:
         return jsonify({'error': str(e)}), 500

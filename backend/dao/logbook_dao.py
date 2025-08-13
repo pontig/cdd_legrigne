@@ -13,7 +13,8 @@ class LogbookDAO:
         """Get logbook entries for a specific person"""
         semester_constraint = " = %s" if session.get('semester') is not None else " IS NULL"
         query = f"""
-            SELECT * FROM diario
+            SELECT diario.*, account.nome, account.cognome FROM diario
+            JOIN account ON diario.firma = account.id
             WHERE id_persona = %s AND id_semestre {semester_constraint}
             ORDER BY anno DESC, mese_int DESC, giorno DESC
         """
@@ -38,7 +39,7 @@ class LogbookDAO:
                     'date': str(row[4]) + '-' + str(row[3]).zfill(2) + '-' + str(row[2]).zfill(2),
                     'event': row[5],
                     'intervention': row[6],
-                    'signature': row[7]
+                    'signature': f"{row[9]} {row[10]}",
                 })
             return logbook_entries
         
@@ -74,7 +75,7 @@ class LogbookDAO:
                 date[0],
                 data['event'],
                 data['intervention'],
-                data.get('signature', None)
+                session.get('user_id')
             ))
             connection.commit()
 

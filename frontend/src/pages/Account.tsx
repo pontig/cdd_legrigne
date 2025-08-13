@@ -10,6 +10,7 @@ import apiService from "../services/apiService";
 import { RiDeleteBin6Line } from "react-icons/ri";
 
 import "../styles/account.css";
+import BackupDatabaseForm from "../components/forms/BackupDatabaseForm";
 
 interface Person {
   id: number;
@@ -68,8 +69,9 @@ const Account: React.FC = () => {
   };
 
   const deleteGuest = async (id: number) => {
-
-    const confirmed = window.confirm("Sei sicuro di voler eliminare questo ospite?");
+    const confirmed = window.confirm(
+      "Sei sicuro di voler eliminare questo ospite?"
+    );
     if (!confirmed) return;
 
     const response = await apiService.deleteGuest(id);
@@ -171,6 +173,17 @@ const Account: React.FC = () => {
             </GenericForm>
           ) : null}
           {user?.permissions && user.permissions >= 20 ? (
+            <>
+            <div className="backup-database">
+              <GenericForm
+                title="Backup del database"
+                closeForm={() => {}}
+                notShowScreen={true}
+                positionedForm={true}
+              >
+                <BackupDatabaseForm />
+              </GenericForm>
+            </div>
             <div
               className="remove-guest"
               style={{ textAlign: "center", margin: "6rem 0" }}
@@ -203,6 +216,7 @@ const Account: React.FC = () => {
                 </tbody>
               </table>
             </div>
+            </>
           ) : null}
           {user?.permissions && user.permissions >= 1000 ? (
             <div style={{ textAlign: "center", margin: "6rem 0" }}>

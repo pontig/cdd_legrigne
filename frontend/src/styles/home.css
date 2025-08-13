@@ -51,7 +51,7 @@ justify-content: center;}
 
 .missing-activity {
   color: rgb(189, 0, 0);
-  font-size: .75rem;
+  font-size: 1rem;
   font-weight: bold;
   transition: font-size 0.3s ease, color 0.3s ease;
 }

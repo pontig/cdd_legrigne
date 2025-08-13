@@ -48,7 +48,7 @@ const LeftBar: React.FC<LeftProps> = ({ entries }) => {
           Logout
         </p>
         <p className="logout-word" onClick={() => navigate("/account")}>
-          Gestisci account
+          Account personale
         </p>
       </div>
       <div className="left-bar-entries">

@@ -206,6 +206,10 @@ class ApiService {
     return this.get('/new_semester');
   }
 
+  async backupDatabase(password: string) {
+    return this.post('/backup_database', { password });
+  }
+
 }
 
 // Export a singleton instance

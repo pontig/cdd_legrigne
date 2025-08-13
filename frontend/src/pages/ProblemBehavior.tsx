@@ -4,7 +4,7 @@ import { usePlace } from "../contexts/PlaceContext";
 import { useSemester } from "../contexts/SemesterContext";
 import { useLocation, useNavigate } from "react-router-dom";
 import LeftBar from "../components/LeftBar";
-import { IoCaretBackOutline } from "react-icons/io5";
+import { IoCaretBackOutline, IoCheckmarkDoneCircleSharp } from "react-icons/io5";
 import { FaPencilAlt, FaPlus, FaPrint, FaTable } from "react-icons/fa";
 import { PiTextAaBold } from "react-icons/pi";
 
@@ -250,10 +250,10 @@ const ProblemBehavior: React.FC = () => {
                 </th>
                 <th rowSpan={3}>Intensità</th>
                 <th rowSpan={3}>Durata e ripetitività</th>
-                <th rowSpan={3}>Causa scatenante e descrizione</th>
+                <th rowSpan={3} className="wider-column">Causa scatenante e descrizione</th>
                 <th rowSpan={3}>Contenimento</th>
                 <th className="ttr" rowSpan={3}>
-                  f
+                  Firma
                 </th>
               </tr>
               <tr>
@@ -381,15 +381,15 @@ const ProblemBehavior: React.FC = () => {
                             "show-line"
                           }
                         >
-                          {record.problem_statuses[problem.id - 1] ? "✓" : ""}
+                          {record.problem_statuses[problem.id - 1] ? <IoCheckmarkDoneCircleSharp /> : ""}
                         </td>
                       ))
                     )}
                     <td>{record.intensity}</td>
                     <td>{record.duration}</td>
-                    <td>{record.cause}</td>
+                    <td className="wider-column">{record.cause}</td>
                     <td>{record.containment}</td>
-                    <td className="signature">{record.signature}</td>
+                    <td className="signature-td">{record.signature}</td>
                   </tr>
                 ))
               )}

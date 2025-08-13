@@ -215,7 +215,7 @@ const LogBook: React.FC = () => {
                   <td>{event.date}</td>
                   <td>{event.event}</td>
                   <td>{event.intervention}</td>
-                  <td>{event.signature}</td>
+                  <td className="signature-td">{event.signature}</td>
                 </tr>
               ))
             )}

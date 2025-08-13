@@ -81,7 +81,7 @@ const MainPage: React.FC = () => {
 
   // Effects
   useEffect(() => {
-    setPlace("Bellano");
+    setPlace("Primaluna");
     if (!user) {
       navigate("/login");
       return;
@@ -183,6 +183,7 @@ const MainPage: React.FC = () => {
             <tr>
               <th>Cognome</th>
               <th>Nome</th>
+              {semesterString === null && (<th>Attività mancanti</th>)}
             </tr>
           </thead>
           <tbody>
@@ -193,7 +194,9 @@ const MainPage: React.FC = () => {
                   onClick={() => handleRowClick(person)}
                   style={{ cursor: "pointer" }}
                 >
-                  <td>
+                      <td>{person.surname}</td>
+                      <td>{person.name}</td>
+                  {semesterString === null && (<td>
                     <span>
                       {semesterString === null &&
                         person.activities.map((activity) => (
@@ -214,14 +217,12 @@ const MainPage: React.FC = () => {
                           </span>
                         ))}
                     </span>
-                    {person.surname}
-                  </td>
-                  <td>{person.name}</td>
+                  </td>)}
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan={2}>Nessun dato disponibile</td>
+                <td colSpan={3}>Nessun dato disponibile</td>
               </tr>
             )}
           </tbody>

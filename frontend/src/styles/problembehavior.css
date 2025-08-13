@@ -49,6 +49,19 @@ table.problem-behavior-table {
     margin-bottom: 3rem !important;
 }
 
+/* Make the "Causa scatenante e descrizione" column three times wider */
+.problem-behavior-table .wider-column,
+.problem-behavior-table .wider-column {
+    width: 30%;
+    min-width: 500px;
+}
+
+/* Adjust other columns to be smaller to accommodate the wider cause column */
+.problem-behavior-table td:not(.wider-column),
+.problem-behavior-table th:not(.wider-column) {
+    width: auto;
+}
+
 @media print {
 
     .report-text {
