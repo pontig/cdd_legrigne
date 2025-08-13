@@ -150,7 +150,7 @@ const MainPage: React.FC = () => {
       <div>
         <div className="header">
           <h1>
-            MONITORAGGI CDD {process.env.NODE_ENV} {place}
+            MONITORAGGI CDD {place}
           </h1>
           <p className="subtitle">{semesterString}</p>
         </div>

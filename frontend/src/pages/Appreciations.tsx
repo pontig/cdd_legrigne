@@ -224,61 +224,74 @@ const Appreciations: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {appreciations.map((appreciation) => (
-                    <tr key={appreciation.id_persona}>
-                      <td>{appreciation.cognome}</td>
+                  {appreciations.length === 0 ? (
+                    <tr>
                       <td
-                        style={{
-                          position: "sticky",
-                          left: 0,
-                          backgroundColor: "inherit",
-                        }}
+                        colSpan={2 + activitiesWithData.length * 3}
+                        style={{ textAlign: "center", padding: "20px" }}
                       >
-                        {appreciation.nome}
+                        Nessuna attività per il periodo selezionato
                       </td>
-                      {activitiesWithData.map((activity) => {
-                        const activityData = appreciation.activities.find(
-                          (a) => a.attivita === activity.id
-                        );
-                        const getBackgroundColor = (
-                          value: number | undefined
-                        ) => {
-                          if (value === undefined) return "";
-                          if (value >= 66) return "#90EE90";
-                          if (value <= 33) return "#FFB6C1";
-                          return "#ffff9bff";
-                        };
-
-                        return (
-                          <Fragment key={activity.id}>
-                            <td
-                              style={{
-                                backgroundColor: getBackgroundColor(
-                                  activityData?.media_adesione
-                                ),
-                              }}
-                            >
-                              {activityData
-                                ? activityData.media_adesione.toFixed(0)
-                                : "-"}
-                            </td>
-                            <td
-                              style={{
-                                backgroundColor: getBackgroundColor(
-                                  activityData?.media_partecipazione
-                                ),
-                              }}
-                            >
-                              {activityData
-                                ? activityData.media_partecipazione.toFixed(0)
-                                : "-"}
-                            </td>
-                            <td>{activityData ? activityData.n_volte : "-"}</td>
-                          </Fragment>
-                        );
-                      })}
                     </tr>
-                  ))}
+                  ) : (
+                    appreciations.map((appreciation) => (
+                      <tr key={appreciation.id_persona}>
+                        <td>{appreciation.cognome}</td>
+                        <td
+                          style={{
+                            position: "sticky",
+                            left: 0,
+                            backgroundColor: "inherit",
+                          }}
+                        >
+                          {appreciation.nome}
+                        </td>
+                        {activitiesWithData.map((activity) => {
+                          const activityData = appreciation.activities.find(
+                            (a) => a.attivita === activity.id
+                          );
+                          const getBackgroundColor = (
+                            value: number | undefined
+                          ) => {
+                            if (value === undefined) return "";
+                            if (value >= 66) return "#90EE90";
+                            if (value <= 33) return "#FFB6C1";
+                            return "#ffff9bff";
+                          };
+
+                          return (
+                            <Fragment key={activity.id}>
+                              <td
+                                style={{
+                                  backgroundColor: getBackgroundColor(
+                                    activityData?.media_adesione
+                                  ),
+                                }}
+                              >
+                                {activityData
+                                  ? activityData.media_adesione.toFixed(0)
+                                  : "-"}
+                              </td>
+                              <td
+                                style={{
+                                  backgroundColor: getBackgroundColor(
+                                    activityData?.media_partecipazione
+                                  ),
+                                }}
+                              >
+                                {activityData
+                                  ? activityData.media_partecipazione.toFixed(0)
+                                  : "-"}
+                              </td>
+                              <td>
+                                {activityData ? activityData.n_volte : "-"}
+                              </td>
+                            </Fragment>
+                          );
+                        })}
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             ) : (

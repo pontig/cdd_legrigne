@@ -3,9 +3,8 @@ import LeftBar from "../components/LeftBar";
 import { IoCaretBackOutline } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import { useSemester } from "../contexts/SemesterContext";
-import { usePlace } from "../contexts/PlaceContext";
-import { useUser } from "../contexts/UserContext";
 import { TiTickOutline } from "react-icons/ti";
+import apiService from "../services/apiService";
 
 interface Semester {
   id: number;
@@ -14,92 +13,81 @@ interface Semester {
 }
 
 const Semesters: React.FC = () => {
-  // API services
-  const api = {
-    baseUrl: "http://localhost:5000",
-
-    async fetchSemestersList(): Promise<void> {
-      try {
-        const response = await fetch(`${api.baseUrl}/semesters_list`, {
-          credentials: "include",
-        });
-        if (response.status === 401) {
-          console.error("Unauthorized access - please log in.");
-          navigate("/login");
-          return;
-        }
-        if (!response.ok) {
-          throw new Error("Failed to fetch semesters");
-        }
-        const data = (await response.json()) as Semester[];
-        setSemesters(data);
-      } catch (error) {
-        console.error("API call failed: " + error);
-      }
-    },
-
-    async setSemester(
-      semesterId: number,
-      from: string,
-      to: string
-    ): Promise<void> {
-      try {
-        const response = await fetch(`${api.baseUrl}/set_semester`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify({ semester_id: semesterId }),
-        });
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        setSemesterNumber(semesterId);
-        setSemesterString(`Semestre dal ${from} al ${to}`);
-        navigate("/");
-      } catch (error) {
-        console.error("API call failed: " + error);
-      }
-    },
-
-    async resetSemester(): Promise<void> {
-      try {
-        const response = await fetch(`${api.baseUrl}/reset_semester`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-        });
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        setSemesterNumber(null);
-        setSemesterString(null);
-        navigate("/");
-      } catch (error) {
-        console.error("API call failed: " + error);
-      }
-    },
-  };
-
   // State
-  const { user, setUser } = useUser();
-  const {
-    semesterString,
-    semesterNumber,
-    setSemesterString,
-    setSemesterNumber,
-  } = useSemester();
-  const { place, setPlace } = usePlace();
+  const { setSemesterString, setSemesterNumber } = useSemester();
   const navigate = useNavigate();
   const [semesters, setSemesters] = useState<Semester[]>([]);
 
+  // API functions
+  const setSemester = async (
+    semesterId: number,
+    from: string,
+    to: string
+  ): Promise<void> => {
+    const response = await apiService.setSemester(semesterId);
+
+    if (response.status === 401) {
+      console.error("Unauthorized access - please log in.");
+      navigate("/login");
+      return;
+    }
+
+    if (response.error) {
+      console.error("API call failed:", response.error);
+      return;
+    }
+
+    if (response.data) {
+      setSemesterNumber(semesterId);
+      setSemesterString(`Semestre dal ${from} al ${to}`);
+      navigate("/");
+    }
+  };
+
+  const resetSemester = async (): Promise<void> => {
+    const response = await apiService.resetSemester();
+
+    if (response.status === 401) {
+      console.error("Unauthorized access - please log in.");
+      navigate("/login");
+      return;
+    }
+
+    if (response.error) {
+      console.error("API call failed:", response.error);
+      return;
+    }
+
+    if (response.data) {
+      setSemesterNumber(null);
+      setSemesterString(null);
+      navigate("/");
+    }
+  };
+
   // Effects
   useEffect(() => {
-    api.fetchSemestersList();
-  }, []);
+    const loadSemesters = async (): Promise<void> => {
+      const response = await apiService.fetchSemestersList();
+
+      if (response.status === 401) {
+        console.error("Unauthorized access - please log in.");
+        navigate("/login");
+        return;
+      }
+
+      if (response.error) {
+        console.error("API call failed:", response.error);
+        return;
+      }
+
+      if (response.data) {
+        setSemesters(response.data as Semester[]);
+      }
+    };
+
+    loadSemesters();
+  }, [navigate]);
 
   // Return
   return (
@@ -133,7 +121,7 @@ const Semesters: React.FC = () => {
                 <button
                   className="edit-row-btn"
                   onClick={() => {
-                    api.resetSemester();
+                    resetSemester();
                   }}
                   style={{ textAlign: "center" }}
                 >
@@ -148,11 +136,7 @@ const Semesters: React.FC = () => {
                   <button
                     className="edit-row-btn"
                     onClick={() => {
-                      api.setSemester(
-                        semester.id,
-                        semester.start,
-                        semester.end
-                      );
+                      setSemester(semester.id, semester.start, semester.end);
                     }}
                     style={{ textAlign: "center" }}
                   >

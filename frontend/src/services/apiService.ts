@@ -102,6 +102,10 @@ class ApiService {
 
   
   // Specific API methods for the app
+  async fetchSemestersList() {
+    return this.get('/semesters_list');
+  }
+
   async fetchPersons() {
     return this.get('/home');
   }
@@ -184,6 +188,18 @@ class ApiService {
 
   async changePermissions(user_id: number, permissions: number) {
     return this.get(`/change_permissions?user_id=${user_id}&permissions=${permissions}`);
+  }
+
+  async setSemester(semesterId: number) {
+    return this.post('/set_semester', { semester_id: semesterId });
+  }
+
+  async resetSemester() {
+    return this.post('/reset_semester');
+  }
+
+  async logout() {
+    return this.get('/logout');
   }
 
 }
