@@ -20,7 +20,8 @@ activities_bp = Blueprint('activities', __name__)
 def get_activities():
     """ Get activities for a specific person """
     person_id = request.args.get('person_id', type=int)
-    
+    month = request.args.get('month', type=int, default=None)
+
     if check_session() is False:
         return jsonify({'error': 'Unauthorized access'}), 401
     
@@ -29,26 +30,26 @@ def get_activities():
     
     try:
 
-        activities = activities_dao.get_activities(person_id)
+        activities = activities_dao.get_activities(person_id, month=month)
         
         # Extract dates and values for plotting
         dates = []
-        adesions = []
-        participations = []
+        moods = []
+        communications = []
 
         for activity in activities:
             try:
                 date_obj = datetime.strptime(activity['date'], '%Y-%m-%d')
                 dates.append(date_obj)
-                adesions.append(activity['adesion'])
-                participations.append(activity['participation'])
+                moods.append(activity['mood'])
+                communications.append(activity['communication'])
             except (ValueError, KeyError):
                 continue
 
         # Create the plot
         plt.figure(figsize=(10, 6))
-        plt.plot(dates, adesions, marker='o', label='Adesione', linewidth=2, color='#005073')
-        plt.plot(dates, participations, marker='s', label='Partecipazione', linewidth=2, color='#60A5FA')
+        plt.plot(dates, moods, marker='o', label='Umore', linewidth=2, color='#005073')
+        plt.plot(dates, communications, marker='s', label='Comunicazione', linewidth=2, color='#60A5FA')
 
         plt.xlabel('Data')
         plt.ylabel('Indice')
@@ -56,7 +57,7 @@ def get_activities():
         plt.legend()
         plt.grid(True, alpha=0.3)
         plt.gca().yaxis.set_major_locator(plt.MaxNLocator(integer=True))
-        plt.ylim(0.5, 4.5)
+        plt.ylim(0.5, 8.5)
         
         # # Set transparent background
         # plt.gca().patch.set_alpha(0.5)

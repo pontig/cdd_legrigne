@@ -10,6 +10,7 @@ import { useUser } from "../contexts/UserContext";
 import { usePlace } from "../contexts/PlaceContext";
 import { useSemester } from "../contexts/SemesterContext";
 import apiService from "../services/apiService";
+import { MdNotInterested } from "react-icons/md";
 
 interface Event {
   id: number;
@@ -122,7 +123,7 @@ const LogBook: React.FC = () => {
             title: "Modifica registrazione",
             action: () => setEditMode(!editMode),
             icon: <FaPencilAlt />,
-            disabled: semesterString !== null || (user?.permissions ?? 0) < 20,
+            disabled: semesterString !== null,
           },
           {
             title: "Indietro",
@@ -206,13 +207,13 @@ const LogBook: React.FC = () => {
                                 </>
                               );
                             } else {
-                              return <span>N/A</span>;
+                              return <span><MdNotInterested /></span>;
                             }
                           })()}
                       </div>
                     </td>
                   )}
-                  <td>{event.date}</td>
+                  <td className="no-wrap">{event.date}</td>
                   <td>{event.event}</td>
                   <td>{event.intervention}</td>
                   <td className="signature-td">{event.signature}</td>

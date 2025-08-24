@@ -8,6 +8,7 @@ html {
   background-attachment: fixed;
   background-size: cover;
   font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  font-size: 16px;
 }
 
 body {
@@ -126,7 +127,7 @@ body {
 table, td, tr, th {
   border-collapse: collapse;
   /* border: 1px solid #00A6B3; */
-  padding: 1.5rem;
+  padding: 1rem;
   font-size: 1.25rem;
 }
 
@@ -237,11 +238,19 @@ h3 {
   font-size: 1rem;
 }
 
+.no-wrap {
+  white-space: nowrap;
+}
+
 @media print {
   @page {
     size: landscape;
-    margin: 0;
-    padding: 1rem;
+    /* margin: 0; */
+    /* padding: 1rem; */
+  }
+
+  h1{
+    color: #000 !important;
   }
 
   html {
@@ -265,8 +274,8 @@ h3 {
   }
 
   th, td, tr {
-    padding: 0.5rem;
-    font-size: 1rem;
+    padding: .2cm;
+    font-size: 3.5mm;
     border: 1px solid #000;
   }
 

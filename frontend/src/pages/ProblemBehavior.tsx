@@ -4,7 +4,10 @@ import { usePlace } from "../contexts/PlaceContext";
 import { useSemester } from "../contexts/SemesterContext";
 import { useLocation, useNavigate } from "react-router-dom";
 import LeftBar from "../components/LeftBar";
-import { IoCaretBackOutline, IoCheckmarkDoneCircleSharp } from "react-icons/io5";
+import {
+  IoCaretBackOutline,
+  IoCheckmarkDoneCircleSharp,
+} from "react-icons/io5";
 import { FaPencilAlt, FaPlus, FaPrint, FaTable } from "react-icons/fa";
 import { PiTextAaBold } from "react-icons/pi";
 
@@ -13,6 +16,7 @@ import GenericForm from "../components/GenericForm";
 import NewProblemBehaviorForm from "../components/forms/NewProblemBehavior";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import apiService from "../services/apiService";
+import { MdNotInterested } from "react-icons/md";
 
 interface ProblemRecord {
   id: number;
@@ -213,7 +217,7 @@ const ProblemBehavior: React.FC = () => {
             title: "Modifica registrazione",
             action: () => setEditMode(!editMode),
             icon: <FaPencilAlt />,
-            disabled: semesterString !== null || (user?.permissions ?? 0) < 20,
+            disabled: semesterString !== null,
           },
           {
             title: "Indietro",
@@ -250,7 +254,9 @@ const ProblemBehavior: React.FC = () => {
                 </th>
                 <th rowSpan={3}>Intensità</th>
                 <th rowSpan={3}>Durata e ripetitività</th>
-                <th rowSpan={3} className="wider-column">Causa scatenante e descrizione</th>
+                <th rowSpan={3} className="wider-column">
+                  Causa scatenante e descrizione
+                </th>
                 <th rowSpan={3}>Contenimento</th>
                 <th className="ttr" rowSpan={3}>
                   Firma
@@ -362,13 +368,13 @@ const ProblemBehavior: React.FC = () => {
                                   </>
                                 );
                               } else {
-                                return <span>N/A</span>;
+                                return <span><MdNotInterested /></span>;
                               }
                             })()}
                         </div>
                       </td>
                     )}
-                    <td>{record.date}</td>
+                    <td className="no-wrap">{record.date}</td>
                     {Object.keys(problems).flatMap((key) =>
                       problems[key].map((problem) => (
                         <td
@@ -381,7 +387,11 @@ const ProblemBehavior: React.FC = () => {
                             "show-line"
                           }
                         >
-                          {record.problem_statuses[problem.id - 1] ? <IoCheckmarkDoneCircleSharp /> : ""}
+                          {record.problem_statuses[problem.id - 1] ? (
+                            <IoCheckmarkDoneCircleSharp />
+                          ) : (
+                            ""
+                          )}
                         </td>
                       ))
                     )}
@@ -431,6 +441,7 @@ const ProblemBehavior: React.FC = () => {
                 </p>
               </p>
             ))}
+            <b>Numero di comportamenti problema durante il periodo: </b> {problemRecords.length}
           </p>
         )}
         {formIsShown && (

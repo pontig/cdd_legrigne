@@ -14,6 +14,7 @@ import NewActivityForm from "../components/forms/NewActivity";
 import "../styles/activities.css";
 import { useSemester } from "../contexts/SemesterContext";
 import apiService from "../services/apiService";
+import { MdNotInterested } from "react-icons/md";
 
 interface Activity {
   id: number;
@@ -31,10 +32,9 @@ interface Activity {
 const Activities: React.FC = () => {
   // API services
 
-  const fetchActivities = async (personId: number): Promise<void> => {
-    const response = await apiService.fetchActivities({
-      person_id: personId.toString(),
-    });
+  const fetchActivities = async (personId: number, month: number | null): Promise<void> => {
+    const queryString = month ? `?person_id=${personId}&month=${month}` : `?person_id=${personId}`;
+    const response = await apiService.fetchActivities(queryString);
     if (response.status === 401) {
       console.error("Unauthorized access - please log in.");
       navigate("/login");
@@ -86,8 +86,13 @@ const Activities: React.FC = () => {
     }
 
     if (response.data) {
-      fetchActivities(guestId);
+      fetchActivities(guestId, null);
     }
+  };
+
+  const handleMonthChange = (month: number | null) => {
+    setSelectedMonth(month);
+   fetchActivities(guestId, month);
   };
 
   // Navigation and state
@@ -113,7 +118,7 @@ const Activities: React.FC = () => {
     "Intollerante",
     "Estraniato dalla realtà",
   ];
-  const arr_comunication = [
+  const arr_communication = [
     "Isolato",
     "Adeguata alla sua condizione",
     "Logorroico",
@@ -140,6 +145,7 @@ const Activities: React.FC = () => {
   const [missingActivityDate, setMissingActivityDate] = useState<
     string | undefined
   >(undefined);
+  const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
 
   // Most frequent of the four arrays
   const [mostFrequentAdesion, setMostFrequentAdesion] = useState<number>(-1);
@@ -167,7 +173,7 @@ const Activities: React.FC = () => {
       setFormIsShown(true);
     }
 
-    fetchActivities(location.state.guestId);
+    fetchActivities(location.state.guestId, null);
   }, []);
 
   useEffect(() => {
@@ -216,7 +222,7 @@ const Activities: React.FC = () => {
             title: "Modifica registrazione",
             action: () => setEditMode(!editMode),
             icon: <FaPencilAlt />,
-            disabled: semesterString !== null || (user?.permissions ?? 0) < 20,
+            disabled: semesterString !== null,
           },
           {
             title: "Indietro",
@@ -231,6 +237,40 @@ const Activities: React.FC = () => {
         <div className="header">
           <h1>Partecipazione attività di {guestFullName}</h1>
           <p className="subtitle">{semesterString}</p>
+          <div className="month-selector">
+            <label
+              htmlFor="month-select"
+              style={{
+                marginRight: "0.5rem",
+                flexDirection: "row",
+                fontSize: "1.5rem",
+              }}
+            >
+              Mese:
+              <select
+                className="month-select"
+                value={selectedMonth ?? ""}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  handleMonthChange(value === "" ? null : parseInt(value));
+                }}
+              >
+                <option value="">Tutti i dati del semestre</option>
+                <option value="1">Gennaio</option>
+                <option value="2">Febbraio</option>
+                <option value="3">Marzo</option>
+                <option value="4">Aprile</option>
+                <option value="5">Maggio</option>
+                <option value="6">Giugno</option>
+                <option value="7">Luglio</option>
+                <option value="8">Agosto</option>
+                <option value="9">Settembre</option>
+                <option value="10">Ottobre</option>
+                <option value="11">Novembre</option>
+                <option value="12">Dicembre</option>
+              </select>
+            </label>
+          </div>
         </div>
         {!graphIsShown ? (
           <table className="wide-table">
@@ -307,13 +347,17 @@ const Activities: React.FC = () => {
                                   </>
                                 );
                               } else {
-                                return <span>N/A</span>;
+                                return (
+                                  <span>
+                                    <MdNotInterested />
+                                  </span>
+                                );
                               }
                             })()}
                         </div>
                       </td>
                     )}
-                    <td>
+                    <td className="no-wrap">
                       {activity.date} {activity.morning ? " (m)" : " (p)"}
                     </td>
                     <td>{activity.activity}</td>
@@ -335,7 +379,7 @@ const Activities: React.FC = () => {
                         </td>
                         <td>
                           {activity.communication}-
-                          {arr_comunication[activity.communication - 1]}
+                          {arr_communication[activity.communication - 1]}
                         </td>
                         <td className="centered">
                           {activity.problem_behaviour ? (
@@ -359,17 +403,17 @@ const Activities: React.FC = () => {
               <h3>Legenda</h3>
               <div>
                 <div>
-                  <b>Adesione:</b>
+                  <b>Umore:</b>
                   <ol>
-                    {arr_adesion.map((item, index) => (
+                    {arr_mood.map((item, index) => (
                       <li key={index}>{item}</li>
                     ))}
                   </ol>
                 </div>
                 <div>
-                  <b>Partecipazione:</b>
+                  <b>Comunicazione:</b>
                   <ol>
-                    {arr_participation.map((item, index) => (
+                    {arr_communication.map((item, index) => (
                       <li key={index}>{item}</li>
                     ))}
                   </ol>

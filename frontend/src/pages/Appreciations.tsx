@@ -173,7 +173,7 @@ const Appreciations: React.FC = () => {
                   handleMonthChange(value === "" ? null : parseInt(value));
                 }}
               >
-                <option value="">Tutti i dati</option>
+                <option value="">Tutti i dati del semestre</option>
                 <option value="1">Gennaio</option>
                 <option value="2">Febbraio</option>
                 <option value="3">Marzo</option>

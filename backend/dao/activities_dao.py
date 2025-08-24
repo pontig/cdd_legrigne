@@ -9,10 +9,11 @@ from config.database import db_config
 
 class ActivitiesDAO:
     """Data Access Object for activities"""
-    
-    def get_activities(self, person_id: int) -> List[dict]:
+
+    def get_activities(self, person_id: int, month: int | None) -> List[dict]:
         """Get activities for a specific person"""
         semester_constraint = " = %s" if session.get('semester') is not None else " IS NULL"
+        month_constraint = " AND pa.mese_int = %s" if month is not None else ""
         query = f"""
             SELECT 
                 pa.id,
@@ -31,7 +32,7 @@ class ActivitiesDAO:
 
             FROM partecipazione_attivita pa
             LEFT JOIN attivita a ON pa.attivita = a.id
-            WHERE id_persona = %s AND pa.id_semestre {semester_constraint}
+            WHERE id_persona = %s AND pa.id_semestre {semester_constraint}{month_constraint}
             ORDER BY anno DESC, mese_int DESC, giorno DESC
         """
         
@@ -41,10 +42,12 @@ class ActivitiesDAO:
         try:
             connection = db_config.get_connection()
             cursor = connection.cursor()
+            params = [person_id]
             if session.get('semester') is not None:
-                cursor.execute(query, (person_id, session.get('semester')))
-            else:
-                cursor.execute(query, (person_id,))
+                params.append(session.get('semester'))
+            if month is not None:
+                params.append(month)
+            cursor.execute(query, params)
             results = cursor.fetchall()
             
             activities = []

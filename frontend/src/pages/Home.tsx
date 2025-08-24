@@ -81,7 +81,7 @@ const MainPage: React.FC = () => {
 
   // Effects
   useEffect(() => {
-    setPlace("Primaluna");
+    setPlace("Bellano");
     if (!user) {
       navigate("/login");
       return;
