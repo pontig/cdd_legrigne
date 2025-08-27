@@ -61,11 +61,11 @@
     }
 
     .legend {
-        font-size: 1rem;
+        font-size: 3mm !important;
         padding: 0;
     }
 
     .activities-graph-container img {
-        width: 80%;
+        width: 75%;
     }
 }

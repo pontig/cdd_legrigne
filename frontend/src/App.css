@@ -251,6 +251,7 @@ h3 {
 
   h1{
     color: #000 !important;
+    font-size: 5mm !important;
   }
 
   html {
@@ -273,10 +274,17 @@ h3 {
     border-collapse: collapse;
   }
 
+  thead {
+    position: static;
+    border-radius: 0;
+  }
+
   th, td, tr {
     padding: .2cm;
-    font-size: 3.5mm;
+    font-size: 3.5mm !important;
     border: 1px solid #000;
+    background-color: transparent;
+    border-radius: 0;
   }
 
   th {
@@ -289,6 +297,19 @@ h3 {
   }
 
   .watermark {
+    display: none;
+  }
+
+  .month-selector {
+    margin: 0 2mm !important;
+  }
+
+  .month-selector label, .month-selector select {
+    font-size: 3.5mm !important;
+    /* margin: 2mm !important; */
+  }
+
+  .subtitle {
     display: none;
   }
 }

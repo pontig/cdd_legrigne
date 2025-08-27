@@ -33,7 +33,7 @@ class ActivitiesDAO:
             FROM partecipazione_attivita pa
             LEFT JOIN attivita a ON pa.attivita = a.id
             WHERE id_persona = %s AND pa.id_semestre {semester_constraint}{month_constraint}
-            ORDER BY anno DESC, mese_int DESC, giorno DESC
+            ORDER BY anno DESC, mese_int DESC, giorno DESC, mattino ASC
         """
         
         connection = None
@@ -49,6 +49,9 @@ class ActivitiesDAO:
                 params.append(month)
             cursor.execute(query, params)
             results = cursor.fetchall()
+            
+            if results is None:
+                raise Exception("No activities found for the given person_id")
             
             activities = []
             for row in results:

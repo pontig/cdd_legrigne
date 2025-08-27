@@ -15,6 +15,7 @@ import "../styles/activities.css";
 import { useSemester } from "../contexts/SemesterContext";
 import apiService from "../services/apiService";
 import { MdNotInterested } from "react-icons/md";
+import MonthSelector from "../components/MonthSelector";
 
 interface Activity {
   id: number;
@@ -33,38 +34,46 @@ const Activities: React.FC = () => {
   // API services
 
   const fetchActivities = async (personId: number, month: number | null): Promise<void> => {
-    const queryString = month ? `?person_id=${personId}&month=${month}` : `?person_id=${personId}`;
-    const response = await apiService.fetchActivities(queryString);
-    if (response.status === 401) {
-      console.error("Unauthorized access - please log in.");
-      navigate("/login");
-      return;
-    }
+    setIsLoading(true);
+    try {
+      const queryString = month ? `?person_id=${personId}&month=${month}` : `?person_id=${personId}`;
+      const response = await apiService.fetchActivities(queryString);
 
-    if (response.error) {
-      console.error("API call failed:", response.error);
-      return;
-    }
-
-    if (response.data) {
-      const data = response.data as any;
-      const retr_activities = data.activities as Activity[];
-      setActivities(retr_activities);
-      setGraph(data.plot_image);
-
-      const lastActivity = retr_activities[0];
-      if (!lastActivity) {
-        console.warn("No activities found for this person.");
-        setMostFrequentAdesion(-1);
-        setMostFrequentParticipation(-1);
-        setMostFrequentMood(-1);
-        setMostFrequentCommunication(-1);
+      if (response.status === 401) {
+        console.error("Unauthorized access - please log in.");
+        navigate("/login");
         return;
       }
-      setMostFrequentAdesion(lastActivity.adesion);
-      setMostFrequentParticipation(lastActivity.participation);
-      setMostFrequentMood(lastActivity.mood);
-      setMostFrequentCommunication(lastActivity.communication);
+
+      if (response.error) {
+        console.error("API call failed:", response.error);
+        return;
+      }
+
+      if (response.data) {
+        const data = response.data as any;
+        const retr_activities = data.activities as Activity[];
+        setActivities(retr_activities);
+        setGraph(data.plot_image);
+
+        const lastActivity = retr_activities[0];
+        if (!lastActivity) {
+          console.warn("No activities found for this person.");
+          setMostFrequentAdesion(-1);
+          setMostFrequentParticipation(-1);
+          setMostFrequentMood(-1);
+          setMostFrequentCommunication(-1);
+          return;
+        }
+        setMostFrequentAdesion(lastActivity.adesion);
+        setMostFrequentParticipation(lastActivity.participation);
+        setMostFrequentMood(lastActivity.mood);
+        setMostFrequentCommunication(lastActivity.communication);
+      }
+    } catch (error) {
+      console.error("Error fetching activities:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -92,7 +101,7 @@ const Activities: React.FC = () => {
 
   const handleMonthChange = (month: number | null) => {
     setSelectedMonth(month);
-   fetchActivities(guestId, month);
+    fetchActivities(guestId, month);
   };
 
   // Navigation and state
@@ -146,6 +155,7 @@ const Activities: React.FC = () => {
     string | undefined
   >(undefined);
   const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   // Most frequent of the four arrays
   const [mostFrequentAdesion, setMostFrequentAdesion] = useState<number>(-1);
@@ -164,10 +174,10 @@ const Activities: React.FC = () => {
       setMissingActivityDate(
         String(
           new Date().getFullYear() +
-            "-" +
-            String(location.state.missing_activity.month_int).padStart(2, "0") +
-            "-" +
-            String(location.state.missing_activity.day).padStart(2, "0")
+          "-" +
+          String(location.state.missing_activity.month_int).padStart(2, "0") +
+          "-" +
+          String(location.state.missing_activity.day).padStart(2, "0")
         )
       );
       setFormIsShown(true);
@@ -237,40 +247,10 @@ const Activities: React.FC = () => {
         <div className="header">
           <h1>Partecipazione attività di {guestFullName}</h1>
           <p className="subtitle">{semesterString}</p>
-          <div className="month-selector">
-            <label
-              htmlFor="month-select"
-              style={{
-                marginRight: "0.5rem",
-                flexDirection: "row",
-                fontSize: "1.5rem",
-              }}
-            >
-              Mese:
-              <select
-                className="month-select"
-                value={selectedMonth ?? ""}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  handleMonthChange(value === "" ? null : parseInt(value));
-                }}
-              >
-                <option value="">Tutti i dati del semestre</option>
-                <option value="1">Gennaio</option>
-                <option value="2">Febbraio</option>
-                <option value="3">Marzo</option>
-                <option value="4">Aprile</option>
-                <option value="5">Maggio</option>
-                <option value="6">Giugno</option>
-                <option value="7">Luglio</option>
-                <option value="8">Agosto</option>
-                <option value="9">Settembre</option>
-                <option value="10">Ottobre</option>
-                <option value="11">Novembre</option>
-                <option value="12">Dicembre</option>
-              </select>
-            </label>
-          </div>
+          <MonthSelector
+            selectedMonth={selectedMonth}
+            handleMonthChange={handleMonthChange}
+          />
         </div>
         {!graphIsShown ? (
           <table className="wide-table">
@@ -287,14 +267,21 @@ const Activities: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {activities.length === 0 ? (
+              {isLoading ? (
+                <tr>
+                  <td colSpan={editMode ? 8 : 7} className="centered">
+                    <em>Caricamento...</em>
+                  </td>
+                </tr>
+
+              ) : activities.length === 0 ? (
                 <tr>
                   <td colSpan={editMode ? 8 : 7} className="centered">
                     <em>Nessun dato</em>
                   </td>
                 </tr>
               ) : (
-                activities.map((activity, index) => (
+                activities.map((activity) => (
                   <tr key={activity.id}>
                     {editMode && (
                       <td>

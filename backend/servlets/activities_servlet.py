@@ -40,6 +40,8 @@ def get_activities():
         for activity in activities:
             try:
                 date_obj = datetime.strptime(activity['date'], '%Y-%m-%d')
+                if activity['mood'] is None or activity['communication'] is None:
+                    continue
                 dates.append(date_obj)
                 moods.append(activity['mood'])
                 communications.append(activity['communication'])
@@ -65,7 +67,7 @@ def get_activities():
 
         # Format x-axis dates
         plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-        plt.gca().xaxis.set_major_locator(mdates.MonthLocator())
+        # plt.gca().xaxis.set_major_locator(mdates.MonthLocator())
         plt.xticks(rotation=45)
 
         plt.tight_layout()
