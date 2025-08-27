@@ -21,7 +21,7 @@ class ApiService {
   ): Promise<ApiResponse<T>> {
     try {
       const url = API_CONFIG.getUrl(endpoint);
-      
+
       const defaultOptions: RequestInit = {
         credentials: 'include',
         headers: {
@@ -32,7 +32,7 @@ class ApiService {
       };
 
       const response = await fetch(url, defaultOptions);
-      
+
       if (response.status === 401) {
         return {
           status: 401,
@@ -100,7 +100,7 @@ class ApiService {
   }
 
 
-  
+
   // Specific API methods for the app
   async fetchSemestersList() {
     return this.get('/semesters_list');
@@ -140,6 +140,18 @@ class ApiService {
   async fetchAppreciations(month?: number) {
     const queryString = month ? `?month=${month}` : '';
     return this.get(`/appreciations${queryString}`);
+  }
+
+  async fetchNextGraph(sessionId: string) {
+    return this.get(`/appreciations/next-graph/${sessionId}`);
+  }
+
+  async fetchPersonGraph(sessionId: string, personId: number) {
+    return this.get(`/appreciations/graph/${sessionId}/${personId}`);
+  }
+
+  async fetchAllGraphsStatus(sessionId: string) {
+    return this.get(`/appreciations/graphs/${sessionId}`);
   }
 
   async createLogBook(logData: any) {

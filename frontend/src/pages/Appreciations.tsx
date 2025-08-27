@@ -15,6 +15,7 @@ import MonthSelector from "../components/MonthSelector";
 interface Root {
   activities: Activity[];
   appreciations: Appreciation[];
+  session_id?: string;
 }
 
 interface Activity {
@@ -28,7 +29,8 @@ interface Appreciation {
   id_persona: number;
   nome: string;
   cognome: string;
-  graph: string;
+  graph: string | null;
+  graph_ready: boolean;
 }
 
 interface AppreciationActivity {
@@ -37,6 +39,21 @@ interface AppreciationActivity {
   media_adesione: number;
   media_partecipazione: number;
   n_volte: number;
+}
+
+interface GraphsResponse {
+  graphs: { [personId: string]: string };
+}
+
+interface NextGraphResponse {
+  person_id?: number;
+  graph?: string;
+  completed?: boolean;
+  progress?: {
+    current: number;
+    total: number;
+  };
+  error?: string;
 }
 
 const Appreciations: React.FC = () => {
@@ -76,6 +93,10 @@ const Appreciations: React.FC = () => {
   const [graphIsShown, setGraphIsShown] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [graphsLoading, setGraphsLoading] = useState<Set<number>>(new Set());
+  const [graphProgress, setGraphProgress] = useState<{ current: number, total: number } | null>(null);
+  const [isGeneratingGraphs, setIsGeneratingGraphs] = useState<boolean>(false);
 
   const fetchAppreciations = useCallback(
     async (month?: number | null): Promise<void> => {
@@ -99,6 +120,16 @@ const Appreciations: React.FC = () => {
           const data = response.data as Root;
           setActivities(data.activities);
           setAppreciations(data.appreciations);
+
+          // If we have a session_id, start sequential graph generation
+          if (data.session_id) {
+            setSessionId(data.session_id);
+            // Mark all persons as having graphs loading
+            const loadingSet = new Set(data.appreciations.map(p => p.id_persona));
+            setGraphsLoading(loadingSet);
+            setGraphProgress({ current: 0, total: data.appreciations.length });
+            startSequentialGraphGeneration(data.session_id);
+          }
         }
       } finally {
         setIsLoading(false);
@@ -107,12 +138,84 @@ const Appreciations: React.FC = () => {
     [navigate]
   );
 
+  const startSequentialGraphGeneration = useCallback(
+    async (sessionId: string) => {
+      setIsGeneratingGraphs(true);
+
+      try {
+        while (true) {
+          const response = await apiService.fetchNextGraph(sessionId);
+
+          if (response.error) {
+            console.error("Error fetching next graph:", response.error);
+            break;
+          }
+
+          const graphResponse = response.data as NextGraphResponse;
+
+          // Process the graph data if available
+          if (graphResponse.person_id && graphResponse.graph) {
+            // Update the specific person's graph
+            setAppreciations(prev =>
+              prev.map(appreciation => {
+                if (appreciation.id_persona === graphResponse.person_id) {
+                  return {
+                    ...appreciation,
+                    graph: graphResponse.graph!,
+                    graph_ready: true
+                  };
+                }
+                return appreciation;
+              })
+            );
+
+            // Update loading set and progress
+            setGraphsLoading(prev => {
+              const newSet = new Set(prev);
+              newSet.delete(graphResponse.person_id!);
+              return newSet;
+            });
+
+            if (graphResponse.progress) {
+              setGraphProgress(graphResponse.progress);
+            }
+          }
+
+          // Check for completion AFTER processing the graph
+          if (graphResponse.completed) {
+            // All graphs are completed
+            setIsGeneratingGraphs(false);
+            setGraphsLoading(new Set());
+            setGraphProgress(null);
+            break;
+          }
+        }
+      } catch (error) {
+        console.error("Error in sequential graph generation:", error);
+        setIsGeneratingGraphs(false);
+      }
+    },
+    []
+  );
+
+  // Cleanup when component unmounts
+  useEffect(() => {
+    return () => {
+      setIsGeneratingGraphs(false);
+    };
+  }, []);
+
   const handleMonthChange = (month: number | null) => {
+    // Stop any ongoing graph generation
+    setIsGeneratingGraphs(false);
+
+    // Reset state
+    setGraphsLoading(new Set());
+    setGraphProgress(null);
+    setSessionId(null);
     setSelectedMonth(month);
     fetchAppreciations(month);
-  };
-
-  // Filter activities that have at least one entry
+  };  // Filter activities that have at least one entry
   const activitiesWithData = activities.filter((activity) =>
     appreciations.some((appreciation) =>
       appreciation.activities.some((a) => a.attivita === activity.id)
@@ -137,6 +240,7 @@ const Appreciations: React.FC = () => {
             title: "Stampa questa pagina",
             action: () => window.print(),
             icon: <FaPrint />,
+            disabled: isGeneratingGraphs || isLoading,
           },
           {
             title: "Indietro",
@@ -156,10 +260,12 @@ const Appreciations: React.FC = () => {
               : ""}
           </h1>
           <p className="subtitle">{semesterString}</p>
-          <MonthSelector
+          {isGeneratingGraphs ? (
+            <p>Generazione grafici in corso...</p>
+          ) :  (<MonthSelector
             selectedMonth={selectedMonth}
             handleMonthChange={handleMonthChange}
-          />
+          />)}
         </div>
         {isLoading ? (
           <div className="loading-container">Caricamento in corso...</div>
@@ -267,15 +373,35 @@ const Appreciations: React.FC = () => {
               </table>
             ) : (
               <div className="appreciations-graph-container">
+                {isGeneratingGraphs && graphProgress && (
+                  <div className="graphs-loading-info">
+                    <p>
+                      Generazione grafici in corso: {graphProgress.current}/{graphProgress.total}
+                    </p>
+                    <div className="progress-bar">
+                      <div
+                        className="progress-fill"
+                        style={{ width: `${(graphProgress.current / graphProgress.total) * 100}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                )}
                 {appreciations.map((appreciation) => (
                   <div key={appreciation.id_persona} className="graph">
                     <h3>
                       {appreciation.cognome} {appreciation.nome}
                     </h3>
-                    <img
-                      src={`data:image/png;base64,${appreciation.graph}`}
-                      alt={`${appreciation.nome} ${appreciation.cognome} graph`}
-                    />
+                    {appreciation.graph_ready && appreciation.graph ? (
+                      <img
+                        src={`data:image/png;base64,${appreciation.graph}`}
+                        alt={`${appreciation.nome} ${appreciation.cognome} graph`}
+                      />
+                    ) : (
+                      <div className="graph-loading">
+                        <p>In attesa di generazione...</p>
+                        <div className="loading-spinner"></div>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
