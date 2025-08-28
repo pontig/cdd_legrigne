@@ -145,10 +145,10 @@ const ProblemBehavior: React.FC = () => {
       const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
       return result
         ? [
-            parseInt(result[1], 16),
-            parseInt(result[2], 16),
-            parseInt(result[3], 16),
-          ]
+          parseInt(result[1], 16),
+          parseInt(result[2], 16),
+          parseInt(result[3], 16),
+        ]
         : [0, 0, 0];
     };
 
@@ -304,11 +304,11 @@ const ProblemBehavior: React.FC = () => {
                     colSpan={
                       editMode
                         ? 8 +
-                          Object.keys(problems).flatMap((key) => problems[key])
-                            .length
+                        Object.keys(problems).flatMap((key) => problems[key])
+                          .length
                         : 7 +
-                          Object.keys(problems).flatMap((key) => problems[key])
-                            .length
+                        Object.keys(problems).flatMap((key) => problems[key])
+                          .length
                     }
                     style={{ textAlign: "center", padding: "20px" }}
                   >
@@ -328,7 +328,7 @@ const ProblemBehavior: React.FC = () => {
                               const dayOfWeek = today.getDay(); // 0 (Sun) - 6 (Sat)
                               const monday = new Date(today);
                               monday.setDate(
-                                today.getDate() - ((dayOfWeek + 6) % 7)
+                                today.getDate() - ((dayOfWeek + 7) % 7)
                               ); // Past Monday
                               const friday = new Date(monday);
                               friday.setDate(monday.getDate() + 4); // Next Friday

@@ -21,7 +21,6 @@ def get_logbook_entries():
     
     try:
         logbook_entries = logbook_dao.get_logbook_entries(person_id)
-        
         return jsonify(logbook_entries), 200
         
     except Exception as e:

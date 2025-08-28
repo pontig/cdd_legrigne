@@ -5,7 +5,7 @@ set -e
 
 # Variables
 REMOTE_USER="elia"
-REMOTE_HOST="192.168.1.101"
+REMOTE_HOST="100.105.250.163"
 REMOTE_FRONTEND_DIR="/home/elia/frontend"
 REMOTE_BACKEND_DIR="/home/elia/backend"
 

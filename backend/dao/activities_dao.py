@@ -172,7 +172,7 @@ class ActivitiesDAO:
                         'media_adesione': int(row[6]),
                         'media_partecipazione': int(row[7]),
                         'n_volte': int(row[8]),
-                        'abbreviazione': row[9],
+                        'abbreviazione': row[11],
                     })
                 else:
                     grouped_data[person_id].append({

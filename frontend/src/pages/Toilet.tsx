@@ -1,28 +1,33 @@
 import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
 import LeftBar from "../components/LeftBar";
-import { FaPencilAlt, FaPlus, FaPrint } from "react-icons/fa";
-import { RiDeleteBin6Line } from "react-icons/ri";
-import { IoCaretBackOutline } from "react-icons/io5";
-import GenericForm from "../components/GenericForm";
-import NewLogForm from "../components/forms/NewLog";
-import { useUser } from "../contexts/UserContext";
 import { usePlace } from "../contexts/PlaceContext";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useUser } from "../contexts/UserContext";
 import { useSemester } from "../contexts/SemesterContext";
-import apiService from "../services/apiService";
+import { IoCaretBackOutline } from "react-icons/io5";
+import { FaCheck, FaPencilAlt, FaPlus, FaPrint, FaTimes } from "react-icons/fa";
+import { RiDeleteBin6Line } from "react-icons/ri";
 import { MdNotInterested } from "react-icons/md";
+import NewToiletForm from "../components/forms/NewToilet";
+import GenericForm from "../components/GenericForm";
+import apiService from "../services/apiService";
 
-interface Event {
+interface ToiletRecord {
   id: number;
   date: string;
-  event: string;
-  intervention: string;
+  morning: boolean;
+  urine: boolean;
+  feces: boolean;
+  diaper: number;
+  redness: boolean;
+  period: boolean;
+  belt: boolean;
   signature: string;
 }
 
-const LogBook: React.FC = () => {
+const Toilet: React.FC = () => {
   const fetchEvents = async (): Promise<void> => {
-    const response = await apiService.fetchLogbook({
+    const response = await apiService.fetchToiletRecords({
       person_id: location.state.guestId,
     });
 
@@ -38,16 +43,15 @@ const LogBook: React.FC = () => {
     }
 
     if (response.data) {
-      setEvents(response.data as Event[]);
+      setEvents(response.data as ToiletRecord[]);
     }
   };
-
   const deleteEvent = async (id: number): Promise<void> => {
     const conf = window.confirm("Sei sicuro di voler eliminare questa voce?");
 
     if (!conf) return;
 
-    const response = await apiService.deleteLogbook(id);
+    const response = await apiService.deleteToiletRecord(id);
 
     if (response.status === 401) {
       console.error("Unauthorized access - please log in.");
@@ -78,10 +82,10 @@ const LogBook: React.FC = () => {
   const location = useLocation();
   const [guestId, setGuestId] = useState<number>(-1);
   const [guestFullName, setGuestFullName] = useState<string>("");
-  const [events, setEvents] = useState<Event[]>([]);
+  const [events, setEvents] = useState<ToiletRecord[]>([]);
   const [formIsShown, setFormIsShown] = useState(false);
   const [editMode, setEditMode] = useState(false);
-  const [editingEvent, setEditingEvent] = useState<Event | null>(null);
+  const [editingEvent, setEditingEvent] = useState<ToiletRecord | null>(null);
   const [editingIndex, setEditingIndex] = useState<number>(-1); // Index of event being edited - will be used when saving changes
 
   // Effects
@@ -94,9 +98,6 @@ const LogBook: React.FC = () => {
     fetchEvents();
   }, []);
 
-  // Functions and other hooks
-
-  // Return
   return (
     <div className="main-container">
       <LeftBar
@@ -136,7 +137,7 @@ const LogBook: React.FC = () => {
       />
       <div>
         <div className="header">
-          <h1>Diario di {guestFullName}</h1>
+          <h1>Scheda bagno di {guestFullName}</h1>
           <p className="subtitle">{semesterString}</p>
         </div>
         <table className="wide-table">
@@ -144,8 +145,12 @@ const LogBook: React.FC = () => {
             <tr>
               {editMode && <th>Azioni</th>}
               <th>Data</th>
-              <th>Evento</th>
-              <th>Intervento</th>
+              <th>Urina</th>
+              <th>Defecazione</th>
+              <th>Pannolone</th>
+              <th>Arrossamenti</th>
+              <th>Ciclo</th>
+              <th>Cintura</th>
               <th>Firma</th>
             </tr>
           </thead>
@@ -153,11 +158,9 @@ const LogBook: React.FC = () => {
             {events.length === 0 ? (
               <tr>
                 <td
-                  colSpan={editMode ? 5 : 4}
+                  colSpan={9}
                   style={{ textAlign: "center", fontStyle: "italic" }}
-                >
-                  Nessun dato
-                </td>
+                >Nessun evento registrato</td>
               </tr>
             ) : (
               events.map((event, index) => (
@@ -175,7 +178,7 @@ const LogBook: React.FC = () => {
                               today.getDate() - ((dayOfWeek + 7) % 7)
                             ); // Past Monday
                             const friday = new Date(monday);
-                            friday.setDate(monday.getDate() + 4); // Next Friday
+                            friday.setDate(monday.getDate() + 5); // Next Friday
 
                             const eventDate = new Date(event.date);
 
@@ -192,6 +195,7 @@ const LogBook: React.FC = () => {
                                       setEditingIndex(event.id);
                                       setFormIsShown(true);
                                       setEditMode(false);
+                                      console.log(event)
                                     }}
                                     title="Modifica questa registrazione"
                                   >
@@ -213,9 +217,13 @@ const LogBook: React.FC = () => {
                       </div>
                     </td>
                   )}
-                  <td className="no-wrap">{event.date}</td>
-                  <td>{event.event}</td>
-                  <td>{event.intervention}</td>
+                  <td className="no-wrap">{event.date} {event.morning ? " (m)" : " (p)"}</td>
+                  <td className="centered">{event.urine ? "Sì" : "No"}</td>
+                  <td className="centered">{event.feces ? "Sì" : "No"}</td>
+                  <td>{event.diaper != null ? (event.diaper ? "Asciutto" : "Bagnato") : "Nessuno"}</td>
+                  <td className="centered">{event.redness ? <FaCheck /> : ""}</td>
+                  <td className="centered">{event.period ? <FaCheck /> : ""}</td>
+                  <td className="centered">{event.belt ? <FaCheck /> : ""}</td>
                   <td className="signature-td">{event.signature}</td>
                 </tr>
               ))
@@ -224,14 +232,14 @@ const LogBook: React.FC = () => {
         </table>
         {formIsShown && (
           <GenericForm
-            title={editingEvent ? "Modifica evento" : "Nuovo evento"}
+            title={editingEvent ? "Modifica registrazione bagno" : "Nuova registrazione bagno"}
             closeForm={() => {
               setFormIsShown(false);
               setEditingEvent(null);
               setEditingIndex(-1);
             }}
           >
-            <NewLogForm
+            <NewToiletForm
               editData={editingEvent || undefined}
               editingIndex={editingIndex || -1}
             />
@@ -242,4 +250,4 @@ const LogBook: React.FC = () => {
   );
 };
 
-export default LogBook;
+export default Toilet;

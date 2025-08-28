@@ -81,7 +81,7 @@ const MainPage: React.FC = () => {
 
   // Effects
   useEffect(() => {
-    setPlace("Bellano");
+    setPlace("Primaluna");
     if (!user) {
       navigate("/login");
       return;
@@ -222,7 +222,7 @@ const MainPage: React.FC = () => {
               ))
             ) : (
               <tr>
-                <td colSpan={3}>Nessun dato disponibile</td>
+                <td colSpan={3}>Caricamento ospiti...</td>
               </tr>
             )}
           </tbody>

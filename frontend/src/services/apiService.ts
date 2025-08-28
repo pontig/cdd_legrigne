@@ -222,6 +222,19 @@ class ApiService {
     return this.post('/backup_database', { password });
   }
 
+  async fetchToiletRecords(params?: any) {
+    const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
+    return this.get(`/toilet${queryString}`);
+  }
+
+  async createToiletRecord(recordData: any) {
+    return this.post('/new_toilet_entry', recordData);
+  }
+
+  async deleteToiletRecord(id: number) {
+    return this.get(`/delete_toilet_entry?entry_id=${id}`);
+  }
+
 }
 
 // Export a singleton instance

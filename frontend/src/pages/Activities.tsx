@@ -293,7 +293,7 @@ const Activities: React.FC = () => {
                               const dayOfWeek = today.getDay(); // 0 (Sun) - 6 (Sat)
                               const monday = new Date(today);
                               monday.setDate(
-                                today.getDate() - ((dayOfWeek + 6) % 7)
+                                today.getDate() - ((dayOfWeek + 7) % 7)
                               ); // Past Monday
                               const friday = new Date(monday);
                               friday.setDate(monday.getDate() + 4); // Next Friday
