@@ -235,6 +235,19 @@ class ApiService {
     return this.get(`/delete_toilet_entry?entry_id=${id}`);
   }
 
+  async fetchShowerRecords(params?: any) {
+    const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
+    return this.get(`/shower${queryString}`);
+  }
+
+  async createShowerRecord(recordData: any) {
+    return this.post('/new_shower_entry', recordData);
+  }
+
+  async deleteShowerRecord(id: number) {
+    return this.get(`/delete_shower_entry?entry_id=${id}`);
+  }
+
 }
 
 // Export a singleton instance
