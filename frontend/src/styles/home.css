@@ -11,15 +11,18 @@
 .home-table td {
   cursor: pointer;
 }
-
 .home-buttons-container {
-  background-color: #fff;
+  background-color: #0c254d;
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   max-width: 60vw;
-  border-radius: 1rem;
+  width: 30vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 0.3rem;
+  padding: 0 3rem 2rem 3rem;
 }
 
 .home-buttons-container h2 {
@@ -27,26 +30,35 @@
   color: var(--main-blue);
   font-size: 2rem;
   margin-bottom: 1rem;
+  color: #60A5FA;
 }
 
 .home-buttons {
-display: flex;
-flex-wrap: wrap;
-align-items: center;
-justify-content: center;}
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
 
 .home-buttons button {
   font-size: 1.5rem;
-  padding: 3rem;
-  margin: 2rem;
-  border-radius: .5rem;
+  padding: 1rem 2rem;
+  margin: 0.2rem 0;
+  border-radius: 0.2rem;
   border: none;
-  background-color: #92fdffaf;
+  background-color: #eee;
+}
+
+.home-buttons button:nth-child(even) {
+  background-color: #ddd;
+}
+
+.home-buttons button:hover {
+  background-color: #ccc;
 }
 
 .home-buttons button:hover {
   cursor: pointer;
-  background-color: #92feff;
+  /* background-color: #92feff; */
 }
 
 .missing-activity {

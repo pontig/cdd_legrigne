@@ -248,6 +248,32 @@ class ApiService {
     return this.get(`/delete_shower_entry?entry_id=${id}`);
   }
 
+  async fetchHydrationRecords(params?: any) {
+    const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
+    return this.get(`/hydration${queryString}`);
+  }
+
+  async createHydrationRecord(recordData: any) {
+    return this.post('/new_hydration_entry', recordData);
+  }
+
+  async deleteHydrationRecord(id: number) {
+    return this.get(`/delete_hydration_entry?entry_id=${id}`);
+  }
+
+  async fetchTargetEntries(params?: any) {
+    const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
+    return this.get(`/target${queryString}`);
+  }
+
+  async createTargetEntry(targetData: any) {
+    return this.post('/new_target_entry', targetData);
+  }
+
+  async deleteTargetEntry(id: number) {
+    return this.get(`/delete_target?id=${id}`);
+  }
+
 }
 
 // Export a singleton instance

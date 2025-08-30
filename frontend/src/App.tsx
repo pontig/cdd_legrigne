@@ -15,6 +15,8 @@ import Appreciations from "./pages/Appreciations";
 import Account from "./pages/Account";
 import Toilet from "./pages/Toilet";
 import Shower from "./pages/Shower";
+import Hydration from "./pages/Hydration";
+import TargetActivities from "./pages/TargetActivities";
 
 const App: React.FC = () => {
   return (
@@ -40,6 +42,8 @@ const App: React.FC = () => {
                 <Route path="/account" element={<Account />} />
                 <Route path="/bagno" element={<Toilet />} />
                 <Route path="/doccia" element={<Shower />} />
+                <Route path="/idratazione" element={<Hydration />} />
+                <Route path="/attivita_mirate" element={<TargetActivities />} />
               </Routes>
             </Router>
             <p className="watermark">CDD Le Grigne - Bellano / Primaluna</p>

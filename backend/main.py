@@ -16,6 +16,8 @@ from servlets.problembehavior_servlet import problembehavior_bp
 from servlets.appreciations_servlet import appreciations_bp
 from servlets.toilet_servlet import toilet_bp
 from servlets.shower_servlet import shower_bp
+from servlets.hydration_servlet import hydration_bp
+from servlets.target_servlet import target_bp
 from config.database import db_config
 
 def create_app():
@@ -42,6 +44,8 @@ def create_app():
     app.register_blueprint(appreciations_bp)
     app.register_blueprint(toilet_bp)
     app.register_blueprint(shower_bp)
+    app.register_blueprint(hydration_bp)
+    app.register_blueprint(target_bp)
 
     @app.route('/ping')
     def ping():

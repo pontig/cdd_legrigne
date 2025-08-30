@@ -115,6 +115,8 @@ const MainPage: React.FC = () => {
     { title: "Idratazione", location: "/idratazione" },
     { title: "Crisi epilettiche", location: "/crisi" },
     { title: "Attività mirate", location: "/attivita_mirate" },
+    { title: "Peso", location: "/peso" },
+    { title: "Parametri vitali", location: "/parametri_vitali" }
   ];
 
   const filteredButtons = place === "Bellano" ? buttons.slice(0, 3) : buttons;
@@ -194,8 +196,8 @@ const MainPage: React.FC = () => {
                   onClick={() => handleRowClick(person)}
                   style={{ cursor: "pointer" }}
                 >
-                      <td>{person.surname}</td>
-                      <td>{person.name}</td>
+                  <td>{person.surname}</td>
+                  <td>{person.name}</td>
                   {semesterString === null && (<td>
                     <span>
                       {semesterString === null &&
