@@ -53,7 +53,7 @@ ssh ${REMOTE_USER}@${REMOTE_HOST} "
     echo 'Restarting gunicorn (backend)...'
     sudo systemctl restart cdd-legrigne
   else
-    echo '⚠️ Gunicorn is not running!'
+    echo '⚠️ Gunicorn is not running on service cdd-legrigne!'
   fi
   
   # Then restart nginx to ensure proper proxy configuration

@@ -262,7 +262,7 @@ const Appreciations: React.FC = () => {
           <p className="subtitle">{semesterString}</p>
           {isGeneratingGraphs ? (
             <p>Generazione grafici in corso...</p>
-          ) :  (<MonthSelector
+          ) : (<MonthSelector
             selectedMonth={selectedMonth}
             handleMonthChange={handleMonthChange}
           />)}

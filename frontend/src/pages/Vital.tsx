@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import LeftBar from "../components/LeftBar";
-import { FaPencilAlt, FaPlus, FaPrint } from "react-icons/fa";
+import { FaPencilAlt, FaPlus, FaPrint, FaTable } from "react-icons/fa";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { IoCaretBackOutline } from "react-icons/io5";
 import GenericForm from "../components/GenericForm";
@@ -10,18 +10,23 @@ import { usePlace } from "../contexts/PlaceContext";
 import { useSemester } from "../contexts/SemesterContext";
 import apiService from "../services/apiService";
 import { MdNotInterested } from "react-icons/md";
-import NewWeightForm from "../components/forms/NewWeight";
+import NewVitalForm from "../components/forms/NewVital";
+import { ImStatsBars } from "react-icons/im";
 
-interface WeightEntry {
+interface VitalEntry {
   id: number;
   date: string;
-  weight: number;
+  max_pressure: number;
+  min_pressure: number;
+  heart_rate: number;
+  temperature: number;
+  saturation: number;
 }
 
-const Weight: React.FC = () => {
-  const fetchWeights = async (): Promise<void> => {
+const Vital: React.FC = () => {
+  const fetchVitals = async (): Promise<void> => {
     setIsLoading(true);
-    const response = await apiService.fetchWeightEntries({
+    const response = await apiService.fetchVitalEntries({
       person_id: location.state.guestId,
     });
 
@@ -38,18 +43,18 @@ const Weight: React.FC = () => {
 
     if (response.data) {
       const data = response.data as any
-      setWeights(data.weights as WeightEntry[]);
+      setVitals(data.vitals as VitalEntry[]);
       setGraph(data.plot_image as any);
     }
     setIsLoading(false);
   };
 
-  const deleteWeight = async (id: number): Promise<void> => {
+  const deleteVital = async (id: number): Promise<void> => {
     const conf = window.confirm("Sei sicuro di voler eliminare questa voce?");
 
     if (!conf) return;
 
-    const response = await apiService.deleteWeightEntry(id);
+    const response = await apiService.deleteVitalEntry(id);
     if (response.status === 401) {
       console.error("Unauthorized access - please log in.");
       navigate("/login");
@@ -62,7 +67,7 @@ const Weight: React.FC = () => {
     }
 
     if (response.data) {
-      fetchWeights();
+      fetchVitals();
     }
   }
 
@@ -79,13 +84,15 @@ const Weight: React.FC = () => {
   const location = useLocation();
   const [guestId, setGuestId] = useState<number>(-1);
   const [guestFullName, setGuestFullName] = useState<string>("");
-  const [weights, setWeights] = useState<WeightEntry[]>([]);
+  const [vitals, setVitals] = useState<VitalEntry[]>([]);
   const [formIsShown, setFormIsShown] = useState(false);
   const [editMode, setEditMode] = useState(false);
-  const [editingWeight, setEditingWeight] = useState<WeightEntry | null>(null);
+  const [editingVital, setEditingVital] = useState<VitalEntry | null>(null);
   const [editingIndex, setEditingIndex] = useState<number>(-1);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [graph, setGraph] = useState<any>(null);
+  const [graphIsShown, setGraphIsShown] = useState<boolean>(false);
+
 
 
   // Effects
@@ -95,7 +102,7 @@ const Weight: React.FC = () => {
   }, [location.state]);
 
   useEffect(() => {
-    fetchWeights();
+    fetchVitals();
   }, []);
 
   return (
@@ -105,12 +112,17 @@ const Weight: React.FC = () => {
           {
             title: "Nuova registrazione",
             action: () => {
-              setEditingWeight(null);
+              setEditingVital(null);
               setEditingIndex(-1);
               setFormIsShown(true);
             },
             icon: <FaPlus />,
             disabled: semesterString !== null,
+          },
+          {
+            title: graphIsShown ? "Visualizza tabella" : "Visualizza grafico",
+            action: () => setGraphIsShown(!graphIsShown),
+            icon: graphIsShown ? <FaTable /> : <ImStatsBars />,
           },
           {
             title: "Stampa questa pagina",
@@ -137,34 +149,38 @@ const Weight: React.FC = () => {
       />
       <div>
         <div className="header">
-          <h1>Pesi di {guestFullName}</h1>
+          <h1>Parametri vitali di {guestFullName}</h1>
           <p className="subtitle">{semesterString}</p>
         </div>
-        <table className="thin-table">
+        {!graphIsShown ? (<table className="wide-table">
           <thead>
             <tr>
               {editMode && <th>Azioni</th>}
               <th>Data</th>
-              <th>Peso (kg)</th>
+              <th>Max</th>
+              <th>Min</th>
+              <th>Freq</th>
+              <th>Temp</th>
+              <th>Sat</th>
             </tr>
           </thead>
           <tbody>
             {isLoading ? (
               <tr>
-                <td colSpan={editMode ? 3 : 2} className="centered">
+                <td colSpan={editMode ? 7 : 6} className="centered">
                   <em>Caricamento...</em>
                 </td>
               </tr>
 
-            ) : weights.length === 0 ? (
+            ) : vitals.length === 0 ? (
               <tr>
-                <td colSpan={editMode ? 3 : 2} className="centered">
+                <td colSpan={editMode ? 7 : 6} className="centered">
                   <em>Nessun dato</em>
                 </td>
               </tr>
             ) : (
-              weights.map((weight) => (
-                <tr key={weight.id}>
+              vitals.map((vital) => (
+                <tr key={vital.id}>
                   {editMode && (
                     <td>
                       <div className="action-buttons">
@@ -180,11 +196,11 @@ const Weight: React.FC = () => {
                             const friday = new Date(monday);
                             friday.setDate(monday.getDate() + 4); // Next Friday
 
-                            const weightDate = new Date(weight.date);
+                            const vitalDate = new Date(vital.date);
 
                             const isInRange =
-                              weightDate >= monday &&
-                              weightDate <= friday;
+                              vitalDate >= monday &&
+                              vitalDate <= friday;
 
                             if (
                               (user && user.permissions > 20) ||
@@ -195,8 +211,9 @@ const Weight: React.FC = () => {
                                   <button
                                     className="edit-row-btn"
                                     onClick={() => {
-                                      setEditingWeight(weight);
-                                      setEditingIndex(weight.id);
+                                      setEditingVital(vital);
+                                      console.log(vital)
+                                      setEditingIndex(vital.id);
                                       setFormIsShown(true);
                                       setEditMode(false);
                                     }}
@@ -206,7 +223,7 @@ const Weight: React.FC = () => {
                                   </button>
                                   <button
                                     className="delete-row-btn"
-                                    onClick={() => deleteWeight(weight.id)}
+                                    onClick={() => deleteVital(vital.id)}
                                     title="Elimina questa registrazione"
                                   >
                                     <RiDeleteBin6Line />
@@ -225,26 +242,30 @@ const Weight: React.FC = () => {
                     </td>
                   )}
                   <td className="no-wrap">
-                    {weight.date}
+                    {vital.date}
                   </td>
-                  <td>{weight.weight}</td>
+                  <td>{vital.max_pressure}</td>
+                  <td>{vital.min_pressure}</td>
+                  <td>{vital.heart_rate}</td>
+                  <td>{vital.temperature}</td>
+                  <td>{vital.saturation}</td>
                 </tr>
               ))
             )}
           </tbody>
-        </table>
-        <img className="always-visible-graph" src={`data:image/png;base64,${graph}`} alt="Weight Graph" />
+        </table>) :
+          (<img className="pressure-graph" src={`data:image/png;base64,${graph}`} alt="Vital Graph" />)}
         {formIsShown && (
           <GenericForm
-            title={editingWeight ? "Modifica peso" : "Nuova registrazione"}
+            title={editingVital ? "Modifica peso" : "Nuova registrazione"}
             closeForm={() => {
               setFormIsShown(false);
-              setEditingWeight(null);
+              setEditingVital(null);
               setEditingIndex(-1);
             }}
           >
-            <NewWeightForm
-              editData={editingWeight || undefined}
+            <NewVitalForm
+              editData={editingVital || undefined}
               editingIndex={editingIndex || -1}
             />
           </GenericForm>
@@ -255,4 +276,4 @@ const Weight: React.FC = () => {
 
 }
 
-export default Weight;
+export default Vital;

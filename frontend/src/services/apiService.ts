@@ -287,6 +287,19 @@ class ApiService {
     return this.get(`/delete_weight?id=${id}`);
   }
 
+  async fetchVitalEntries(params?: any) {
+    const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
+    return this.get(`/vitals${queryString}`);
+  }
+
+  async createVitalEntry(vitalData: any) {
+    return this.post('/new_vital', vitalData);
+  }
+
+  async deleteVitalEntry(id: number) {
+    return this.get(`/delete_vital?id=${id}`);
+  }
+
   async fetchSeizures(params?: any) {
     const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
     return this.get(`/seizures${queryString}`);

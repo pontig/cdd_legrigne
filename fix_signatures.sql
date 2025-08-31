@@ -59,6 +59,7 @@ ALTER TABLE crisi_epilettica MODIFY firma INT NOT NULL;
 ALTER TABLE doccia MODIFY firma INT NOT NULL;
 ALTER TABLE idratazione MODIFY firma INT NOT NULL;
 
-
 UPDATE partecipazione_attivita SET comunicazione = NULL WHERE comunicazione = '';
 ALTER TABLE partecipazione_attivita MODIFY comunicazione INT DEFAULT NULL;
+
+ALTER TABLE pressione MODIFY temperatura DECIMAL(3,1) NOT NULL;

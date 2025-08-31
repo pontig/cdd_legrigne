@@ -254,6 +254,11 @@ h3 {
   width: 40vw;
 }
 
+.pressure-graph {
+  margin: 5rem 10vw;
+  width: 50vw
+}
+
 @media print {
   @page {
     size: landscape;
@@ -261,7 +266,7 @@ h3 {
     /* padding: 1rem; */
   }
 
-  h1{
+  h1 {
     color: #000 !important;
     font-size: 5mm !important;
   }
@@ -323,5 +328,11 @@ h3 {
 
   .subtitle {
     display: none;
+  }
+
+  .pressure-graph {
+    width: 90%;
+    position: static;
+    margin: 0
   }
 }

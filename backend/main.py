@@ -20,6 +20,7 @@ from servlets.hydration_servlet import hydration_bp
 from servlets.target_servlet import target_bp
 from servlets.seizure_servlet import seizures_bp
 from servlets.weight_servlet import weight_bp
+from servlets.vital_servlet import vital_bp
 from config.database import db_config
 
 def create_app():
@@ -50,6 +51,7 @@ def create_app():
     app.register_blueprint(target_bp)
     app.register_blueprint(seizures_bp)
     app.register_blueprint(weight_bp)
+    app.register_blueprint(vital_bp)
 
     @app.route('/ping')
     def ping():
