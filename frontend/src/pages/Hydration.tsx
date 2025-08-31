@@ -221,7 +221,7 @@ const Hydration: React.FC = () => {
         </table>
         {formIsShown && (
           <GenericForm
-            title={editingHydration ? "Modifica registrazione bagno" : "Nuova registrazione bagno"}
+            title={editingHydration ? "Modifica registrazione idratazione" : "Nuova registrazione idratazione"}
             closeForm={() => {
               setFormIsShown(false);
               setEditingHydration(null);

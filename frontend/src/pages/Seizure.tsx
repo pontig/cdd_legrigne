@@ -10,19 +10,20 @@ import { usePlace } from "../contexts/PlaceContext";
 import { useSemester } from "../contexts/SemesterContext";
 import apiService from "../services/apiService";
 import { MdNotInterested } from "react-icons/md";
-import NewTargetForm from "../components/forms/NewTarget";
+import NewSeizureForm from "../components/forms/NewSeizure";
 
-interface Event {
+interface Seizure {
   id: number;
   date: string;
-  event: string;
-  intervention: string;
+  time: string;
+  duration: string;
+  notes?: string;
   signature: string;
 }
 
-const TargetActivities: React.FC = () => {
+const EpilepticSeizure: React.FC = () => {
   const fetchEvents = async (): Promise<void> => {
-    const response = await apiService.fetchTargetEntries({
+    const response = await apiService.fetchSeizures({
       person_id: location.state.guestId,
     });
 
@@ -38,7 +39,7 @@ const TargetActivities: React.FC = () => {
     }
 
     if (response.data) {
-      setEvents(response.data as Event[]);
+      setEvents(response.data as Seizure[]);
     }
   };
 
@@ -47,7 +48,7 @@ const TargetActivities: React.FC = () => {
 
     if (!conf) return;
 
-    const response = await apiService.deleteTargetEntry(id);
+    const response = await apiService.deleteSeizure(id);
 
     if (response.status === 401) {
       console.error("Unauthorized access - please log in.");
@@ -78,10 +79,10 @@ const TargetActivities: React.FC = () => {
   const location = useLocation();
   const [guestId, setGuestId] = useState<number>(-1);
   const [guestFullName, setGuestFullName] = useState<string>("");
-  const [events, setEvents] = useState<Event[]>([]);
+  const [seizures, setEvents] = useState<Seizure[]>([]);
   const [formIsShown, setFormIsShown] = useState(false);
   const [editMode, setEditMode] = useState(false);
-  const [editingEvent, setEditingEvent] = useState<Event | null>(null);
+  const [editingEvent, setEditingEvent] = useState<Seizure | null>(null);
   const [editingIndex, setEditingIndex] = useState<number>(-1); // Index of event being edited - will be used when saving changes
 
   // Effects
@@ -136,7 +137,7 @@ const TargetActivities: React.FC = () => {
       />
       <div>
         <div className="header">
-          <h1>Attività mirate di {guestFullName}</h1>
+          <h1>Crisi epilettiche di {guestFullName}</h1>
           <p className="subtitle">{semesterString}</p>
         </div>
         <table className="wide-table">
@@ -144,23 +145,24 @@ const TargetActivities: React.FC = () => {
             <tr>
               {editMode && <th>Azioni</th>}
               <th>Data</th>
-              <th>Evento</th>
-              <th>Intervento</th>
+              <th>Ora</th>
+              <th>Durata</th>
+              <th>Note</th>
               <th>Firma</th>
             </tr>
           </thead>
           <tbody>
-            {events.length === 0 ? (
+            {seizures.length === 0 ? (
               <tr>
                 <td
-                  colSpan={editMode ? 5 : 4}
+                  colSpan={editMode ? 6 : 5}
                   style={{ textAlign: "center", fontStyle: "italic" }}
                 >
                   Nessun dato
                 </td>
               </tr>
             ) : (
-              events.map((event, index) => (
+              seizures.map((event, index) => (
                 <tr key={event.id}>
                   {editMode && (
                     <td>
@@ -214,8 +216,9 @@ const TargetActivities: React.FC = () => {
                     </td>
                   )}
                   <td className="no-wrap">{event.date}</td>
-                  <td>{event.event}</td>
-                  <td>{event.intervention}</td>
+                  <td>{event.time}</td>
+                  <td>{event.duration}</td>
+                  <td>{event.notes}</td>
                   <td className="signature-td">{event.signature}</td>
                 </tr>
               ))
@@ -224,14 +227,14 @@ const TargetActivities: React.FC = () => {
         </table>
         {formIsShown && (
           <GenericForm
-            title={editingEvent ? "Modifica attività mirata" : "Nuovo attività mirata"}
+            title={editingEvent ? "Modifica crisi" : "Nuova crisi"}
             closeForm={() => {
               setFormIsShown(false);
               setEditingEvent(null);
               setEditingIndex(-1);
             }}
           >
-            <NewTargetForm
+            <NewSeizureForm
               editData={editingEvent || undefined}
               editingIndex={editingIndex || -1}
             />
@@ -242,4 +245,4 @@ const TargetActivities: React.FC = () => {
   );
 };
 
-export default TargetActivities;
+export default EpilepticSeizure;

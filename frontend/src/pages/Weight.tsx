@@ -10,19 +10,18 @@ import { usePlace } from "../contexts/PlaceContext";
 import { useSemester } from "../contexts/SemesterContext";
 import apiService from "../services/apiService";
 import { MdNotInterested } from "react-icons/md";
-import NewTargetForm from "../components/forms/NewTarget";
+import NewWeightForm from "../components/forms/NewWeight";
 
-interface Event {
+interface WeightEntry {
   id: number;
   date: string;
-  event: string;
-  intervention: string;
-  signature: string;
+  weight: number;
 }
 
-const TargetActivities: React.FC = () => {
-  const fetchEvents = async (): Promise<void> => {
-    const response = await apiService.fetchTargetEntries({
+const Weight: React.FC = () => {
+  const fetchWeights = async (): Promise<void> => {
+    setIsLoading(true);
+    const response = await apiService.fetchWeightEntries({
       person_id: location.state.guestId,
     });
 
@@ -38,17 +37,19 @@ const TargetActivities: React.FC = () => {
     }
 
     if (response.data) {
-      setEvents(response.data as Event[]);
+      const data = response.data as any
+      setWeights(data.weights as WeightEntry[]);
+      setGraph(data.plot_image as any);
     }
+    setIsLoading(false);
   };
 
-  const deleteEvent = async (id: number): Promise<void> => {
+  const deleteWeight = async (id: number): Promise<void> => {
     const conf = window.confirm("Sei sicuro di voler eliminare questa voce?");
 
     if (!conf) return;
 
-    const response = await apiService.deleteTargetEntry(id);
-
+    const response = await apiService.deleteWeightEntry(id);
     if (response.status === 401) {
       console.error("Unauthorized access - please log in.");
       navigate("/login");
@@ -61,9 +62,9 @@ const TargetActivities: React.FC = () => {
     }
 
     if (response.data) {
-      fetchEvents();
+      fetchWeights();
     }
-  };
+  }
 
   // Navigation and state
   const { user, setUser } = useUser();
@@ -78,11 +79,14 @@ const TargetActivities: React.FC = () => {
   const location = useLocation();
   const [guestId, setGuestId] = useState<number>(-1);
   const [guestFullName, setGuestFullName] = useState<string>("");
-  const [events, setEvents] = useState<Event[]>([]);
+  const [weights, setWeights] = useState<WeightEntry[]>([]);
   const [formIsShown, setFormIsShown] = useState(false);
   const [editMode, setEditMode] = useState(false);
-  const [editingEvent, setEditingEvent] = useState<Event | null>(null);
-  const [editingIndex, setEditingIndex] = useState<number>(-1); // Index of event being edited - will be used when saving changes
+  const [editingWeight, setEditingWeight] = useState<WeightEntry | null>(null);
+  const [editingIndex, setEditingIndex] = useState<number>(-1);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [graph, setGraph] = useState<any>(null);
+
 
   // Effects
   useEffect(() => {
@@ -91,12 +95,9 @@ const TargetActivities: React.FC = () => {
   }, [location.state]);
 
   useEffect(() => {
-    fetchEvents();
+    fetchWeights();
   }, []);
 
-  // Functions and other hooks
-
-  // Return
   return (
     <div className="main-container">
       <LeftBar
@@ -104,7 +105,7 @@ const TargetActivities: React.FC = () => {
           {
             title: "Nuova registrazione",
             action: () => {
-              setEditingEvent(null);
+              setEditingWeight(null);
               setEditingIndex(-1);
               setFormIsShown(true);
             },
@@ -136,32 +137,32 @@ const TargetActivities: React.FC = () => {
       />
       <div>
         <div className="header">
-          <h1>Attività mirate di {guestFullName}</h1>
+          <h1>Pesi di {guestFullName}</h1>
           <p className="subtitle">{semesterString}</p>
         </div>
-        <table className="wide-table">
+        <table className="thin-table">
           <thead>
-            <tr>
-              {editMode && <th>Azioni</th>}
-              <th>Data</th>
-              <th>Evento</th>
-              <th>Intervento</th>
-              <th>Firma</th>
-            </tr>
+            {editMode && <th>Azioni</th>}
+            <th>Data</th>
+            <th>Peso (kg)</th>
           </thead>
           <tbody>
-            {events.length === 0 ? (
+            {isLoading ? (
               <tr>
-                <td
-                  colSpan={editMode ? 5 : 4}
-                  style={{ textAlign: "center", fontStyle: "italic" }}
-                >
-                  Nessun dato
+                <td colSpan={editMode ? 3 : 2} className="centered">
+                  <em>Caricamento...</em>
+                </td>
+              </tr>
+
+            ) : weights.length === 0 ? (
+              <tr>
+                <td colSpan={editMode ? 3 : 2} className="centered">
+                  <em>Nessun dato</em>
                 </td>
               </tr>
             ) : (
-              events.map((event, index) => (
-                <tr key={event.id}>
+              weights.map((weight) => (
+                <tr key={weight.id}>
                   {editMode && (
                     <td>
                       <div className="action-buttons">
@@ -177,19 +178,23 @@ const TargetActivities: React.FC = () => {
                             const friday = new Date(monday);
                             friday.setDate(monday.getDate() + 4); // Next Friday
 
-                            const eventDate = new Date(event.date);
+                            const weightDate = new Date(weight.date);
 
                             const isInRange =
-                              eventDate >= monday && eventDate <= friday;
+                              weightDate >= monday &&
+                              weightDate <= friday;
 
-                            if ((user && user.permissions > 20) || isInRange) {
+                            if (
+                              (user && user.permissions > 20) ||
+                              isInRange
+                            ) {
                               return (
                                 <>
                                   <button
                                     className="edit-row-btn"
                                     onClick={() => {
-                                      setEditingEvent(event);
-                                      setEditingIndex(event.id);
+                                      setEditingWeight(weight);
+                                      setEditingIndex(weight.id);
                                       setFormIsShown(true);
                                       setEditMode(false);
                                     }}
@@ -199,7 +204,7 @@ const TargetActivities: React.FC = () => {
                                   </button>
                                   <button
                                     className="delete-row-btn"
-                                    onClick={() => deleteEvent(event.id)}
+                                    onClick={() => deleteWeight(weight.id)}
                                     title="Elimina questa registrazione"
                                   >
                                     <RiDeleteBin6Line />
@@ -207,39 +212,45 @@ const TargetActivities: React.FC = () => {
                                 </>
                               );
                             } else {
-                              return <span><MdNotInterested /></span>;
+                              return (
+                                <span>
+                                  <MdNotInterested />
+                                </span>
+                              );
                             }
                           })()}
                       </div>
                     </td>
                   )}
-                  <td className="no-wrap">{event.date}</td>
-                  <td>{event.event}</td>
-                  <td>{event.intervention}</td>
-                  <td className="signature-td">{event.signature}</td>
+                  <td className="no-wrap">
+                    {weight.date}
+                  </td>
+                  <td>{weight.weight}</td>
                 </tr>
               ))
             )}
           </tbody>
         </table>
+        <img className="always-visible-graph" src={`data:image/png;base64,${graph}`} alt="Weight Graph" />
         {formIsShown && (
           <GenericForm
-            title={editingEvent ? "Modifica attività mirata" : "Nuovo attività mirata"}
+            title={editingWeight ? "Modifica peso" : "Nuova registrazione"}
             closeForm={() => {
               setFormIsShown(false);
-              setEditingEvent(null);
+              setEditingWeight(null);
               setEditingIndex(-1);
             }}
           >
-            <NewTargetForm
-              editData={editingEvent || undefined}
+            <NewWeightForm
+              editData={editingWeight || undefined}
               editingIndex={editingIndex || -1}
             />
           </GenericForm>
         )}
       </div>
     </div>
-  );
-};
+  )
 
-export default TargetActivities;
+}
+
+export default Weight;

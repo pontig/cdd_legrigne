@@ -3,18 +3,19 @@ import apiService from "../../services/apiService";
 import { useLocation } from "react-router-dom";
 import { useUser } from "../../contexts/UserContext";
 
-interface NewHydrationFormProps {
+interface NewSeizureFormProps {
   editData?: {
     id: number;
     date: string;
-    done: boolean;
+    time: string;
+    duration: string;
     notes?: string;
     signature: string;
   }
   editingIndex: number;
 }
 
-const NewHydrationForm: React.FC<NewHydrationFormProps> = ({ editData, editingIndex }) => {
+const NewSeizureForm: React.FC<NewSeizureFormProps> = ({ editData, editingIndex }) => {
   const handleSubmit = async (
     event: React.FormEvent<HTMLFormElement>
   ): Promise<void> => {
@@ -25,7 +26,7 @@ const NewHydrationForm: React.FC<NewHydrationFormProps> = ({ editData, editingIn
     const formData = new FormData(form);
     const data = Object.fromEntries(formData.entries());
 
-    const response = await apiService.createHydrationRecord({
+    const response = await apiService.createSeizure({
       ...data,
       person_id: location.state.guestId,
     });
@@ -36,7 +37,7 @@ const NewHydrationForm: React.FC<NewHydrationFormProps> = ({ editData, editingIn
     }
 
     if (editData && editingIndex !== -1) {
-      const deleteResponse = await apiService.deleteHydrationRecord(editingIndex);
+      const deleteResponse = await apiService.deleteSeizure(editingIndex);
       if (deleteResponse.error) {
         alert("Log deletion failed: " + deleteResponse.error);
         return;
@@ -48,8 +49,9 @@ const NewHydrationForm: React.FC<NewHydrationFormProps> = ({ editData, editingIn
 
   const { user } = useUser();
   const location = useLocation();
+
   return (
-    <form method='POST' onSubmit={handleSubmit}>
+    <form method="POST" onSubmit={handleSubmit}>
       <label>
         Data:
         <input
@@ -63,14 +65,23 @@ const NewHydrationForm: React.FC<NewHydrationFormProps> = ({ editData, editingIn
           }
         />
       </label>
-      <label htmlFor="done">
+      <label>
+        Ora inizio:
         <input
-          type="checkbox"
-          name="done"
-          id="done"
-          defaultChecked={editData?.done}
+          type="time"
+          name="time"
+          required
+          defaultValue={
+            editData?.time
+              ? editData.time.padStart(5, '0')
+              : ""
+          }
         />
-        Effettuata
+      </label>
+      <label>
+        Durata:
+        <input type="text" name="duration" id="duration" required
+          defaultValue={editData?.duration || ""} />
       </label>
       <label>
         Note:
@@ -91,7 +102,8 @@ const NewHydrationForm: React.FC<NewHydrationFormProps> = ({ editData, editingIn
       </label>
       <button type="submit">{editData ? "Aggiorna" : "Inserisci"}</button>
     </form>
-  );
-};
+  )
 
-export default NewHydrationForm;
+}
+
+export default NewSeizureForm;

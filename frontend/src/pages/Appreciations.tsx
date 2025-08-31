@@ -286,7 +286,8 @@ const Appreciations: React.FC = () => {
                         colSpan={3}
                         style={{ position: "sticky", top: 0 }}
                       >
-                        {activity.abbreviazione}
+                        {activity.abbreviazione} <br />
+                        <span style={{ fontSize: "0.8rem" }}>{activity.nome_attivita}</span>
                       </th>
                     ))}
                   </tr>

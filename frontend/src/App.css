@@ -169,6 +169,11 @@ th {
   margin: 3rem auto;
 }
 
+.thin-table {
+  width: 30%;
+  margin: 3rem 6rem;
+}
+
 /* Delete row button styling */
 .delete-row-btn {
   background-color: #dc3545;
@@ -240,6 +245,13 @@ h3 {
 
 .no-wrap {
   white-space: nowrap;
+}
+
+.always-visible-graph {
+  position:fixed;
+  top: 15vh;
+  right: 1rem;
+  width: 40vw;
 }
 
 @media print {

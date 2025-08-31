@@ -274,6 +274,32 @@ class ApiService {
     return this.get(`/delete_target?id=${id}`);
   }
 
+  async fetchWeightEntries(params?: any) {
+    const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
+    return this.get(`/weights${queryString}`);
+  }
+
+  async createWeightEntry(weightData: any) {
+    return this.post('/new_weight', weightData);
+  }
+
+  async deleteWeightEntry(id: number) {
+    return this.get(`/delete_weight?id=${id}`);
+  }
+
+  async fetchSeizures(params?: any) {
+    const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
+    return this.get(`/seizures${queryString}`);
+  }
+
+  async createSeizure(seizureData: any) {
+    return this.post('/new_seizure', seizureData);
+  }
+
+  async deleteSeizure(id: number) {
+    return this.get(`/delete_seizure?id=${id}`);
+  }
+
 }
 
 // Export a singleton instance

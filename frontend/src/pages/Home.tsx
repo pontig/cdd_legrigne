@@ -81,11 +81,13 @@ const MainPage: React.FC = () => {
 
   // Effects
   useEffect(() => {
-    setPlace("Primaluna");
+    setPlace("Bellano");
     if (!user) {
       navigate("/login");
       return;
     }
+    if (user && user.id === 1)
+      setPlace("Primaluna");
     fetchPersons();
   }, []);
 

@@ -221,7 +221,7 @@ const Shower: React.FC = () => {
         </table>
         {formIsShown && (
           <GenericForm
-            title={editingShower ? "Modifica registrazione bagno" : "Nuova registrazione bagno"}
+            title={editingShower ? "Modifica registrazione doccia" : "Nuova registrazione doccia"}
             closeForm={() => {
               setFormIsShown(false);
               setEditingShower(null);

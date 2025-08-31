@@ -3,29 +3,26 @@ import apiService from "../../services/apiService";
 import { useLocation } from "react-router-dom";
 import { useUser } from "../../contexts/UserContext";
 
-interface NewHydrationFormProps {
+interface NewWeightFormProps {
   editData?: {
     id: number;
     date: string;
-    done: boolean;
-    notes?: string;
-    signature: string;
-  }
+    weight: number;
+  };
   editingIndex: number;
 }
 
-const NewHydrationForm: React.FC<NewHydrationFormProps> = ({ editData, editingIndex }) => {
-  const handleSubmit = async (
-    event: React.FormEvent<HTMLFormElement>
-  ): Promise<void> => {
+const NewWeightForm: React.FC<NewWeightFormProps> = ({ editData, editingIndex }) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
+
     const form = event.currentTarget;
     if (!form) return;
 
     const formData = new FormData(form);
     const data = Object.fromEntries(formData.entries());
 
-    const response = await apiService.createHydrationRecord({
+    const response = await apiService.createWeightEntry({
       ...data,
       person_id: location.state.guestId,
     });
@@ -36,7 +33,7 @@ const NewHydrationForm: React.FC<NewHydrationFormProps> = ({ editData, editingIn
     }
 
     if (editData && editingIndex !== -1) {
-      const deleteResponse = await apiService.deleteHydrationRecord(editingIndex);
+      const deleteResponse = await apiService.deleteWeightEntry(editingIndex);
       if (deleteResponse.error) {
         alert("Log deletion failed: " + deleteResponse.error);
         return;
@@ -48,8 +45,10 @@ const NewHydrationForm: React.FC<NewHydrationFormProps> = ({ editData, editingIn
 
   const { user } = useUser();
   const location = useLocation();
+
+
   return (
-    <form method='POST' onSubmit={handleSubmit}>
+    <form method="POST" onSubmit={handleSubmit}>
       <label>
         Data:
         <input
@@ -63,30 +62,14 @@ const NewHydrationForm: React.FC<NewHydrationFormProps> = ({ editData, editingIn
           }
         />
       </label>
-      <label htmlFor="done">
-        <input
-          type="checkbox"
-          name="done"
-          id="done"
-          defaultChecked={editData?.done}
-        />
-        Effettuata
-      </label>
       <label>
-        Note:
-        <textarea name="notes" defaultValue={editData?.notes || ""} />
-      </label>
-      <label>
-        {/* Firma: */}
+        Peso (kg):
         <input
-          type="hidden"
-          name="signature"
+          type="number"
+          name="value"
+          step="0.01"
           required
-          value={
-            editData?.signature ||
-            (user?.name ? user.name[0].toLowerCase() : "") +
-            (user?.surname ? user.surname[0].toLowerCase() : "")
-          }
+          defaultValue={editData?.weight || ""}
         />
       </label>
       <button type="submit">{editData ? "Aggiorna" : "Inserisci"}</button>
@@ -94,4 +77,4 @@ const NewHydrationForm: React.FC<NewHydrationFormProps> = ({ editData, editingIn
   );
 };
 
-export default NewHydrationForm;
+export default NewWeightForm;
