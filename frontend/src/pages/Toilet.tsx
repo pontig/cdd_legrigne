@@ -121,7 +121,7 @@ const Toilet: React.FC = () => {
             icon: <FaPrint />,
           },
           {
-            title: "Modifica registrazione",
+            title: "Aggiorna",
             action: () => setEditMode(!editMode),
             icon: <FaPencilAlt />,
             disabled: semesterString !== null,
@@ -232,7 +232,7 @@ const Toilet: React.FC = () => {
         </table>
         {formIsShown && (
           <GenericForm
-            title={editingEvent ? "Modifica registrazione bagno" : "Nuova registrazione bagno"}
+            title={editingEvent ? "Aggiorna bagno" : "Nuova registrazione bagno"}
             closeForm={() => {
               setFormIsShown(false);
               setEditingEvent(null);

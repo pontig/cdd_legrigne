@@ -118,7 +118,7 @@ const Shower: React.FC = () => {
             icon: <FaPrint />,
           },
           {
-            title: "Modifica registrazione",
+            title: "Aggiorna",
             action: () => setEditMode(!editMode),
             icon: <FaPencilAlt />,
             disabled: semesterString !== null,
@@ -221,7 +221,7 @@ const Shower: React.FC = () => {
         </table>
         {formIsShown && (
           <GenericForm
-            title={editingShower ? "Modifica registrazione doccia" : "Nuova registrazione doccia"}
+            title={editingShower ? "Aggiorna doccia" : "Nuova registrazione doccia"}
             closeForm={() => {
               setFormIsShown(false);
               setEditingShower(null);

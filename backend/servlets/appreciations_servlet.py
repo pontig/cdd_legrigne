@@ -106,7 +106,7 @@ def generate_graph(person, month):
         plt.legend()
         plt.grid(True, alpha=0.3)
         plt.gca().yaxis.set_major_locator(plt.MaxNLocator(integer=True))
-        plt.ylim(0, 120)
+        plt.ylim(0, 104)
         
         plt.tight_layout()
         img_buf = io.BytesIO()

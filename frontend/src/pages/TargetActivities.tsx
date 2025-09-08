@@ -120,7 +120,7 @@ const TargetActivities: React.FC = () => {
             icon: <FaPrint />,
           },
           {
-            title: "Modifica registrazione",
+            title: "Aggiorna",
             action: () => setEditMode(!editMode),
             icon: <FaPencilAlt />,
             disabled: semesterString !== null,

@@ -1,0 +1,909 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta charset="UTF-8">
+
+<title>
+    Bandit Report
+</title>
+
+<style>
+
+html * {
+    font-family: "Arial", sans-serif;
+}
+
+pre {
+    font-family: "Monaco", monospace;
+}
+
+.bordered-box {
+    border: 1px solid black;
+    padding-top:.5em;
+    padding-bottom:.5em;
+    padding-left:1em;
+}
+
+.metrics-box {
+    font-size: 1.1em;
+    line-height: 130%;
+}
+
+.metrics-title {
+    font-size: 1.5em;
+    font-weight: 500;
+    margin-bottom: .25em;
+}
+
+.issue-description {
+    font-size: 1.3em;
+    font-weight: 500;
+}
+
+.candidate-issues {
+    margin-left: 2em;
+    border-left: solid 1px; LightGray;
+    padding-left: 5%;
+    margin-top: .2em;
+    margin-bottom: .2em;
+}
+
+.issue-block {
+    border: 1px solid LightGray;
+    padding-left: .5em;
+    padding-top: .5em;
+    padding-bottom: .5em;
+    margin-bottom: .5em;
+}
+
+.issue-sev-high {
+    background-color: Pink;
+}
+
+.issue-sev-medium {
+    background-color: NavajoWhite;
+}
+
+.issue-sev-low {
+    background-color: LightCyan;
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="metrics">
+    <div class="metrics-box bordered-box">
+        <div class="metrics-title">
+            Metrics:<br>
+        </div>
+        Total lines of code: <span id="loc">2898</span><br>
+        Total lines skipped (#nosec): <span id="nosec">0</span>
+    </div>
+</div>
+
+
+
+
+<br>
+<div id="results">
+    
+<div id="issue-0">
+<div class="issue-block issue-sev-low">
+    <b>blacklist: </b> Consider possible security implications associated with the subprocess module.<br>
+    <b>Test ID:</b> B404<br>
+    <b>Severity: </b>LOW<br>
+    <b>Confidence: </b>HIGH<br>
+    <b>CWE: </b><a href="https://cwe.mitre.org/data/definitions/78.html" target="_blank">CWE-78</a><br>
+    <b>File: </b><a href="backend/config/database.py" target="_blank">backend/config/database.py</a><br>
+    <b>Line number: </b>5<br>
+    <b>More info: </b><a href="https://bandit.readthedocs.io/en/1.8.6/blacklists/blacklist_imports.html#b404-import-subprocess" target="_blank">https://bandit.readthedocs.io/en/1.8.6/blacklists/blacklist_imports.html#b404-import-subprocess</a><br>
+
+<div class="code">
+<pre>
+4	import MySQLdb
+5	import subprocess
+6	import tempfile
+</pre>
+</div>
+
+
+</div>
+</div>
+
+<div id="issue-1">
+<div class="issue-block issue-sev-low">
+    <b>hardcoded_password_string: </b> Possible hardcoded password: 'password'<br>
+    <b>Test ID:</b> B105<br>
+    <b>Severity: </b>LOW<br>
+    <b>Confidence: </b>MEDIUM<br>
+    <b>CWE: </b><a href="https://cwe.mitre.org/data/definitions/259.html" target="_blank">CWE-259</a><br>
+    <b>File: </b><a href="backend/config/database.py" target="_blank">backend/config/database.py</a><br>
+    <b>Line number: </b>17<br>
+    <b>More info: </b><a href="https://bandit.readthedocs.io/en/1.8.6/plugins/b105_hardcoded_password_string.html" target="_blank">https://bandit.readthedocs.io/en/1.8.6/plugins/b105_hardcoded_password_string.html</a><br>
+
+<div class="code">
+<pre>
+16	        self.user = &quot;mybackenduser&quot;
+17	        self.password = &quot;password&quot;
+18	        self.database = &quot;cdd_legrigne&quot;
+</pre>
+</div>
+
+
+</div>
+</div>
+
+<div id="issue-2">
+<div class="issue-block issue-sev-low">
+    <b>subprocess_without_shell_equals_true: </b> subprocess call - check for execution of untrusted input.<br>
+    <b>Test ID:</b> B603<br>
+    <b>Severity: </b>LOW<br>
+    <b>Confidence: </b>HIGH<br>
+    <b>CWE: </b><a href="https://cwe.mitre.org/data/definitions/78.html" target="_blank">CWE-78</a><br>
+    <b>File: </b><a href="backend/config/database.py" target="_blank">backend/config/database.py</a><br>
+    <b>Line number: </b>86<br>
+    <b>More info: </b><a href="https://bandit.readthedocs.io/en/1.8.6/plugins/b603_subprocess_without_shell_equals_true.html" target="_blank">https://bandit.readthedocs.io/en/1.8.6/plugins/b603_subprocess_without_shell_equals_true.html</a><br>
+
+<div class="code">
+<pre>
+85	            # Execute mysqldump and capture output
+86	            result = subprocess.run(
+87	                cmd,
+88	                capture_output=True,
+89	                text=True,
+90	                check=True
+91	            )
+92	            
+</pre>
+</div>
+
+
+</div>
+</div>
+
+<div id="issue-3">
+<div class="issue-block issue-sev-medium">
+    <b>hardcoded_sql_expressions: </b> Possible SQL injection vector through string-based query construction.<br>
+    <b>Test ID:</b> B608<br>
+    <b>Severity: </b>MEDIUM<br>
+    <b>Confidence: </b>MEDIUM<br>
+    <b>CWE: </b><a href="https://cwe.mitre.org/data/definitions/89.html" target="_blank">CWE-89</a><br>
+    <b>File: </b><a href="backend/config/database.py" target="_blank">backend/config/database.py</a><br>
+    <b>Line number: </b>131<br>
+    <b>More info: </b><a href="https://bandit.readthedocs.io/en/1.8.6/plugins/b608_hardcoded_sql_expressions.html" target="_blank">https://bandit.readthedocs.io/en/1.8.6/plugins/b608_hardcoded_sql_expressions.html</a><br>
+
+<div class="code">
+<pre>
+130	                # Get table data
+131	                cursor.execute(f&quot;SELECT * FROM `{table}`&quot;)
+132	                rows = cursor.fetchall()
+</pre>
+</div>
+
+
+</div>
+</div>
+
+<div id="issue-4">
+<div class="issue-block issue-sev-medium">
+    <b>hardcoded_sql_expressions: </b> Possible SQL injection vector through string-based query construction.<br>
+    <b>Test ID:</b> B608<br>
+    <b>Severity: </b>MEDIUM<br>
+    <b>Confidence: </b>LOW<br>
+    <b>CWE: </b><a href="https://cwe.mitre.org/data/definitions/89.html" target="_blank">CWE-89</a><br>
+    <b>File: </b><a href="backend/config/database.py" target="_blank">backend/config/database.py</a><br>
+    <b>Line number: </b>158<br>
+    <b>More info: </b><a href="https://bandit.readthedocs.io/en/1.8.6/plugins/b608_hardcoded_sql_expressions.html" target="_blank">https://bandit.readthedocs.io/en/1.8.6/plugins/b608_hardcoded_sql_expressions.html</a><br>
+
+<div class="code">
+<pre>
+157	                        value_list = &quot;, &quot;.join(values)
+158	                        sql_backup.append(f&quot;INSERT INTO `{table}` ({column_list}) VALUES ({value_list});&quot;)
+159	                    
+</pre>
+</div>
+
+
+</div>
+</div>
+
+<div id="issue-5">
+<div class="issue-block issue-sev-medium">
+    <b>hardcoded_sql_expressions: </b> Possible SQL injection vector through string-based query construction.<br>
+    <b>Test ID:</b> B608<br>
+    <b>Severity: </b>MEDIUM<br>
+    <b>Confidence: </b>LOW<br>
+    <b>CWE: </b><a href="https://cwe.mitre.org/data/definitions/89.html" target="_blank">CWE-89</a><br>
+    <b>File: </b><a href="backend/dao/activities_dao.py" target="_blank">backend/dao/activities_dao.py</a><br>
+    <b>Line number: </b>17<br>
+    <b>More info: </b><a href="https://bandit.readthedocs.io/en/1.8.6/plugins/b608_hardcoded_sql_expressions.html" target="_blank">https://bandit.readthedocs.io/en/1.8.6/plugins/b608_hardcoded_sql_expressions.html</a><br>
+
+<div class="code">
+<pre>
+16	        month_constraint = &quot; AND pa.mese_int = %s&quot; if month is not None else &quot;&quot;
+17	        query = f&quot;&quot;&quot;
+18	            SELECT 
+19	                pa.id,
+20	                pa.id_persona,
+21	                pa.giorno,
+22	                pa.mese_int,
+23	                pa.anno,
+24	                pa.mattino,
+25	                a.nome_attivita,
+26	                pa.adesione,
+27	                pa.partecipazione,
+28	                pa.umore,
+29	                pa.comunicazione,
+30	                pa.comportamento_problematico,
+31	                a.id as attivita_id
+32	
+33	            FROM partecipazione_attivita pa
+34	            LEFT JOIN attivita a ON pa.attivita = a.id
+35	            WHERE id_persona = %s AND pa.id_semestre {semester_constraint}{month_constraint}
+36	            ORDER BY anno DESC, mese_int DESC, giorno DESC, mattino ASC
+37	        &quot;&quot;&quot;
+38	        
+</pre>
+</div>
+
+
+</div>
+</div>
+
+<div id="issue-6">
+<div class="issue-block issue-sev-medium">
+    <b>hardcoded_sql_expressions: </b> Possible SQL injection vector through string-based query construction.<br>
+    <b>Test ID:</b> B608<br>
+    <b>Severity: </b>MEDIUM<br>
+    <b>Confidence: </b>LOW<br>
+    <b>CWE: </b><a href="https://cwe.mitre.org/data/definitions/89.html" target="_blank">CWE-89</a><br>
+    <b>File: </b><a href="backend/dao/activities_dao.py" target="_blank">backend/dao/activities_dao.py</a><br>
+    <b>Line number: </b>91<br>
+    <b>More info: </b><a href="https://bandit.readthedocs.io/en/1.8.6/plugins/b608_hardcoded_sql_expressions.html" target="_blank">https://bandit.readthedocs.io/en/1.8.6/plugins/b608_hardcoded_sql_expressions.html</a><br>
+
+<div class="code">
+<pre>
+90	            # Return data for specific month
+91	            query = f&quot;&quot;&quot;
+92	                SELECT 
+93	                    p.nome,
+94	                    p.cognome,
+95	                    g.id_persona,
+96	                    g.attivita,
+97	                    g.mese,
+98	                    g.id_semestre,
+99	                    g.mediaAdesione,
+100	                    g.mediaPartecipazione,
+101	                    g.nVolte,
+102	                    a.id,
+103	                    a.nome_attivita,
+104	                    a.abbreviazione
+105	                FROM grad g 
+106	                JOIN attivita a ON g.attivita = a.id
+107	                JOIN persona p ON g.id_persona = p.id
+108	                WHERE id_semestre {semester_constraint}{month_constraint}
+109	                ORDER BY g.id_persona, a.abbreviazione, g.mese
+110	            &quot;&quot;&quot;
+111	        else:
+</pre>
+</div>
+
+
+</div>
+</div>
+
+<div id="issue-7">
+<div class="issue-block issue-sev-medium">
+    <b>hardcoded_sql_expressions: </b> Possible SQL injection vector through string-based query construction.<br>
+    <b>Test ID:</b> B608<br>
+    <b>Severity: </b>MEDIUM<br>
+    <b>Confidence: </b>LOW<br>
+    <b>CWE: </b><a href="https://cwe.mitre.org/data/definitions/89.html" target="_blank">CWE-89</a><br>
+    <b>File: </b><a href="backend/dao/activities_dao.py" target="_blank">backend/dao/activities_dao.py</a><br>
+    <b>Line number: </b>113<br>
+    <b>More info: </b><a href="https://bandit.readthedocs.io/en/1.8.6/plugins/b608_hardcoded_sql_expressions.html" target="_blank">https://bandit.readthedocs.io/en/1.8.6/plugins/b608_hardcoded_sql_expressions.html</a><br>
+
+<div class="code">
+<pre>
+112	            # Aggregate by month and calculate final averages
+113	            query = f&quot;&quot;&quot;
+114	                SELECT 
+115	                    p.nome,
+116	                    p.cognome,
+117	                    g.id_persona,
+118	                    g.attivita,
+119	                    AVG(g.mediaAdesione) as avg_adesione,
+120	                    AVG(g.mediaPartecipazione) as avg_partecipazione,
+121	                    SUM(g.nVolte) as total_volte,
+122	                    a.id,
+123	                    a.nome_attivita,
+124	                    a.abbreviazione
+125	                FROM grad g 
+126	                JOIN attivita a ON g.attivita = a.id
+127	                JOIN persona p ON g.id_persona = p.id
+128	                WHERE id_semestre {semester_constraint}
+129	                GROUP BY g.id_persona, g.attivita, a.id, a.nome_attivita, a.abbreviazione, p.nome, p.cognome
+130	                ORDER BY g.id_persona, a.abbreviazione
+131	            &quot;&quot;&quot;
+132	        
+</pre>
+</div>
+
+
+</div>
+</div>
+
+<div id="issue-8">
+<div class="issue-block issue-sev-medium">
+    <b>hardcoded_sql_expressions: </b> Possible SQL injection vector through string-based query construction.<br>
+    <b>Test ID:</b> B608<br>
+    <b>Severity: </b>MEDIUM<br>
+    <b>Confidence: </b>LOW<br>
+    <b>CWE: </b><a href="https://cwe.mitre.org/data/definitions/89.html" target="_blank">CWE-89</a><br>
+    <b>File: </b><a href="backend/dao/home_dao.py" target="_blank">backend/dao/home_dao.py</a><br>
+    <b>Line number: </b>13<br>
+    <b>More info: </b><a href="https://bandit.readthedocs.io/en/1.8.6/plugins/b608_hardcoded_sql_expressions.html" target="_blank">https://bandit.readthedocs.io/en/1.8.6/plugins/b608_hardcoded_sql_expressions.html</a><br>
+
+<div class="code">
+<pre>
+12	        &quot;&quot;&quot;Get data for the home page - optimized single query version&quot;&quot;&quot;
+13	        query = f&quot;&quot;&quot;
+14	            WITH RECURSIVE date_range AS (
+15	                SELECT CURDATE() - INTERVAL 6 DAY as date_val
+16	                UNION ALL
+17	                SELECT date_val + INTERVAL 1 DAY
+18	                FROM date_range
+19	                WHERE date_val &lt; CURDATE()
+20	            ),
+21	            weekdays AS (
+22	                SELECT date_val,
+23	                    DAY(date_val) as giorno,
+24	                    MONTH(date_val) as mese_int,
+25	                    YEAR(date_val) as anno
+26	                FROM date_range
+27	                WHERE DAYOFWEEK(date_val) BETWEEN 2 AND 6
+28	            ),
+29	            guest_activities AS (
+30	                SELECT 
+31	                    p.id,
+32	                    p.nome,
+33	                    p.cognome,
+34	                    p.visibile,
+35	                    w.giorno,
+36	                    w.mese_int,
+37	                    w.anno,
+38	                    COALESCE(COUNT(pa.id_persona), 0) as activity_count
+39	                FROM persona p
+40	                CROSS JOIN weekdays w
+41	                LEFT JOIN partecipazione_attivita pa ON pa.id_persona = p.id
+42	                    AND pa.giorno = w.giorno 
+43	                    AND pa.mese_int = w.mese_int 
+44	                    AND pa.anno = w.anno
+45	                WHERE p.visibile = 1
+46	                GROUP BY p.id, p.nome, p.cognome, p.visibile, w.giorno, w.mese_int, w.anno
+47	                HAVING activity_count &lt; 2
+48	            )
+49	            SELECT 
+50	                id,
+51	                nome,
+52	                cognome,
+53	                visibile,
+54	                giorno,
+55	                mese_int,
+56	                anno
+57	            FROM guest_activities
+58	            ORDER BY cognome, nome, anno DESC, mese_int DESC, giorno DESC
+59	        &quot;&quot;&quot;
+60	        
+</pre>
+</div>
+
+
+</div>
+</div>
+
+<div id="issue-9">
+<div class="issue-block issue-sev-medium">
+    <b>hardcoded_sql_expressions: </b> Possible SQL injection vector through string-based query construction.<br>
+    <b>Test ID:</b> B608<br>
+    <b>Severity: </b>MEDIUM<br>
+    <b>Confidence: </b>LOW<br>
+    <b>CWE: </b><a href="https://cwe.mitre.org/data/definitions/89.html" target="_blank">CWE-89</a><br>
+    <b>File: </b><a href="backend/dao/hydration_dao.py" target="_blank">backend/dao/hydration_dao.py</a><br>
+    <b>Line number: </b>14<br>
+    <b>More info: </b><a href="https://bandit.readthedocs.io/en/1.8.6/plugins/b608_hardcoded_sql_expressions.html" target="_blank">https://bandit.readthedocs.io/en/1.8.6/plugins/b608_hardcoded_sql_expressions.html</a><br>
+
+<div class="code">
+<pre>
+13	        semester_constraint = &quot; = %s&quot; if session.get(&#x27;semester&#x27;) is not None else &quot; IS NULL&quot;
+14	        query = f&quot;&quot;&quot;
+15	            SELECT idratazione.*, account.nome, account.cognome FROM idratazione
+16	            JOIN account ON idratazione.firma = account.id
+17	            WHERE id_persona = %s AND id_semestre {semester_constraint}
+18	            ORDER BY anno DESC, mese_int DESC, giorno DESC
+19	        &quot;&quot;&quot;
+20	        
+</pre>
+</div>
+
+
+</div>
+</div>
+
+<div id="issue-10">
+<div class="issue-block issue-sev-medium">
+    <b>hardcoded_sql_expressions: </b> Possible SQL injection vector through string-based query construction.<br>
+    <b>Test ID:</b> B608<br>
+    <b>Severity: </b>MEDIUM<br>
+    <b>Confidence: </b>LOW<br>
+    <b>CWE: </b><a href="https://cwe.mitre.org/data/definitions/89.html" target="_blank">CWE-89</a><br>
+    <b>File: </b><a href="backend/dao/logbook_dao.py" target="_blank">backend/dao/logbook_dao.py</a><br>
+    <b>Line number: </b>15<br>
+    <b>More info: </b><a href="https://bandit.readthedocs.io/en/1.8.6/plugins/b608_hardcoded_sql_expressions.html" target="_blank">https://bandit.readthedocs.io/en/1.8.6/plugins/b608_hardcoded_sql_expressions.html</a><br>
+
+<div class="code">
+<pre>
+14	        semester_constraint = &quot; = %s&quot; if session.get(&#x27;semester&#x27;) is not None else &quot; IS NULL&quot;
+15	        query = f&quot;&quot;&quot;
+16	            SELECT diario.*, account.nome, account.cognome FROM diario
+17	            JOIN account ON diario.firma = account.id
+18	            WHERE id_persona = %s AND id_semestre {semester_constraint}
+19	            ORDER BY anno DESC, mese_int DESC, giorno DESC
+20	        &quot;&quot;&quot;
+21	        
+</pre>
+</div>
+
+
+</div>
+</div>
+
+<div id="issue-11">
+<div class="issue-block issue-sev-medium">
+    <b>hardcoded_sql_expressions: </b> Possible SQL injection vector through string-based query construction.<br>
+    <b>Test ID:</b> B608<br>
+    <b>Severity: </b>MEDIUM<br>
+    <b>Confidence: </b>LOW<br>
+    <b>CWE: </b><a href="https://cwe.mitre.org/data/definitions/89.html" target="_blank">CWE-89</a><br>
+    <b>File: </b><a href="backend/dao/problembehavior_dao.py" target="_blank">backend/dao/problembehavior_dao.py</a><br>
+    <b>Line number: </b>41<br>
+    <b>More info: </b><a href="https://bandit.readthedocs.io/en/1.8.6/plugins/b608_hardcoded_sql_expressions.html" target="_blank">https://bandit.readthedocs.io/en/1.8.6/plugins/b608_hardcoded_sql_expressions.html</a><br>
+
+<div class="code">
+<pre>
+40	            # Get all comportamento_problema records for the person
+41	            query_behaviors = f&quot;&quot;&quot;
+42	                SELECT 
+43	                    comportamento_problema.id,
+44	                    id_persona,
+45	                    giorno,
+46	                    mese_int,
+47	                    anno,
+48	                    intensita,
+49	                    durata,
+50	                    causa,
+51	                    contenimento,
+52	                    firma,
+53	                    a.nome,
+54	                    a.cognome
+55	                FROM comportamento_problema 
+56	                JOIN account a ON a.id = firma
+57	                WHERE id_persona = %s AND id_semestre {semester_constraint}
+58	                ORDER BY anno DESC, mese_int DESC, giorno DESC
+59	            &quot;&quot;&quot;
+60	            
+</pre>
+</div>
+
+
+</div>
+</div>
+
+<div id="issue-12">
+<div class="issue-block issue-sev-medium">
+    <b>hardcoded_sql_expressions: </b> Possible SQL injection vector through string-based query construction.<br>
+    <b>Test ID:</b> B608<br>
+    <b>Severity: </b>MEDIUM<br>
+    <b>Confidence: </b>LOW<br>
+    <b>CWE: </b><a href="https://cwe.mitre.org/data/definitions/89.html" target="_blank">CWE-89</a><br>
+    <b>File: </b><a href="backend/dao/problembehavior_dao.py" target="_blank">backend/dao/problembehavior_dao.py</a><br>
+    <b>Line number: </b>73<br>
+    <b>More info: </b><a href="https://bandit.readthedocs.io/en/1.8.6/plugins/b608_hardcoded_sql_expressions.html" target="_blank">https://bandit.readthedocs.io/en/1.8.6/plugins/b608_hardcoded_sql_expressions.html</a><br>
+
+<div class="code">
+<pre>
+72	                
+73	                query_events = f&quot;&quot;&quot;
+74	                    SELECT id_evento, id_comportamento
+75	                    FROM evento_comportamento
+76	                    WHERE id_evento IN ({placeholders})
+77	                &quot;&quot;&quot;
+78	                
+</pre>
+</div>
+
+
+</div>
+</div>
+
+<div id="issue-13">
+<div class="issue-block issue-sev-medium">
+    <b>hardcoded_sql_expressions: </b> Possible SQL injection vector through string-based query construction.<br>
+    <b>Test ID:</b> B608<br>
+    <b>Severity: </b>MEDIUM<br>
+    <b>Confidence: </b>LOW<br>
+    <b>CWE: </b><a href="https://cwe.mitre.org/data/definitions/89.html" target="_blank">CWE-89</a><br>
+    <b>File: </b><a href="backend/dao/problembehavior_dao.py" target="_blank">backend/dao/problembehavior_dao.py</a><br>
+    <b>Line number: </b>165<br>
+    <b>More info: </b><a href="https://bandit.readthedocs.io/en/1.8.6/plugins/b608_hardcoded_sql_expressions.html" target="_blank">https://bandit.readthedocs.io/en/1.8.6/plugins/b608_hardcoded_sql_expressions.html</a><br>
+
+<div class="code">
+<pre>
+164	            if data[&#x27;problem_statuses&#x27;]:
+165	                query_problems = &quot;&quot;&quot;
+166	                    INSERT INTO evento_comportamento VALUES
+167	                &quot;&quot;&quot; + &quot;, &quot;.join([&quot;(NULL, %s, %s)&quot;] * len(data[&#x27;problem_statuses&#x27;]))
+168	                
+</pre>
+</div>
+
+
+</div>
+</div>
+
+<div id="issue-14">
+<div class="issue-block issue-sev-medium">
+    <b>hardcoded_sql_expressions: </b> Possible SQL injection vector through string-based query construction.<br>
+    <b>Test ID:</b> B608<br>
+    <b>Severity: </b>MEDIUM<br>
+    <b>Confidence: </b>LOW<br>
+    <b>CWE: </b><a href="https://cwe.mitre.org/data/definitions/89.html" target="_blank">CWE-89</a><br>
+    <b>File: </b><a href="backend/dao/seizure_dao.py" target="_blank">backend/dao/seizure_dao.py</a><br>
+    <b>Line number: </b>15<br>
+    <b>More info: </b><a href="https://bandit.readthedocs.io/en/1.8.6/plugins/b608_hardcoded_sql_expressions.html" target="_blank">https://bandit.readthedocs.io/en/1.8.6/plugins/b608_hardcoded_sql_expressions.html</a><br>
+
+<div class="code">
+<pre>
+14	        semester_constraint = &quot; = %s&quot; if session.get(&#x27;semester&#x27;) is not None else &quot; IS NULL&quot;
+15	        query = f&quot;&quot;&quot;
+16	            SELECT crisi_epilettica.*, account.nome, account.cognome FROM crisi_epilettica
+17	            JOIN account ON crisi_epilettica.firma = account.id
+18	            WHERE id_persona = %s AND id_semestre {semester_constraint}
+19	            ORDER BY anno DESC, mese_int DESC, giorno DESC
+20	        &quot;&quot;&quot;
+21	        
+</pre>
+</div>
+
+
+</div>
+</div>
+
+<div id="issue-15">
+<div class="issue-block issue-sev-medium">
+    <b>hardcoded_sql_expressions: </b> Possible SQL injection vector through string-based query construction.<br>
+    <b>Test ID:</b> B608<br>
+    <b>Severity: </b>MEDIUM<br>
+    <b>Confidence: </b>MEDIUM<br>
+    <b>CWE: </b><a href="https://cwe.mitre.org/data/definitions/89.html" target="_blank">CWE-89</a><br>
+    <b>File: </b><a href="backend/dao/semester_dao.py" target="_blank">backend/dao/semester_dao.py</a><br>
+    <b>Line number: </b>98<br>
+    <b>More info: </b><a href="https://bandit.readthedocs.io/en/1.8.6/plugins/b608_hardcoded_sql_expressions.html" target="_blank">https://bandit.readthedocs.io/en/1.8.6/plugins/b608_hardcoded_sql_expressions.html</a><br>
+
+<div class="code">
+<pre>
+97	                table_name = table[0]
+98	                cursor.execute(f&quot;UPDATE `{table_name}` SET id_semestre = %s WHERE id_semestre IS NULL&quot;, 
+99	                              (semester_id,))
+</pre>
+</div>
+
+
+</div>
+</div>
+
+<div id="issue-16">
+<div class="issue-block issue-sev-medium">
+    <b>hardcoded_sql_expressions: </b> Possible SQL injection vector through string-based query construction.<br>
+    <b>Test ID:</b> B608<br>
+    <b>Severity: </b>MEDIUM<br>
+    <b>Confidence: </b>LOW<br>
+    <b>CWE: </b><a href="https://cwe.mitre.org/data/definitions/89.html" target="_blank">CWE-89</a><br>
+    <b>File: </b><a href="backend/dao/shower_dao.py" target="_blank">backend/dao/shower_dao.py</a><br>
+    <b>Line number: </b>14<br>
+    <b>More info: </b><a href="https://bandit.readthedocs.io/en/1.8.6/plugins/b608_hardcoded_sql_expressions.html" target="_blank">https://bandit.readthedocs.io/en/1.8.6/plugins/b608_hardcoded_sql_expressions.html</a><br>
+
+<div class="code">
+<pre>
+13	        semester_constraint = &quot; = %s&quot; if session.get(&#x27;semester&#x27;) is not None else &quot; IS NULL&quot;
+14	        query = f&quot;&quot;&quot;
+15	            SELECT doccia.*, account.nome, account.cognome FROM doccia
+16	            JOIN account ON doccia.firma = account.id
+17	            WHERE id_persona = %s AND id_semestre {semester_constraint}
+18	            ORDER BY anno DESC, mese_int DESC, giorno DESC
+19	        &quot;&quot;&quot;
+20	        
+</pre>
+</div>
+
+
+</div>
+</div>
+
+<div id="issue-17">
+<div class="issue-block issue-sev-medium">
+    <b>hardcoded_sql_expressions: </b> Possible SQL injection vector through string-based query construction.<br>
+    <b>Test ID:</b> B608<br>
+    <b>Severity: </b>MEDIUM<br>
+    <b>Confidence: </b>LOW<br>
+    <b>CWE: </b><a href="https://cwe.mitre.org/data/definitions/89.html" target="_blank">CWE-89</a><br>
+    <b>File: </b><a href="backend/dao/target_dao.py" target="_blank">backend/dao/target_dao.py</a><br>
+    <b>Line number: </b>15<br>
+    <b>More info: </b><a href="https://bandit.readthedocs.io/en/1.8.6/plugins/b608_hardcoded_sql_expressions.html" target="_blank">https://bandit.readthedocs.io/en/1.8.6/plugins/b608_hardcoded_sql_expressions.html</a><br>
+
+<div class="code">
+<pre>
+14	        semester_constraint = &quot; = %s&quot; if session.get(&#x27;semester&#x27;) is not None else &quot; IS NULL&quot;
+15	        query = f&quot;&quot;&quot;
+16	            SELECT attivita_mirata.*, account.nome, account.cognome FROM attivita_mirata
+17	            JOIN account ON attivita_mirata.firma = account.id
+18	            WHERE id_persona = %s AND id_semestre {semester_constraint}
+19	            ORDER BY anno DESC, mese_int DESC, giorno DESC
+20	        &quot;&quot;&quot;
+21	        
+</pre>
+</div>
+
+
+</div>
+</div>
+
+<div id="issue-18">
+<div class="issue-block issue-sev-medium">
+    <b>hardcoded_sql_expressions: </b> Possible SQL injection vector through string-based query construction.<br>
+    <b>Test ID:</b> B608<br>
+    <b>Severity: </b>MEDIUM<br>
+    <b>Confidence: </b>LOW<br>
+    <b>CWE: </b><a href="https://cwe.mitre.org/data/definitions/89.html" target="_blank">CWE-89</a><br>
+    <b>File: </b><a href="backend/dao/toilet_dao.py" target="_blank">backend/dao/toilet_dao.py</a><br>
+    <b>Line number: </b>15<br>
+    <b>More info: </b><a href="https://bandit.readthedocs.io/en/1.8.6/plugins/b608_hardcoded_sql_expressions.html" target="_blank">https://bandit.readthedocs.io/en/1.8.6/plugins/b608_hardcoded_sql_expressions.html</a><br>
+
+<div class="code">
+<pre>
+14	        semester_constraint = &quot; = %s&quot; if session.get(&#x27;semester&#x27;) is not None else &quot; IS NULL&quot;
+15	        query = f&quot;&quot;&quot;
+16	            SELECT bagno.*, account.nome, account.cognome FROM bagno
+17	            JOIN account ON bagno.firma = account.id
+18	            WHERE id_persona = %s AND id_semestre {semester_constraint}
+19	            ORDER BY anno DESC, mese_int DESC, giorno DESC, mattino ASC
+20	        &quot;&quot;&quot;
+21	        
+</pre>
+</div>
+
+
+</div>
+</div>
+
+<div id="issue-19">
+<div class="issue-block issue-sev-medium">
+    <b>hardcoded_sql_expressions: </b> Possible SQL injection vector through string-based query construction.<br>
+    <b>Test ID:</b> B608<br>
+    <b>Severity: </b>MEDIUM<br>
+    <b>Confidence: </b>LOW<br>
+    <b>CWE: </b><a href="https://cwe.mitre.org/data/definitions/89.html" target="_blank">CWE-89</a><br>
+    <b>File: </b><a href="backend/dao/vital_dao.py" target="_blank">backend/dao/vital_dao.py</a><br>
+    <b>Line number: </b>14<br>
+    <b>More info: </b><a href="https://bandit.readthedocs.io/en/1.8.6/plugins/b608_hardcoded_sql_expressions.html" target="_blank">https://bandit.readthedocs.io/en/1.8.6/plugins/b608_hardcoded_sql_expressions.html</a><br>
+
+<div class="code">
+<pre>
+13	        semester_constraint = &quot; = %s&quot; if session.get(&#x27;semester&#x27;) is not None else &quot; IS NULL&quot;
+14	        query = f&quot;&quot;&quot;
+15	            SELECT * FROM pressione
+16	            WHERE id_persona = %s AND id_semestre {semester_constraint}
+17	            ORDER BY anno DESC, mese_int DESC, giorno DESC
+18	        &quot;&quot;&quot;
+19	        
+</pre>
+</div>
+
+
+</div>
+</div>
+
+<div id="issue-20">
+<div class="issue-block issue-sev-medium">
+    <b>hardcoded_sql_expressions: </b> Possible SQL injection vector through string-based query construction.<br>
+    <b>Test ID:</b> B608<br>
+    <b>Severity: </b>MEDIUM<br>
+    <b>Confidence: </b>LOW<br>
+    <b>CWE: </b><a href="https://cwe.mitre.org/data/definitions/89.html" target="_blank">CWE-89</a><br>
+    <b>File: </b><a href="backend/dao/weight_dao.py" target="_blank">backend/dao/weight_dao.py</a><br>
+    <b>Line number: </b>14<br>
+    <b>More info: </b><a href="https://bandit.readthedocs.io/en/1.8.6/plugins/b608_hardcoded_sql_expressions.html" target="_blank">https://bandit.readthedocs.io/en/1.8.6/plugins/b608_hardcoded_sql_expressions.html</a><br>
+
+<div class="code">
+<pre>
+13	        semester_constraint = &quot; = %s&quot; if session.get(&#x27;semester&#x27;) is not None else &quot; IS NULL&quot;
+14	        query = f&quot;&quot;&quot;
+15	            SELECT * FROM peso
+16	            WHERE id_persona = %s AND id_semestre {semester_constraint}
+17	            ORDER BY anno DESC, mese_int DESC, giorno DESC
+18	        &quot;&quot;&quot;
+19	        
+</pre>
+</div>
+
+
+</div>
+</div>
+
+<div id="issue-21">
+<div class="issue-block issue-sev-medium">
+    <b>hardcoded_tmp_directory: </b> Probable insecure usage of temp file/directory.<br>
+    <b>Test ID:</b> B108<br>
+    <b>Severity: </b>MEDIUM<br>
+    <b>Confidence: </b>MEDIUM<br>
+    <b>CWE: </b><a href="https://cwe.mitre.org/data/definitions/377.html" target="_blank">CWE-377</a><br>
+    <b>File: </b><a href="backend/gunicorn.conf.py" target="_blank">backend/gunicorn.conf.py</a><br>
+    <b>Line number: </b>21<br>
+    <b>More info: </b><a href="https://bandit.readthedocs.io/en/1.8.6/plugins/b108_hardcoded_tmp_directory.html" target="_blank">https://bandit.readthedocs.io/en/1.8.6/plugins/b108_hardcoded_tmp_directory.html</a><br>
+
+<div class="code">
+<pre>
+20	# Logging
+21	accesslog = &quot;/tmp/gunicorn_access.log&quot;
+22	errorlog = &quot;/tmp/gunicorn_error.log&quot;
+</pre>
+</div>
+
+
+</div>
+</div>
+
+<div id="issue-22">
+<div class="issue-block issue-sev-medium">
+    <b>hardcoded_tmp_directory: </b> Probable insecure usage of temp file/directory.<br>
+    <b>Test ID:</b> B108<br>
+    <b>Severity: </b>MEDIUM<br>
+    <b>Confidence: </b>MEDIUM<br>
+    <b>CWE: </b><a href="https://cwe.mitre.org/data/definitions/377.html" target="_blank">CWE-377</a><br>
+    <b>File: </b><a href="backend/gunicorn.conf.py" target="_blank">backend/gunicorn.conf.py</a><br>
+    <b>Line number: </b>22<br>
+    <b>More info: </b><a href="https://bandit.readthedocs.io/en/1.8.6/plugins/b108_hardcoded_tmp_directory.html" target="_blank">https://bandit.readthedocs.io/en/1.8.6/plugins/b108_hardcoded_tmp_directory.html</a><br>
+
+<div class="code">
+<pre>
+21	accesslog = &quot;/tmp/gunicorn_access.log&quot;
+22	errorlog = &quot;/tmp/gunicorn_error.log&quot;
+23	loglevel = &quot;info&quot;
+</pre>
+</div>
+
+
+</div>
+</div>
+
+<div id="issue-23">
+<div class="issue-block issue-sev-medium">
+    <b>hardcoded_tmp_directory: </b> Probable insecure usage of temp file/directory.<br>
+    <b>Test ID:</b> B108<br>
+    <b>Severity: </b>MEDIUM<br>
+    <b>Confidence: </b>MEDIUM<br>
+    <b>CWE: </b><a href="https://cwe.mitre.org/data/definitions/377.html" target="_blank">CWE-377</a><br>
+    <b>File: </b><a href="backend/gunicorn.conf.py" target="_blank">backend/gunicorn.conf.py</a><br>
+    <b>Line number: </b>30<br>
+    <b>More info: </b><a href="https://bandit.readthedocs.io/en/1.8.6/plugins/b108_hardcoded_tmp_directory.html" target="_blank">https://bandit.readthedocs.io/en/1.8.6/plugins/b108_hardcoded_tmp_directory.html</a><br>
+
+<div class="code">
+<pre>
+29	daemon = False
+30	pidfile = &#x27;/tmp/cdd_legrigne.pid&#x27;
+31	user = &#x27;elia&#x27;
+</pre>
+</div>
+
+
+</div>
+</div>
+
+<div id="issue-24">
+<div class="issue-block issue-sev-low">
+    <b>hardcoded_password_string: </b> Possible hardcoded password: 'superSecret'<br>
+    <b>Test ID:</b> B105<br>
+    <b>Severity: </b>LOW<br>
+    <b>Confidence: </b>MEDIUM<br>
+    <b>CWE: </b><a href="https://cwe.mitre.org/data/definitions/259.html" target="_blank">CWE-259</a><br>
+    <b>File: </b><a href="backend/main.py" target="_blank">backend/main.py</a><br>
+    <b>Line number: </b>30<br>
+    <b>More info: </b><a href="https://bandit.readthedocs.io/en/1.8.6/plugins/b105_hardcoded_password_string.html" target="_blank">https://bandit.readthedocs.io/en/1.8.6/plugins/b105_hardcoded_password_string.html</a><br>
+
+<div class="code">
+<pre>
+29	    app = Flask(__name__)
+30	    app.secret_key = &quot;superSecret&quot;
+31	    app.permanent_session_lifetime = timedelta(minutes=30)
+</pre>
+</div>
+
+
+</div>
+</div>
+
+<div id="issue-25">
+<div class="issue-block issue-sev-high">
+    <b>flask_debug_true: </b> A Flask app appears to be run with debug=True, which exposes the Werkzeug debugger and allows the execution of arbitrary code.<br>
+    <b>Test ID:</b> B201<br>
+    <b>Severity: </b>HIGH<br>
+    <b>Confidence: </b>MEDIUM<br>
+    <b>CWE: </b><a href="https://cwe.mitre.org/data/definitions/94.html" target="_blank">CWE-94</a><br>
+    <b>File: </b><a href="backend/main.py" target="_blank">backend/main.py</a><br>
+    <b>Line number: </b>81<br>
+    <b>More info: </b><a href="https://bandit.readthedocs.io/en/1.8.6/plugins/b201_flask_debug_true.html" target="_blank">https://bandit.readthedocs.io/en/1.8.6/plugins/b201_flask_debug_true.html</a><br>
+
+<div class="code">
+<pre>
+80	if __name__ == &#x27;__main__&#x27;:
+81	    app.run(host=&#x27;0.0.0.0&#x27;, port=5000, debug=True)
+</pre>
+</div>
+
+
+</div>
+</div>
+
+<div id="issue-26">
+<div class="issue-block issue-sev-medium">
+    <b>hardcoded_bind_all_interfaces: </b> Possible binding to all interfaces.<br>
+    <b>Test ID:</b> B104<br>
+    <b>Severity: </b>MEDIUM<br>
+    <b>Confidence: </b>MEDIUM<br>
+    <b>CWE: </b><a href="https://cwe.mitre.org/data/definitions/605.html" target="_blank">CWE-605</a><br>
+    <b>File: </b><a href="backend/main.py" target="_blank">backend/main.py</a><br>
+    <b>Line number: </b>81<br>
+    <b>More info: </b><a href="https://bandit.readthedocs.io/en/1.8.6/plugins/b104_hardcoded_bind_all_interfaces.html" target="_blank">https://bandit.readthedocs.io/en/1.8.6/plugins/b104_hardcoded_bind_all_interfaces.html</a><br>
+
+<div class="code">
+<pre>
+80	if __name__ == &#x27;__main__&#x27;:
+81	    app.run(host=&#x27;0.0.0.0&#x27;, port=5000, debug=True)
+</pre>
+</div>
+
+
+</div>
+</div>
+
+<div id="issue-27">
+<div class="issue-block issue-sev-low">
+    <b>hardcoded_password_string: </b> Possible hardcoded password: 'password'<br>
+    <b>Test ID:</b> B105<br>
+    <b>Severity: </b>LOW<br>
+    <b>Confidence: </b>MEDIUM<br>
+    <b>CWE: </b><a href="https://cwe.mitre.org/data/definitions/259.html" target="_blank">CWE-259</a><br>
+    <b>File: </b><a href="backend/servlets/account_servlet.py" target="_blank">backend/servlets/account_servlet.py</a><br>
+    <b>Line number: </b>133<br>
+    <b>More info: </b><a href="https://bandit.readthedocs.io/en/1.8.6/plugins/b105_hardcoded_password_string.html" target="_blank">https://bandit.readthedocs.io/en/1.8.6/plugins/b105_hardcoded_password_string.html</a><br>
+
+<div class="code">
+<pre>
+132	
+133	    default_password = &#x27;password&#x27;
+134	    password_sha256 = hashlib.sha256(default_password.encode(&#x27;utf-8&#x27;)).hexdigest()
+</pre>
+</div>
+
+
+</div>
+</div>
+
+</div>
+
+</body>
+</html>

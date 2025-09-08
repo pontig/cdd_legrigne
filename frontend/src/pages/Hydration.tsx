@@ -118,7 +118,7 @@ const Hydration: React.FC = () => {
             icon: <FaPrint />,
           },
           {
-            title: "Modifica registrazione",
+            title: "Aggiorna",
             action: () => setEditMode(!editMode),
             icon: <FaPencilAlt />,
             disabled: semesterString !== null,
@@ -221,7 +221,7 @@ const Hydration: React.FC = () => {
         </table>
         {formIsShown && (
           <GenericForm
-            title={editingHydration ? "Modifica registrazione idratazione" : "Nuova registrazione idratazione"}
+            title={editingHydration ? "Aggiorna idratazione" : "Nuova registrazione idratazione"}
             closeForm={() => {
               setFormIsShown(false);
               setEditingHydration(null);

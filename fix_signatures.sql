@@ -4,7 +4,7 @@
 USE cdd_legrigne;
 
 # Elimina account duplicati ATTENZIONE: CAMBIARLI PER PRIMALUNA
-DELETE FROM account WHERE id = 20 OR id = 16 OR id = 17 OR id = 19 OR id = 21; 
+-- DELETE FROM account WHERE id = 20 OR id = 16 OR id = 17 OR id = 19 OR id = 21; 
 
 UPDATE diario a
 JOIN account acc 

@@ -139,7 +139,7 @@ const NewActivityForm: React.FC<NewActivityFormProps> = ({
           name="morning"
           id="morning-yes"
           value="yes"
-          defaultChecked={editData?.morning}
+          defaultChecked={editData ? editData.morning : true}
         />
         Mattino
       </label>
@@ -149,7 +149,7 @@ const NewActivityForm: React.FC<NewActivityFormProps> = ({
           name="morning"
           id="morning-no"
           value="no"
-          defaultChecked={!editData?.morning}
+          defaultChecked={editData ? !editData.morning : false}
         />
         Pomeriggio
       </label>
@@ -215,7 +215,7 @@ const NewActivityForm: React.FC<NewActivityFormProps> = ({
         >
           {arr_adesion.map((option, index) => (
             <option key={option} value={index + 1}>
-              {option}
+              {index + 1} - {option}
             </option>
           ))}
         </select>
@@ -228,7 +228,7 @@ const NewActivityForm: React.FC<NewActivityFormProps> = ({
         >
           {arr_participation.map((option, index) => (
             <option key={option} value={index + 1}>
-              {option}
+              {index + 1} - {option}
             </option>
           ))}
         </select>
@@ -238,7 +238,7 @@ const NewActivityForm: React.FC<NewActivityFormProps> = ({
         <select name="mood" defaultValue={editData?.mood || mostFrequentMood}>
           {arr_mood.map((option, index) => (
             <option key={option} value={index + 1}>
-              {option}
+              {index + 1} - {option}
             </option>
           ))}
         </select>
@@ -251,7 +251,7 @@ const NewActivityForm: React.FC<NewActivityFormProps> = ({
         >
           {arr_comunication.map((option, index) => (
             <option key={option} value={index + 1}>
-              {option}
+              {index + 1} - {option}
             </option>
           ))}
         </select>
