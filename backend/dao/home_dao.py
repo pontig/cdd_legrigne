@@ -8,9 +8,109 @@ from config.database import db_config
 class HomeDAO:
     """Data Access Object for Home operations"""
     
+    # def get_home_data(self) -> List[dict]:
+    #     # BUG: when a guest has activities on all weekdays, they don't appear
+    #     """Get data for the home page - optimized single query version"""
+    #     query = f"""
+    #         WITH RECURSIVE date_range AS (
+    #             SELECT CURDATE() - INTERVAL 6 DAY as date_val
+    #             UNION ALL
+    #             SELECT date_val + INTERVAL 1 DAY
+    #             FROM date_range
+    #             WHERE date_val < CURDATE()
+    #         ),
+    #         weekdays AS (
+    #             SELECT date_val,
+    #                 DAY(date_val) as giorno,
+    #                 MONTH(date_val) as mese_int,
+    #                 YEAR(date_val) as anno
+    #             FROM date_range
+    #             WHERE DAYOFWEEK(date_val) BETWEEN 2 AND 6
+    #         ),
+    #         guest_activities AS (
+    #             SELECT 
+    #                 p.id,
+    #                 p.nome,
+    #                 p.cognome,
+    #                 p.visibile,
+    #                 w.giorno,
+    #                 w.mese_int,
+    #                 w.anno,
+    #                 COALESCE(COUNT(pa.id_persona), 0) as activity_count
+    #             FROM persona p
+    #             CROSS JOIN weekdays w
+    #             LEFT JOIN partecipazione_attivita pa ON pa.id_persona = p.id
+    #                 AND pa.giorno = w.giorno 
+    #                 AND pa.mese_int = w.mese_int 
+    #                 AND pa.anno = w.anno
+    #             WHERE p.visibile = 1
+    #             GROUP BY p.id, p.nome, p.cognome, p.visibile, w.giorno, w.mese_int, w.anno
+    #             HAVING activity_count < 2
+    #         )
+    #         SELECT 
+    #             id,
+    #             nome,
+    #             cognome,
+    #             visibile,
+    #             giorno,
+    #             mese_int,
+    #             anno
+    #         FROM guest_activities
+    #         ORDER BY cognome, nome, anno DESC, mese_int DESC, giorno DESC
+    #     """
+        
+    #     connection = None
+    #     cursor = None
+        
+    #     try:
+    #         connection = db_config.get_connection()
+    #         cursor = connection.cursor()
+    #         cursor.execute(query)
+    #         results = cursor.fetchall()
+            
+    #         # Group results by guest
+    #         home_data = {}
+    #         for row in results:
+    #             guest_id = row[0]
+                
+    #             if guest_id not in home_data:
+    #                 home_data[guest_id] = {
+    #                     'id': row[0],
+    #                     'name': row[1],
+    #                     'surname': row[2], 
+    #                     'visible': row[3],
+    #                     'activities': []
+    #                 }
+                
+    #             # Add activity day to guest data
+    #             if row[4] is not None:  # Only add if there's an available day
+    #                 home_data[guest_id]['activities'].append({
+    #                     'day': row[4],
+    #                     'month_int': row[5],
+    #                     # 'year': row[6]
+    #                 })
+
+    #         return list(home_data.values())
+            
+    #     except Exception:
+    #         if connection:
+    #             connection.rollback()
+    #         return []
+    #     finally:
+    #         if cursor:
+    #             cursor.close()
+    #         if connection:
+    #             connection.close()
+        
     def get_home_data(self) -> List[dict]:
-        """Get data for the home page - optimized single query version"""
-        query = f"""
+        """Get data for the home page - split into multiple queries"""
+        persons_query = """
+            SELECT id, nome, cognome, visibile
+            FROM persona
+            WHERE visibile = 1
+        """
+
+        activities_query = """
             WITH RECURSIVE date_range AS (
                 SELECT CURDATE() - INTERVAL 6 DAY as date_val
                 UNION ALL
@@ -25,76 +125,61 @@ class HomeDAO:
                     YEAR(date_val) as anno
                 FROM date_range
                 WHERE DAYOFWEEK(date_val) BETWEEN 2 AND 6
-            ),
-            guest_activities AS (
-                SELECT 
-                    p.id,
-                    p.nome,
-                    p.cognome,
-                    p.visibile,
-                    w.giorno,
-                    w.mese_int,
-                    w.anno,
-                    COALESCE(COUNT(pa.id_persona), 0) as activity_count
-                FROM persona p
-                CROSS JOIN weekdays w
-                LEFT JOIN partecipazione_attivita pa ON pa.id_persona = p.id
-                    AND pa.giorno = w.giorno 
-                    AND pa.mese_int = w.mese_int 
-                    AND pa.anno = w.anno
-                WHERE p.visibile = 1
-                GROUP BY p.id, p.nome, p.cognome, p.visibile, w.giorno, w.mese_int, w.anno
-                HAVING activity_count < 2
             )
             SELECT 
-                id,
-                nome,
-                cognome,
-                visibile,
-                giorno,
-                mese_int,
-                anno
-            FROM guest_activities
-            ORDER BY cognome, nome, anno DESC, mese_int DESC, giorno DESC
+                w.giorno,
+                w.mese_int,
+                w.anno,
+                COALESCE(COUNT(pa.id_persona), 0) as activity_count
+            FROM weekdays w
+            LEFT JOIN partecipazione_attivita pa ON pa.id_persona = %s
+                AND pa.giorno = w.giorno 
+                AND pa.mese_int = w.mese_int 
+                AND pa.anno = w.anno
+            GROUP BY w.giorno, w.mese_int, w.anno
+            HAVING activity_count < 2
+            ORDER BY w.anno DESC, w.mese_int DESC, w.giorno DESC
         """
-        
+
         connection = None
         cursor = None
-        
+
         try:
             connection = db_config.get_connection()
             cursor = connection.cursor()
-            cursor.execute(query)
-            results = cursor.fetchall()
-            
-            # Group results by guest
-            home_data = {}
-            for row in results:
-                guest_id = row[0]
-                
-                if guest_id not in home_data:
-                    home_data[guest_id] = {
-                        'id': row[0],
-                        'name': row[1],
-                        'surname': row[2], 
-                        'visible': row[3],
-                        'activities': []
-                    }
-                
-                # Add activity day to guest data
-                if row[4] is not None:  # Only add if there's an available day
-                    home_data[guest_id]['activities'].append({
-                        'day': row[4],
-                        'month_int': row[5],
-                        # 'year': row[6]
+            cursor.execute(persons_query)
+            persons = cursor.fetchall()
+
+            home_data = []
+            for person in persons:
+                guest_id, nome, cognome, visibile = person
+
+                # Fetch activities for this person
+                cursor.execute(activities_query, (guest_id,))
+                activities = cursor.fetchall()
+                activity_list = []
+                for act in activities:
+                    giorno, mese_int, anno, _ = act
+                    activity_list.append({
+                        'day': giorno,
+                        'month_int': mese_int,
+                        # 'year': anno
                     })
 
-            return list(home_data.values())
-            
+                home_data.append({
+                    'id': guest_id,
+                    'name': nome,
+                    'surname': cognome,
+                    'visible': visibile,
+                    'activities': activity_list
+                })
+
+            return home_data
+
         except Exception as e:
             if connection:
                 connection.rollback()
-            # return str(e)
+            # Optionally log or handle the exception
 
         finally:
             if cursor:

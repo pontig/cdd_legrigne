@@ -183,7 +183,7 @@ class AccountDAO:
                 # User authenticated, proceed with backup
                 try:
                     # Try mysqldump first (more efficient)
-                    sql_backup = db_config.backup_database()
+                    sql_backup = db_config.backup_database_python()
                     return sql_backup
                 except Exception:
                     # Fallback to Python-based backup
