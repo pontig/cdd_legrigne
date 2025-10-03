@@ -331,7 +331,7 @@ const ProblemBehavior: React.FC = () => {
                                 today.getDate() - ((dayOfWeek + 7) % 7)
                               ); // Past Monday
                               const friday = new Date(monday);
-                              friday.setDate(monday.getDate() + 4); // Next Friday
+                              friday.setDate(monday.getDate() + 5); // Next Friday
 
                               const eventDate = new Date(record.date);
 
