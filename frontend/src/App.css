@@ -21,8 +21,8 @@ body {
   bottom: 0;
   left: 0;
   right: 0;
-  background-color: #ffffff22;
-  backdrop-filter: blur(5px);
+  background-color: #5c5c5c22;
+  backdrop-filter: blur(1px);
 }
 
 .main-container {
