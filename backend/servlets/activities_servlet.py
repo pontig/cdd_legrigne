@@ -5,7 +5,7 @@ Activities servlet, responsible for handling requests related to partecipazione_
 from flask import Blueprint, request, jsonify, session
 from config.check_session import check_session
 from dao.activities_dao import activities_dao
-from datetime import datetime
+from datetime import datetime, timedelta
 import io
 import base64
 import matplotlib
@@ -40,6 +40,10 @@ def get_activities():
         for activity in activities:
             try:
                 date_obj = datetime.strptime(activity['date'], '%Y-%m-%d')
+                # If your activity dict has a boolean or flag for morning
+                if not activity.get('morning', True):
+                    # Shift afternoon by 12 hours
+                    date_obj += timedelta(hours=12)
                 if activity['mood'] is None or activity['communication'] is None:
                     continue
                 dates.append(date_obj)

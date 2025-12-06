@@ -41,11 +41,15 @@ else
   echo "⏭️ Skipping frontend build (--backend flag specified)"
 fi
 
-# 3. Copy backend to server
-echo "📂 Copying backend to server..."
-scp -r backend/* ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_BACKEND_DIR}/
+# 3. Delete __pycache__ folders from remote backend
+echo "🧹 Deleting __pycache__ folders from remote backend..."
+ssh ${REMOTE_USER}@${REMOTE_HOST} "find ${REMOTE_BACKEND_DIR} -type d -name '__pycache__' -exec rm -rf {} + 2>/dev/null || true"
 
-# 4. Restart services on server
+# 4. Copy backend to server
+echo "📂 Copying backend to server..."
+rsync -av --exclude='__pycache__' backend/ ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_BACKEND_DIR}/
+
+# 5. Restart services on server
 echo "🔄 Restarting server services..."
 ssh ${REMOTE_USER}@${REMOTE_HOST} "
   # Restart backend service first
@@ -66,3 +70,10 @@ ssh ${REMOTE_USER}@${REMOTE_HOST} "
 "
 
 echo "✅ Deployment complete!"
+
+echo "🌐 Running curl to make it re-generate __pycache__ folders..."
+
+sleep 2
+curl http://${REMOTE_HOST}/api/ping
+
+echo "✅ Update remote script finished."
