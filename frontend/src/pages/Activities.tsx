@@ -420,11 +420,17 @@ const Activities: React.FC = () => {
             }}
           >
             <NewActivityForm
+              // DEPRECATED. Now these values are always fixed when opening the form
+              // editData={editingActivity || undefined}
+              // mostFrequentAdesion={mostFrequentAdesion}
+              // mostFrequentParticipation={mostFrequentParticipation}
+              // mostFrequentMood={mostFrequentMood}
+              // mostFrequentCommunication={mostFrequentCommunication}
               editData={editingActivity || undefined}
-              mostFrequentAdesion={mostFrequentAdesion}
-              mostFrequentParticipation={mostFrequentParticipation}
-              mostFrequentMood={mostFrequentMood}
-              mostFrequentCommunication={mostFrequentCommunication}
+              mostFrequentAdesion={2}
+              mostFrequentParticipation={4}
+              mostFrequentMood={3}
+              mostFrequentCommunication={2}
               missingDate={
                 location.state.missing_activity
                   ? missingActivityDate
